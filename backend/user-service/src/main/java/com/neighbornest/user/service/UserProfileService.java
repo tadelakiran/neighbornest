@@ -1,0 +1,289 @@
+package com.neighbornest.user.service;
+
+import com.neighbornest.user.client.AuthServiceClient;
+import com.neighbornest.user.dto.request.ProfileCreateRequest;
+import com.neighbornest.user.dto.request.ProfileUpdateRequest;
+import com.neighbornest.user.dto.response.AuthValidationResponse;
+import com.neighbornest.user.dto.response.OnboardingStatusResponse;
+import com.neighbornest.user.dto.response.ProfileResponse;
+import com.neighbornest.user.dto.response.UserMatchResponse;
+import com.neighbornest.user.entity.UserProfile;
+import com.neighbornest.user.entity.UserRole;
+import com.neighbornest.user.exception.BadRequestException;
+import com.neighbornest.user.exception.DuplicateProfileException;
+import com.neighbornest.user.exception.ResourceNotFoundException;
+import com.neighbornest.user.repository.OnboardingAnswerRepository;
+import com.neighbornest.user.repository.UserProfileRepository;
+import com.neighbornest.user.util.UserProfileMapper;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+/**
+ * Service handling user profile lifecycle operations.
+ * <p>
+ * Creates, reads and updates {@link UserProfile} entities, resolves the
+ * current user from the authenticated JWT, and exposes match-ready data for
+ * the matching-service. Confirms token ownership with the auth-service via
+ * Feign when required.
+ * </p>
+ *
+ * @author NeighborNest Team
+ * @version 1.0.0
+ */
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class UserProfileService {
+
+    private final UserProfileRepository userProfileRepository;
+    private final OnboardingAnswerRepository onboardingAnswerRepository;
+    private final AuthServiceClient authServiceClient;
+    private final UserProfileMapper userProfileMapper;
+
+    /**
+     * Creates a new profile for the authenticated user.
+     * <p>
+     * The {@code authUserId} is taken from the validated JWT (never from the
+     * request body), then ownership is optionally confirmed with the
+     * auth-service via Feign.
+     * </p>
+     *
+     * @param authUserId the auth-service user ID from the JWT
+     * @param token      the raw Bearer token used to confirm ownership
+     * @param request    the profile creation request
+     * @return the created profile as a {@link ProfileResponse}
+     * @throws DuplicateProfileException if a profile already exists for the user
+     */
+    @Transactional
+    public ProfileResponse createProfile(final Long authUserId, final String token, final ProfileCreateRequest request) {
+        log.info("Creating profile for authUserId: {}", authUserId);
+
+        if (userProfileRepository.existsByAuthUserId(authUserId)) {
+            log.warn("Profile creation failed: profile already exists for authUserId {}", authUserId);
+            throw new DuplicateProfileException("A profile already exists for this user");
+        }
+
+        confirmTokenOwnership(token, authUserId);
+
+        final UserProfile profile = UserProfile.builder()
+                .authUserId(authUserId)
+                .fullName(request.getFullName().trim())
+                .profilePhotoUrl(request.getProfilePhotoUrl())
+                .city(request.getCity().trim())
+                .neighborhood(request.getNeighborhood())
+                .yearsInCity(request.getYearsInCity())
+                .occupation(request.getOccupation())
+                .role(request.getRole() != null ? request.getRole() : UserRole.NEWCOMER)
+                .build();
+
+        final UserProfile saved = userProfileRepository.save(profile);
+        log.info("Profile created successfully with id: {}", saved.getId());
+
+        return userProfileMapper.toProfileResponse(saved, List.of());
+    }
+
+    /**
+     * Returns the full profile of the authenticated user with onboarding answers.
+     *
+     * @param authUserId the auth-service user ID from the JWT
+     * @return the profile as a {@link ProfileResponse}
+     * @throws ResourceNotFoundException if no profile exists for the user
+     */
+    @Transactional(readOnly = true)
+    public ProfileResponse getCurrentProfile(final Long authUserId) {
+        final UserProfile profile = findProfileByAuthUserId(authUserId);
+        return toResponseWithAnswers(profile);
+    }
+
+    /**
+     * Updates the profile fields of the authenticated user.
+     *
+     * @param authUserId the auth-service user ID from the JWT
+     * @param request    the partial update request
+     * @return the updated profile as a {@link ProfileResponse}
+     */
+    @Transactional
+    public ProfileResponse updateProfile(final Long authUserId, final ProfileUpdateRequest request) {
+        final UserProfile profile = findProfileByAuthUserId(authUserId);
+        applyUpdates(profile, request);
+        final UserProfile saved = userProfileRepository.save(profile);
+        log.info("Profile updated for authUserId: {}", authUserId);
+        return toResponseWithAnswers(saved);
+    }
+
+    /**
+     * Returns the public profile view of another user (used by Nest members).
+     *
+     * @param profileId the profile ID of the target user
+     * @return the profile as a {@link ProfileResponse}
+     * @throws ResourceNotFoundException if the profile does not exist
+     */
+    @Transactional(readOnly = true)
+    public ProfileResponse getPublicProfile(final Long profileId) {
+        final UserProfile profile = userProfileRepository.findById(profileId)
+                .orElseThrow(() -> new ResourceNotFoundException("Profile not found with id: " + profileId));
+        return toResponseWithAnswers(profile);
+    }
+
+    /**
+     * Returns the onboarding completion status for the authenticated user.
+     *
+     * @param authUserId the auth-service user ID from the JWT
+     * @return the onboarding status DTO
+     */
+    @Transactional(readOnly = true)
+    public OnboardingStatusResponse getOnboardingStatus(final Long authUserId) {
+        final UserProfile profile = findProfileByAuthUserId(authUserId);
+        final long answerCount = onboardingAnswerRepository.findByUserProfileIdOrderByQuestionKeyAsc(profile.getId()).size();
+
+        return OnboardingStatusResponse.builder()
+                .isOnboarded(profile.isOnboarded())
+                .answerCount(answerCount)
+                .build();
+    }
+
+    /**
+     * Lists all users ready for matching (onboarded, with complete data).
+     *
+     * @return list of {@link UserMatchResponse} DTOs
+     */
+    @Transactional(readOnly = true)
+    public List<UserMatchResponse> getReadyForMatch() {
+        return userProfileRepository.findAllReadyForMatch().stream()
+                .map(this::toMatchResponseWithAnswers)
+                .toList();
+    }
+
+    /**
+     * Finds a profile by auth-service user ID.
+     *
+     * @param authUserId the auth-service user ID
+     * @return the matching profile
+     * @throws ResourceNotFoundException if not found
+     */
+    private UserProfile findProfileByAuthUserId(final Long authUserId) {
+        return userProfileRepository.findByAuthUserId(authUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("Profile not found for user id: " + authUserId));
+    }
+
+    /**
+     * Best-effort confirmation of token ownership with the auth-service.
+     * <p>
+     * The JWT is already validated locally by the security filter, so a
+     * failed or unavailable confirmation (e.g. auth-service is down or the
+     * validate endpoint is not yet deployed) only logs a warning instead of
+     * blocking the request. This keeps the flow resilient during partial
+     * deployments while still performing the check when the service is up.
+     * </p>
+     *
+     * @param token      the raw Bearer token
+     * @param authUserId the claimed user ID
+     */
+    private void confirmTokenOwnership(final String token, final Long authUserId) {
+        if (token == null || token.isBlank()) {
+            throw new BadRequestException("Authorization token is required");
+        }
+
+        // The auth-service fallback factory returns a 503 ResponseEntity when
+        // the service is down, so an error status simply logs a warning while
+        // the locally-validated JWT continues to authorize the request.
+        final ResponseEntity<AuthValidationResponse> response =
+                authServiceClient.validateToken(stripBearerPrefix(token));
+
+        if (response.getStatusCode().isError()
+                || response.getBody() == null
+                || !response.getBody().isValid()) {
+            log.warn("Auth-service could not confirm token ownership; continuing with locally-validated JWT");
+            return;
+        }
+
+        if (!authUserId.equals(response.getBody().getUserId())) {
+            throw new BadRequestException("Token does not belong to the authenticated user");
+        }
+    }
+
+    /**
+     * Strips the {@code Bearer } prefix from an Authorization header value so
+     * only the raw JWT is sent to the auth-service validation endpoint.
+     *
+     * @param authHeader the Authorization header value
+     * @return the bare JWT token
+     */
+    private String stripBearerPrefix(final String authHeader) {
+        return authHeader.startsWith("Bearer ") ? authHeader.substring("Bearer ".length()) : authHeader;
+    }
+
+    /**
+     * Applies a partial update request onto an existing profile.
+     *
+     * @param profile the profile to update
+     * @param request the update request
+     */
+    private void applyUpdates(final UserProfile profile, final ProfileUpdateRequest request) {
+        if (request.getFullName() != null) {
+            profile.setFullName(request.getFullName().trim());
+        }
+        if (request.getProfilePhotoUrl() != null) {
+            profile.setProfilePhotoUrl(request.getProfilePhotoUrl());
+        }
+        if (request.getCity() != null) {
+            profile.setCity(request.getCity().trim());
+        }
+        if (request.getNeighborhood() != null) {
+            profile.setNeighborhood(request.getNeighborhood());
+        }
+        if (request.getYearsInCity() != null) {
+            profile.setYearsInCity(request.getYearsInCity());
+        }
+        if (request.getOccupation() != null) {
+            profile.setOccupation(request.getOccupation());
+        }
+        if (request.getWorkType() != null) {
+            profile.setWorkType(request.getWorkType());
+        }
+        if (request.getPersonalityType() != null) {
+            profile.setPersonalityType(request.getPersonalityType());
+        }
+        if (request.getSchedulePreference() != null) {
+            profile.setSchedulePreference(request.getSchedulePreference());
+        }
+        if (request.getSocialGoal() != null) {
+            profile.setSocialGoal(request.getSocialGoal());
+        }
+        if (request.getBudgetLevel() != null) {
+            profile.setBudgetLevel(request.getBudgetLevel());
+        }
+        if (request.getRole() != null) {
+            profile.setRole(request.getRole());
+        }
+    }
+
+    /**
+     * Builds a full profile response including onboarding answers.
+     *
+     * @param profile the profile entity
+     * @return the response DTO
+     */
+    private ProfileResponse toResponseWithAnswers(final UserProfile profile) {
+        return userProfileMapper.toProfileResponse(
+                profile,
+                onboardingAnswerRepository.findByUserProfileIdOrderByQuestionKeyAsc(profile.getId()));
+    }
+
+    /**
+     * Builds a lightweight match response including onboarding answers.
+     *
+     * @param profile the profile entity
+     * @return the match DTO
+     */
+    private UserMatchResponse toMatchResponseWithAnswers(final UserProfile profile) {
+        return userProfileMapper.toMatchResponse(
+                profile,
+                onboardingAnswerRepository.findByUserProfileIdOrderByQuestionKeyAsc(profile.getId()));
+    }
+}

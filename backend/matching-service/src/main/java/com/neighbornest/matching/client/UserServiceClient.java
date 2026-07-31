@@ -1,0 +1,40 @@
+package com.neighbornest.matching.client;
+
+import com.neighbornest.matching.client.dto.UserCityDto;
+import com.neighbornest.matching.client.dto.UserMatchDto;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
+import java.util.List;
+
+/**
+ * Feign client for communicating with the user-service.
+ * <p>
+ * Fetches eligible (match-ready) users and their onboarding data. Falls back
+ * via {@link UserServiceClientFallbackFactory} when the user-service is down.
+ * </p>
+ *
+ * @author NeighborNest Team
+ * @version 1.0.0
+ */
+@FeignClient(name = "user-service", fallbackFactory = UserServiceClientFallbackFactory.class)
+public interface UserServiceClient {
+
+    /**
+     * Fetches all users ready for matching.
+     *
+     * @return the list of match-ready user DTOs
+     */
+    @GetMapping("/api/users/ready-for-match")
+    List<UserMatchDto> getReadyForMatch();
+
+    /**
+     * Fetches a single user's city for Nest formation.
+     *
+     * @param userId the user profile ID
+     * @return the user's city
+     */
+    @GetMapping("/api/users/{userId}/profile")
+    UserCityDto getUserCity(@PathVariable("userId") Long userId);
+}
