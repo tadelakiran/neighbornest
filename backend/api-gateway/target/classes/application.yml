@@ -8,14 +8,44 @@ spring:
     gateway:
       routes:
         - id: auth-service
-          uri: lb://auth-service
+          uri: lb://AUTH-SERVICE
           predicates:
-            - Path=/api/auth/**, /api/users/**
+            - Path=/api/auth/**
           filters:
             - name: CircuitBreaker
               args:
                 name: authServiceCircuitBreaker
                 fallbackUri: forward:/fallback/auth
+
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/api/users/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: userServiceCircuitBreaker
+                fallbackUri: forward:/fallback/user
+
+        - id: matching-service
+          uri: lb://MATCHING-SERVICE
+          predicates:
+            - Path=/api/matching/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: matchingServiceCircuitBreaker
+                fallbackUri: forward:/fallback/matching
+
+        - id: nest-service
+          uri: lb://NEST-SERVICE
+          predicates:
+            - Path=/api/nests/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: nestServiceCircuitBreaker
+                fallbackUri: forward:/fallback/nest
 
       default-filters:
         - DedupeResponseHeader=Access-Control-Allow-Origin
@@ -29,7 +59,7 @@ eureka:
   instance:
     prefer-ip-address: true
 
-# JWT configuration shared with auth service
+# JWT configuration shared with all services
 app:
   jwt:
     secret: ${JWT_SECRET:VGhpcyBpcyBhIHNlY3JldCBrZXkgZm9yIE5laWdoYm9yTmVzdCBKV1QgdG9rZW4gc2lnbmluZyAtIGRldmVsb3BtZW50IG9ubHk=}

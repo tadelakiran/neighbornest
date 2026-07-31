@@ -1,0 +1,8 @@
+com\neighbornest\matching\service\ScoringEngineTest$InterestTests.class
+com\neighbornest\matching\service\MatchingAlgorithmServiceTest$CompatiblesTests.class
+com\neighbornest\matching\service\ScoringEngineTest$ValuesTests.class
+com\neighbornest\matching\service\ScoringEngineTest$DealbreakerTests.class
+com\neighbornest\matching\service\MatchingAlgorithmServiceTest$CalculateTests.class
+com\neighbornest\matching\service\ScoringEngineTest.class
+com\neighbornest\matching\service\MatchingAlgorithmServiceTest.class
+com\neighbornest\matching\service\ScoringEngineTest$LifestyleTests.class

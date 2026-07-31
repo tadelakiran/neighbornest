@@ -23,6 +23,9 @@
         <module>eureka-service</module>
         <module>api-gateway</module>
         <module>auth-service</module>
+        <module>user-service</module>
+        <module>matching-service</module>
+        <module>nest-service</module>
     </modules>
 
     <properties>
@@ -31,17 +34,38 @@
         <jjwt.version>0.12.6</jjwt.version>
         <springdoc.version>2.8.6</springdoc.version>
         <lombok.version>1.18.40</lombok.version>
-        <mockito.version>5.16.1</mockito.version>
+        <!-- The build runs on JDK 25 while targeting Java 17. Mockito 5.17.0+
+             and ByteBuddy 1.17.x are required for Java 25 class-file support
+             (the Spring Boot 3.4.4 BOM defaults pin older versions). -->
+        <mockito.version>5.17.0</mockito.version>
+        <byte-buddy.version>1.17.5</byte-buddy.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <!--
+              Imported BOMs provide the versions for the following artifacts,
+              so modules may declare them WITHOUT a version:
+                - spring-cloud-starter-openfeign
+                - spring-cloud-starter-netflix-eureka-client
+                - spring-cloud-starter-circuitbreaker-resilience4j
+                (managed by spring-cloud-dependencies)
+                - spring-boot-starter-amqp
+                - mysql-connector-j
+                (managed by spring-boot-dependencies)
+            -->
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
                 <version>${spring-cloud.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <!-- OpenAPI / Swagger -->
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+                <version>${springdoc.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.jsonwebtoken</groupId>
