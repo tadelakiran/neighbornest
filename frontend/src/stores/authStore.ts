@@ -49,14 +49,17 @@ interface AuthState {
   clearAuth: () => void;
   /** Fetches the current user profile from `GET /api/users/me`. */
   fetchUser: () => Promise<void>;
+  /** Marks the persisted user as onboarded (called after onboarding completes). */
+  markOnboarded: () => void;
 }
 
 /**
  * Authentication store — source of truth for the user session.
  *
  * - `setAuth` is called after login and after every successful token refresh.
- * - `fetchUser` populates `user`; a 404 (profile not created yet, Module 2)
- *   is tolerated silently so the shell still works after registration.
+ * - `fetchUser` populates `user`; a 404 (profile not created yet) is tolerated
+ *   silently so the shell still works after registration.
+ * - `markOnboarded` flips `user.isOnboarded` to true after the wizard finishes.
  */
 export const useAuthStore = create<AuthState>()(
   persist(
@@ -92,6 +95,13 @@ export const useAuthStore = create<AuthState>()(
             useToastStore.getState().addToast(getErrorMessage(error), 'error');
           }
           set({ isLoading: false });
+        }
+      },
+
+      markOnboarded: () => {
+        const { user } = get();
+        if (user) {
+          set({ user: { ...user, isOnboarded: true } });
         }
       },
     }),

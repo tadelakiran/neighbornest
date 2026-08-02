@@ -17,6 +17,8 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   fullWidth?: boolean;
   /** Optional icon rendered before the label. */
   leftIcon?: ReactNode;
+  /** Optional icon rendered after the label. */
+  rightIcon?: ReactNode;
 }
 
 /** Base classes shared by every variant. */
@@ -54,6 +56,7 @@ export function Button({
   isLoading = false,
   fullWidth = false,
   leftIcon,
+  rightIcon,
   className,
   children,
   disabled,
@@ -75,6 +78,7 @@ export function Button({
     >
       {isLoading ? <Spinner size="sm" className="text-current opacity-80" /> : leftIcon}
       {children}
+      {!isLoading && rightIcon}
     </button>
   );
 }

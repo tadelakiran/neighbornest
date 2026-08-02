@@ -26,10 +26,16 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply rounded-full bg-slate-700;
+    @apply rounded-full bg-emerald-900/70;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-slate-600;
+    @apply bg-emerald-700/80;
+  }
+
+  /* Firefox scrollbar */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #065f46 #0f172a;
   }
 }

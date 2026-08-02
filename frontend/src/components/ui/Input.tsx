@@ -1,4 +1,5 @@
 import { forwardRef, type InputHTMLAttributes, type ReactNode } from 'react';
+import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
@@ -60,9 +61,16 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
       </div>
 
       {error ? (
-        <p className="mt-1.5 text-xs font-medium text-rose-400" role="alert">
+        <motion.p
+          key={error}
+          className="mt-1.5 text-xs font-medium text-rose-400"
+          role="alert"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1, x: [0, -6, 6, -3, 3, 0] }}
+          transition={{ duration: 0.45, ease: 'easeOut' }}
+        >
           {error}
-        </p>
+        </motion.p>
       ) : hint ? (
         <p className="mt-1.5 text-xs text-slate-500">{hint}</p>
       ) : null}
