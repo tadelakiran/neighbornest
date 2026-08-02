@@ -49,6 +49,19 @@ export function getErrorMessage(error: unknown, fallback = 'Something went wrong
 }
 
 /**
+ * Formats an ISO date string into a short human-readable date (e.g. "Jan 2025").
+ *
+ * @param iso - ISO 8601 timestamp or null
+ * @returns a short month-year string, or "—" when missing/invalid
+ */
+export function formatDate(iso?: string | null): string {
+  if (!iso) return '—';
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return '—';
+  return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short' });
+}
+
+/**
  * Derives up to two initials from a person's full name for avatar fallbacks.
  *
  * @param name - the person's full name (may be null/undefined)

@@ -1,8 +1,11 @@
-import { Building2, MessageSquare, Sparkles, Users } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowRight, Building2, MessageSquare, Sparkles, Users } from 'lucide-react';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { useAuth } from '@/hooks/useAuth';
+import { ROUTES } from '@/lib/constants';
 
 /** Placeholder stat cards for future modules. */
 const STATS = [
@@ -17,9 +20,30 @@ const STATS = [
  */
 export function DashboardPage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <div className="space-y-8">
+      {/* Onboarding CTA when the profile is still pending */}
+      {!user?.isOnboarded && (
+        <Card className="border-emerald-500/25 bg-gradient-to-r from-emerald-950/60 to-slate-800/60">
+          <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+            <div>
+              <h2 className="text-lg font-semibold text-white">Finish your onboarding</h2>
+              <p className="mt-1 text-sm text-slate-400">
+                Tell us about yourself so we can match you into the perfect Nest.
+              </p>
+            </div>
+            <Button
+              onClick={() => navigate(ROUTES.ONBOARDING)}
+              rightIcon={<ArrowRight className="h-4 w-4" aria-hidden="true" />}
+            >
+              Complete onboarding
+            </Button>
+          </div>
+        </Card>
+      )}
+
       {/* Welcome header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">

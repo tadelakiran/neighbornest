@@ -1,11 +1,15 @@
-# 🏘️ NeighborNest — Frontend (Module 1: Authentication & Core Shell)
+# 🏘️ NeighborNest — Frontend (Modules 1 & 2: Auth · Onboarding · Profile)
 
 The React + TypeScript frontend for **NeighborNest** — a platform that matches newcomers in a city
 into small curated groups (*Nests*) with local *Anchors*.
 
-This module delivers the **Authentication & Core Shell**: login/register, JWT handling with
+**Module 1** delivered the **Authentication & Core Shell**: login/register, JWT handling with
 automatic refresh, the post-login app shell (navbar + sidebar), toasts, routing guards, and the
-404/error surfaces. Dashboard, Profile, My Nest, and Messages are placeholders for later modules.
+404/error surfaces.
+
+**Module 2** delivered the **Onboarding & Profile** experience: an animated 7-step onboarding
+wizard (with draft auto-save and resume), a full profile dashboard with an edit slide-over,
+settings, and the Anchor application flow.
 
 ## 🧱 Tech Stack
 
@@ -18,6 +22,7 @@ automatic refresh, the post-login app shell (navbar + sidebar), toasts, routing 
 | HTTP             | Axios (interceptors for auth + refresh)          |
 | State            | Zustand 4 (auth store + toast store)             |
 | Forms            | React Hook Form + Zod validation                 |
+| Animations       | Framer Motion (page transitions, stagger, spring)| 
 | Icons            | Lucide React (no FontAwesome, no shadcn/ui)      |
 
 ## 🚀 Quick Start
@@ -76,15 +81,17 @@ token is stored under a dedicated key (`neighbornest.refreshToken`).
 ```
 src/
 ├── components/
-│   ├── ui/            # Button, Input, Card, Badge, Avatar, Spinner, Toast
+│   ├── ui/            # Button, Input, Card, Badge, Avatar, Spinner, Toast, Toggle, Textarea, Select, Modal, StepCard, FieldError
 │   ├── layout/        # Navbar, Sidebar, AppLayout, PublicLayout
-│   └── auth/          # LoginForm, RegisterForm
-├── pages/             # Login, Register, Dashboard, Profile, NotFound, ComingSoon
-├── hooks/             # useAuth, useToast
+│   ├── auth/          # LoginForm, RegisterForm
+│   ├── onboarding/    # OnboardingWizard, StepIndicator, 7 wizard steps
+│   └── profile/       # ProfileHeader, ProfileTabs, ProfileInfoTab, EditProfilePanel, SettingsTab, AnchorApplicationForm, TagInput, MyNestsPlaceholder
+├── pages/             # Login, Register, Onboarding, Dashboard, Profile, NotFound, ComingSoon
+├── hooks/             # useAuth, useToast, useProfile, useOnboardingDraft
 ├── stores/            # authStore (persisted), toastStore
-├── services/          # api.ts (axios + interceptors), authService.ts
-├── types/             # auth.types.ts (wire-accurate API contracts)
-├── lib/               # utils.ts (cn, getErrorMessage), constants.ts
+├── services/          # api.ts (axios + interceptors), authService.ts, userService.ts
+├── types/             # auth.types.ts, user.types.ts (wire-accurate API contracts)
+├── lib/               # utils.ts (cn, getErrorMessage), constants.ts, onboarding.ts, motion.ts
 └── router/            # AppRouter, ProtectedRoute
 ```
 
@@ -104,10 +111,42 @@ Notes baked into the types:
 
 - `GET /api/users/me` (user-service) does **not** return `email`; `User.email` is therefore
   optional and only populated from the registration response.
-- A 404 from `/api/users/me` means the profile hasn't been created yet (Module 2) — the shell
-  tolerates it silently.
+- A 404 from `/api/users/me` means the profile hasn't been created yet — the shell tolerates it
+  silently.
 - The password rule (uppercase + lowercase + digit + special) mirrors the backend `@Pattern`
   validation exactly (`PASSWORD_REGEX` in `src/lib/constants.ts`).
+
+### Module 2 — user-service contracts
+
+| Endpoint | Body (camelCase) | Response (snake_case) |
+| -------- | ---------------- | --------------------- |
+| `POST /api/users/profile` | `{ fullName, city, neighborhood?, yearsInCity?, occupation? }` | profile object |
+| `GET /api/users/me` | — | profile + `onboarding_answers` |
+| `PUT /api/users/me` | partial `{ fullName?, city?, workType?, personalityType?, … }` | profile object |
+| `POST /api/users/onboarding` | `{ answers: [{ questionKey, answerValue, weight }] }` | profile object |
+| `GET /api/users/onboarding/status` | — | `{ onboarded, answerCount }` |
+| `POST /api/users/anchor-apply` | `{ yearsInCity, neighborhoodsKnown: string[], … }` | application object |
+
+- Enum values (work type, personality, schedule, social goal, budget) **must match the backend**
+  exactly (e.g. `FULL_TIME`, `AMBIVERT`, `EARLY_BIRD`, `FRIENDSHIP`, `MEDIUM`).
+- Onboarding answers use `values_*` keys (1-5 rating, weight = rating) and `interest_<slug>` keys
+  (weight 2) — the matching-service scoring engine consumes both.
+- Anchor tag lists are sent as **comma-joined strings** (the arrays are joined in `userService`).
+
+## ✨ Module 2 — Onboarding & Profile
+
+- **Onboarding wizard (`/onboarding`)**: 7 animated steps (Welcome → Basic Info → Personality →
+  Interests → Lifestyle → Review → Done) with a progress stepper, direction-aware slide
+  transitions, staggered form fields, per-step Zod validation, a celebration screen with confetti,
+  and **draft auto-save** to localStorage (`neighbornest.onboarding.draft`) so a refresh resumes
+  exactly where you left off.
+- **Profile dashboard (`/profile`)**: sticky identity card with color-coded role badge, tabbed
+  content (Info / My Nests / Settings), read-only onboarding data grouped by category, and an
+  **Edit Profile slide-over** with optimistic updates + rollback.
+- **Anchor application (`/profile/anchor-apply`)**: newcomers can apply to become local Anchors
+  with a tag input for neighborhoods/languages and a pending-review success modal.
+- **Settings**: notification toggles (localStorage), change-password form, and a delete-account
+  danger zone — password change and deletion are UI-only until the backend endpoints land.
 
 ## 🎨 Design System
 
@@ -119,22 +158,23 @@ Notes baked into the types:
 
 ## 🧭 Routes
 
-| Path         | Guard   | Page                         |
-| ------------ | ------- | ---------------------------- |
-| `/login`     | public  | Login                        |
-| `/register`  | public  | Register                     |
-| `/dashboard` | private | Dashboard placeholder (M3)   |
-| `/profile`   | private | Profile placeholder (M2)     |
-| `/my-nest`   | private | Coming soon (M3)             |
-| `/messages`  | private | Coming soon (M4)             |
-| `*`          | —       | 404 page                     |
+| Path                    | Guard   | Page                             |
+| ----------------------- | ------- | -------------------------------- |
+| `/login`                | public  | Login                            |
+| `/register`             | public  | Register                         |
+| `/onboarding`           | private | 7-step onboarding wizard         |
+| `/dashboard`            | private | Dashboard placeholder (M3)       |
+| `/profile`              | private | Profile dashboard (M2)           |
+| `/profile/anchor-apply` | private | Anchor application (NEWCOMER only) |
+| `/my-nest`              | private | Coming soon (M3)                 |
+| `/messages`             | private | Coming soon (M4)                 |
+| `*`                     | —       | 404 page                         |
 
 `ProtectedRoute` redirects unauthenticated users to `/login` while remembering the intended URL in
 router location state; after login the user is returned there.
 
 ## 🧩 What's Next (later modules)
 
-- **Module 2** — Profile creation & onboarding (answers, lifestyle preferences)
 - **Module 3** — Nests, matching, proposals
-- **Module 4** — Messaging
+- **Module 4** — Nest home, members & messaging
 - **Module 5** — City events & activities

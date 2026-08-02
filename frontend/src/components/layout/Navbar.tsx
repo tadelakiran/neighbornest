@@ -58,8 +58,8 @@ export function Navbar({ onMenuClick }: NavbarProps) {
 
   const handleSettings = useCallback(() => {
     setMenuOpen(false);
-    toast.info('Settings are coming in a future module.');
-  }, [toast]);
+    navigate(`${ROUTES.PROFILE}?tab=settings`);
+  }, [navigate]);
 
   const userLabel = user?.fullName ?? 'My Account';
 
