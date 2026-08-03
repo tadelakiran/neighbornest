@@ -1,4 +1,4 @@
-import { api } from '@/services/api';
+import { api, cachedGet } from '@/services/api';
 import type {
   AuthResponse,
   AuthUserResponse,
@@ -78,9 +78,12 @@ export const authService = {
     await api.post('/api/auth/logout', payload ?? {});
   },
 
-  /** GET /api/users/me — returns the current user's profile. */
+  /**
+   * GET /api/users/me — returns the current user's profile.
+   * Shares the 30s cache with userService.getMyProfile (same endpoint), so the
+   * app shell never double-fetches the profile on mount.
+   */
   async getMe(): Promise<ProfileResponse> {
-    const { data } = await api.get<ProfileResponse>('/api/users/me');
-    return data;
+    return cachedGet<ProfileResponse>('/api/users/me');
   },
 };

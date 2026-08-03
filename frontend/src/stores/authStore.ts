@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { authService, mapProfileToUser } from '@/services/authService';
+import { clearCache } from '@/services/api';
 import { REFRESH_TOKEN_STORAGE_KEY } from '@/lib/constants';
 import { useToastStore } from '@/stores/toastStore';
 import { getErrorMessage } from '@/lib/utils';
@@ -71,6 +72,8 @@ export const useAuthStore = create<AuthState>()(
 
       setAuth: (response, user) => {
         setStoredRefreshToken(response.refresh_token);
+        // Never reuse cached API responses from a previous session/user.
+        clearCache();
         set({
           accessToken: response.access_token,
           isAuthenticated: true,
@@ -80,6 +83,8 @@ export const useAuthStore = create<AuthState>()(
 
       clearAuth: () => {
         setStoredRefreshToken(null);
+        // Drop cached responses so the next session never reads stale/foreign data.
+        clearCache();
         set({ user: null, accessToken: null, isAuthenticated: false, isLoading: false });
       },
 

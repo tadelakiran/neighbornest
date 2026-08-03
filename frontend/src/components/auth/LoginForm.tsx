@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -18,13 +18,21 @@ const loginSchema = z.object({
 /** Values produced by the login form. */
 type LoginFormValues = z.infer<typeof loginSchema>;
 
+/** Location state that carries the email from a completed registration. */
+interface LocationState {
+  registeredEmail?: string;
+}
+
 /**
  * Login form with client-side validation, password visibility toggle, and a
  * loading state. On success the auth hook stores the session and redirects.
+ * When arriving from a successful registration, the email is prefilled.
  */
 export function LoginForm() {
   const { login } = useAuth();
+  const location = useLocation();
   const [showPassword, setShowPassword] = useState(false);
+  const registeredEmail = (location.state as LocationState | null)?.registeredEmail ?? '';
 
   const {
     register,
@@ -32,7 +40,7 @@ export function LoginForm() {
     formState: { errors, isSubmitting },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: '', password: '' },
+    defaultValues: { email: registeredEmail, password: '' },
   });
 
   const onSubmit = handleSubmit(async (values) => {

@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { NavLink } from 'react-router-dom';
 import { Home, LayoutDashboard, MessageSquare, User as UserIcon, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -31,8 +32,9 @@ interface SidebarProps {
  * Left navigation sidebar.
  * - Desktop: static, pinned below the navbar (main content offsets with lg:pl-64).
  * - Mobile: slide-over drawer with a backdrop overlay.
+ * Memoized: with stable props it skips re-renders on route changes.
  */
-export function Sidebar({ open, onClose }: SidebarProps) {
+export const Sidebar = memo(function Sidebar({ open, onClose }: SidebarProps) {
   const { user } = useAuth();
 
   return (
@@ -104,4 +106,4 @@ export function Sidebar({ open, onClose }: SidebarProps) {
       </aside>
     </>
   );
-}
+});

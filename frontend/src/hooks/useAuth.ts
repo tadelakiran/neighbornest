@@ -66,26 +66,47 @@ export function useAuth() {
   );
 
   /**
-   * Registers a new account. The backend returns no tokens from register,
-   * so the user is redirected to the login page with a success toast.
+   * Registers a new account and signs the user straight in.
+   *
+   * The backend returns no tokens from register, so the account is created
+   * first and then logged in with the same credentials — one seamless flow
+   * that lands the user on the dashboard instead of a second login screen.
    *
    * @param payload - full name, email, and password
    * @returns the action result (success or error message)
    */
   const register = useCallback(
     async (payload: RegisterRequest): Promise<AuthActionResult> => {
+      // Step 1: create the account. Any failure here means no account exists.
       try {
         await authService.register(payload);
-        toast.success('Account created! Please sign in to continue.');
-        navigate(ROUTES.LOGIN, { replace: true });
-        return { success: true };
       } catch (error) {
         const message = getErrorMessage(error, 'Registration failed. Please try again.');
         toast.error(message);
         return { success: false, error: message };
       }
+
+      // Step 2: sign the new account straight in (no second login screen).
+      try {
+        const authResponse = await authService.login({
+          email: payload.email,
+          password: payload.password,
+        });
+        setAuth(authResponse);
+        void fetchUser();
+        toast.success('Welcome to NeighborNest! Your account is ready.');
+        navigate(ROUTES.DASHBOARD, { replace: true });
+        return { success: true };
+      } catch {
+        // Registration succeeded but auto-login hiccuped (rare). Never report
+        // "registration failed" — the account exists. Send them to sign-in with
+        // the email prefilled instead of stranding them on a 409 loop.
+        toast.success('Account created! Please sign in to continue.');
+        navigate(ROUTES.LOGIN, { replace: true, state: { registeredEmail: payload.email } });
+        return { success: true };
+      }
     },
-    [navigate, toast]
+    [navigate, setAuth, fetchUser, toast]
   );
 
   /**

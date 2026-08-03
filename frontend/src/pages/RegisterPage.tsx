@@ -3,6 +3,7 @@ import { BrandLogo } from '@/components/layout/Navbar';
 import { Card } from '@/components/ui/Card';
 import { RegisterForm } from '@/components/auth/RegisterForm';
 import { APP_NAME } from '@/lib/constants';
+import { IMAGES } from '@/lib/images';
 
 /** Trust/benefit highlights shown on the brand panel. */
 const HIGHLIGHTS = [
@@ -18,13 +19,18 @@ export function RegisterPage() {
   return (
     <div className="flex min-h-screen">
       {/* Brand panel (hidden on mobile) */}
-      <div className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-gradient-to-br from-teal-950 via-slate-900 to-slate-950 p-12 lg:flex">
-        <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-          <div className="absolute -right-16 top-20 h-80 w-80 rounded-full bg-teal-500/15 blur-3xl" />
-          <div className="absolute bottom-1/4 -left-10 h-72 w-72 rounded-full bg-emerald-500/10 blur-3xl" />
-          <div className="absolute left-16 top-1/2 h-20 w-20 rotate-12 rounded-2xl border border-teal-400/20 bg-teal-400/5" />
-          <div className="absolute bottom-16 right-24 h-14 w-14 rounded-full border border-emerald-400/25" />
-        </div>
+      <div className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-slate-950 p-12 lg:flex">
+        {/* Hero photography with a deep gradient overlay */}
+        <img
+          src={IMAGES.neighborhood}
+          alt=""
+          aria-hidden="true"
+          loading="lazy"
+          decoding="async"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/70 to-slate-950/30" aria-hidden="true" />
+        <div className="pointer-events-none absolute inset-0 bg-teal-950/30" aria-hidden="true" />
 
         <div className="relative">
           <BrandLogo />

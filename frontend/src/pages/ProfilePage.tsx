@@ -9,7 +9,7 @@ import { ProfileTabs, type ProfileTab } from '@/components/profile/ProfileTabs';
 import { SettingsTab } from '@/components/profile/SettingsTab';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { Spinner } from '@/components/ui/Spinner';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { useProfile } from '@/hooks/useProfile';
 import { useToast } from '@/hooks/useToast';
 import { ROUTES } from '@/lib/constants';
@@ -41,8 +41,17 @@ export function ProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-[50vh] items-center justify-center">
-        <Spinner size="lg" />
+      <div className="space-y-6">
+        {/* Skeleton of the Become-an-Anchor CTA */}
+        <Skeleton className="h-20 rounded-2xl" />
+        <div className="grid gap-6 lg:grid-cols-3">
+          <Skeleton className="h-80 rounded-2xl lg:col-span-1" />
+          <div className="space-y-6 lg:col-span-2">
+            <Skeleton className="h-14 rounded-2xl" />
+            <Skeleton className="h-72 rounded-2xl" />
+            <Skeleton className="h-72 rounded-2xl" />
+          </div>
+        </div>
       </div>
     );
   }

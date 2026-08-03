@@ -1,4 +1,6 @@
+import { Suspense } from 'react';
 import { Outlet } from 'react-router-dom';
+import { PageLoader } from '@/components/ui/PageLoader';
 
 /**
  * Minimal wrapper for public routes (login / register).
@@ -18,7 +20,9 @@ export function PublicLayout() {
       </div>
 
       <div className="relative">
-        <Outlet />
+        <Suspense fallback={<PageLoader />}>
+          <Outlet />
+        </Suspense>
       </div>
     </div>
   );
