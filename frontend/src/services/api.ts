@@ -28,6 +28,67 @@ export const api = axios.create({
 // Request interceptor: attach the in-memory access token
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// Lightweight GET cache: dedupes in-flight requests and reuses identical
+// GET responses for a short TTL. Cuts duplicate /api/users/me calls across
+// the app shell, dashboard, profile page, and onboarding resume.
+// ---------------------------------------------------------------------------
+
+interface CacheEntry {
+  data: unknown;
+  expiresAt: number;
+}
+
+const responseCache = new Map<string, CacheEntry>();
+const inflight = new Map<string, Promise<unknown>>();
+
+/**
+ * GETs a URL with short-lived caching + in-flight deduplication.
+ *
+ * @param url - the path (relative to baseURL)
+ * @param ttlMs - how long the cached value stays fresh (default 30s)
+ * @returns the parsed response body
+ */
+export async function cachedGet<T>(url: string, ttlMs = 30_000): Promise<T> {
+  const entry = responseCache.get(url);
+  if (entry && entry.expiresAt > Date.now()) {
+    return entry.data as T;
+  }
+
+  const existing = inflight.get(url);
+  if (existing) {
+    return existing as Promise<T>;
+  }
+
+  const promise = api
+    .get<T>(url)
+    .then(({ data }) => {
+      responseCache.set(url, { data, expiresAt: Date.now() + ttlMs });
+      inflight.delete(url);
+      return data;
+    })
+    .catch((error: unknown) => {
+      inflight.delete(url);
+      throw error;
+    });
+
+  inflight.set(url, promise);
+  return promise;
+}
+
+/** Drops a cached entry (call after mutating requests like PUT/POST). */
+export function invalidateCache(url: string): void {
+  responseCache.delete(url);
+}
+
+/**
+ * Empties the entire response cache.
+ * Call on logout / login so a fresh session never reads another user's data.
+ */
+export function clearCache(): void {
+  responseCache.clear();
+}
+
 api.interceptors.request.use((config) => {
   const { accessToken } = useAuthStore.getState();
   if (accessToken) {

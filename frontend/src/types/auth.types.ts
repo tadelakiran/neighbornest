@@ -116,4 +116,6 @@ export interface Toast {
   id: string;
   message: string;
   type: ToastType;
+  /** Epoch ms when the toast was added (drives the auto-dismiss progress bar). */
+  createdAt: number;
 }

@@ -1,4 +1,4 @@
-import { api } from '@/services/api';
+import { api, cachedGet, invalidateCache } from '@/services/api';
 import type {
   AnchorApplicationRequest,
   AnchorApplicationResponse,
@@ -50,21 +50,29 @@ export const userService = {
     return mapProfileToUserProfile(data);
   },
 
-  /** GET /api/users/me — returns the current user's full profile. */
-  async getMyProfile(): Promise<UserProfile> {
-    const { data } = await api.get<ProfileResponse>('/api/users/me');
+  /**
+   * GET /api/users/me — returns the current user's full profile.
+   * Cached for 30s and deduplicated so repeated consumers (app shell, dashboard,
+   * profile page) share a single network round trip.
+   */
+  async getMyProfile(force = false): Promise<UserProfile> {
+    const data = force
+      ? ((await api.get<ProfileResponse>('/api/users/me')).data)
+      : await cachedGet<ProfileResponse>('/api/users/me');
     return mapProfileToUserProfile(data);
   },
 
   /** PUT /api/users/me — partially updates the current user's profile. */
   async updateProfile(payload: ProfileUpdateRequest): Promise<UserProfile> {
     const { data } = await api.put<ProfileResponse>('/api/users/me', payload);
+    invalidateCache('/api/users/me');
     return mapProfileToUserProfile(data);
   },
 
   /** POST /api/users/onboarding — stores answers and marks the user onboarded. */
   async submitOnboarding(payload: OnboardingSubmitRequest): Promise<UserProfile> {
     const { data } = await api.post<ProfileResponse>('/api/users/onboarding', payload);
+    invalidateCache('/api/users/me');
     return mapProfileToUserProfile(data);
   },
 

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Bell, Bird, ChevronDown, LogOut, Menu, Settings, User as UserIcon } from 'lucide-react';
 import { Avatar } from '@/components/ui/Avatar';
@@ -31,8 +31,9 @@ export function BrandLogo({ compact = false }: { compact?: boolean }) {
 /**
  * Top navigation bar: hamburger (mobile), brand logo, notification bell,
  * and a user avatar dropdown with Profile / Settings / Logout actions.
+ * Memoized: with stable props it skips re-renders on route changes.
  */
-export function Navbar({ onMenuClick }: NavbarProps) {
+export const Navbar = memo(function Navbar({ onMenuClick }: NavbarProps) {
   const navigate = useNavigate();
   const toast = useToast();
   const { user, logout } = useAuth();
@@ -158,4 +159,4 @@ export function Navbar({ onMenuClick }: NavbarProps) {
       </div>
     </header>
   );
-}
+});

@@ -3,6 +3,7 @@ import { BrandLogo } from '@/components/layout/Navbar';
 import { Card } from '@/components/ui/Card';
 import { LoginForm } from '@/components/auth/LoginForm';
 import { APP_NAME } from '@/lib/constants';
+import { IMAGES } from '@/lib/images';
 
 /** Feature highlights shown on the brand panel. */
 const FEATURES = [
@@ -19,15 +20,18 @@ export function LoginPage() {
   return (
     <div className="flex min-h-screen">
       {/* Brand panel (hidden on mobile) */}
-      <div className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-gradient-to-br from-emerald-950 via-slate-900 to-slate-950 p-12 lg:flex">
-        {/* Abstract decorative shapes */}
-        <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-          <div className="animate-float absolute -left-20 top-24 h-72 w-72 rounded-full bg-emerald-500/15 blur-3xl" />
-          <div className="absolute right-0 top-1/3 h-96 w-96 rounded-full bg-teal-500/10 blur-3xl" />
-          <div className="absolute bottom-10 left-1/4 h-56 w-56 rounded-full border border-emerald-500/20" />
-          <div className="absolute right-16 top-16 h-24 w-24 rounded-2xl border border-emerald-400/20 bg-emerald-400/5" />
-          <div className="absolute bottom-24 right-32 h-16 w-16 rotate-45 rounded-xl bg-emerald-500/10" />
-        </div>
+      <div className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-slate-950 p-12 lg:flex">
+        {/* Hero photography with a deep gradient overlay */}
+        <img
+          src={IMAGES.city}
+          alt=""
+          aria-hidden="true"
+          loading="lazy"
+          decoding="async"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/70 to-slate-950/30" aria-hidden="true" />
+        <div className="pointer-events-none absolute inset-0 bg-emerald-950/30" aria-hidden="true" />
 
         <div className="relative">
           <BrandLogo />

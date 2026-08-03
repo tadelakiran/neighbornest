@@ -24,7 +24,9 @@ export const useToastStore = create<ToastState>((set, get) => ({
 
   addToast: (message, type = 'info') => {
     const id = `toast-${Date.now()}-${toastIdCounter++}`;
-    set((state) => ({ toasts: [...state.toasts, { id, message, type }] }));
+    set((state) => ({
+      toasts: [...state.toasts, { id, message, type, createdAt: Date.now() }],
+    }));
     window.setTimeout(() => get().removeToast(id), TOAST_DURATION_MS);
   },
 

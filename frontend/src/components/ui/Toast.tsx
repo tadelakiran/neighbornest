@@ -1,5 +1,6 @@
 import { AlertCircle, CheckCircle2, Info, X } from 'lucide-react';
 import { useToastStore } from '@/stores/toastStore';
+import { TOAST_DURATION_MS } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import type { Toast as ToastEntry, ToastType } from '@/types/auth.types';
 
@@ -42,6 +43,10 @@ interface ToastItemProps {
 /** Single toast notification card. */
 function ToastItem({ toast, onDismiss }: ToastItemProps) {
   const { icon: Icon, iconClass, barClass } = TOAST_STYLES[toast.type];
+  // Age the progress bar from the moment the toast was created so a refresh
+  // never restarts the dismissal timer visually.
+  const elapsed = Date.now() - toast.createdAt;
+  const remaining = Math.max(0, TOAST_DURATION_MS - elapsed);
 
   return (
     <div
@@ -62,6 +67,12 @@ function ToastItem({ toast, onDismiss }: ToastItemProps) {
       >
         <X className="h-4 w-4" />
       </button>
+      {/* Auto-dismiss progress bar */}
+      <span
+        className={cn('toast-progress absolute bottom-0 left-0 h-0.5', barClass)}
+        style={{ animationDuration: `${remaining}ms` }}
+        aria-hidden="true"
+      />
     </div>
   );
 }
