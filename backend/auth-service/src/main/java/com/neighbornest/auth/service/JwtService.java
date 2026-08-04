@@ -118,6 +118,22 @@ public class JwtService {
     }
 
     /**
+     * Parses and returns all claims for a token in a single operation.
+     * <p>
+     * Callers that need several claims (e.g. the auth filter reading email +
+     * role) should call this once and reuse the {@link Claims} object instead of
+     * invoking {@code extractEmail}/{@code extractRole} separately, each of
+     * which re-parses the token.
+     * </p>
+     *
+     * @param token the JWT token
+     * @return the parsed {@link Claims}
+     */
+    public Claims extractClaims(final String token) {
+        return extractAllClaims(token);
+    }
+
+    /**
      * Extracts the email subject from the given JWT token.
      *
      * @param token the JWT token

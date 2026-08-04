@@ -8,6 +8,7 @@ C:\Users\sai kiran\Desktop\project-stschool\backend\auth-service\src\main\java\c
 C:\Users\sai kiran\Desktop\project-stschool\backend\auth-service\src\main\java\com\neighbornest\auth\dto\request\RefreshTokenRequest.java
 C:\Users\sai kiran\Desktop\project-stschool\backend\auth-service\src\main\java\com\neighbornest\auth\dto\request\RegisterRequest.java
 C:\Users\sai kiran\Desktop\project-stschool\backend\auth-service\src\main\java\com\neighbornest\auth\dto\response\AuthResponse.java
+C:\Users\sai kiran\Desktop\project-stschool\backend\auth-service\src\main\java\com\neighbornest\auth\dto\response\AuthValidationResponse.java
 C:\Users\sai kiran\Desktop\project-stschool\backend\auth-service\src\main\java\com\neighbornest\auth\dto\response\ErrorResponse.java
 C:\Users\sai kiran\Desktop\project-stschool\backend\auth-service\src\main\java\com\neighbornest\auth\dto\response\UserResponse.java
 C:\Users\sai kiran\Desktop\project-stschool\backend\auth-service\src\main\java\com\neighbornest\auth\entity\AuthProvider.java
@@ -22,7 +23,6 @@ C:\Users\sai kiran\Desktop\project-stschool\backend\auth-service\src\main\java\c
 C:\Users\sai kiran\Desktop\project-stschool\backend\auth-service\src\main\java\com\neighbornest\auth\handler\GlobalExceptionHandler.java
 C:\Users\sai kiran\Desktop\project-stschool\backend\auth-service\src\main\java\com\neighbornest\auth\repository\RefreshTokenRepository.java
 C:\Users\sai kiran\Desktop\project-stschool\backend\auth-service\src\main\java\com\neighbornest\auth\repository\UserRepository.java
-C:\Users\sai kiran\Desktop\project-stschool\backend\auth-service\src\main\java\com\neighbornest\auth\security\CustomUserDetailsService.java
 C:\Users\sai kiran\Desktop\project-stschool\backend\auth-service\src\main\java\com\neighbornest\auth\security\JwtAuthenticationFilter.java
 C:\Users\sai kiran\Desktop\project-stschool\backend\auth-service\src\main\java\com\neighbornest\auth\service\AuthService.java
 C:\Users\sai kiran\Desktop\project-stschool\backend\auth-service\src\main\java\com\neighbornest\auth\service\JwtService.java

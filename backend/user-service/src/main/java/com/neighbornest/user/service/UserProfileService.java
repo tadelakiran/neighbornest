@@ -7,6 +7,7 @@ import com.neighbornest.user.dto.response.AuthValidationResponse;
 import com.neighbornest.user.dto.response.OnboardingStatusResponse;
 import com.neighbornest.user.dto.response.ProfileResponse;
 import com.neighbornest.user.dto.response.UserMatchResponse;
+import com.neighbornest.user.entity.OnboardingAnswer;
 import com.neighbornest.user.entity.UserProfile;
 import com.neighbornest.user.entity.UserRole;
 import com.neighbornest.user.exception.BadRequestException;
@@ -22,6 +23,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Service handling user profile lifecycle operations.
@@ -139,7 +142,7 @@ public class UserProfileService {
     @Transactional(readOnly = true)
     public OnboardingStatusResponse getOnboardingStatus(final Long authUserId) {
         final UserProfile profile = findProfileByAuthUserId(authUserId);
-        final long answerCount = onboardingAnswerRepository.findByUserProfileIdOrderByQuestionKeyAsc(profile.getId()).size();
+        final long answerCount = onboardingAnswerRepository.countByUserProfileId(profile.getId());
 
         return OnboardingStatusResponse.builder()
                 .isOnboarded(profile.isOnboarded())
@@ -154,8 +157,21 @@ public class UserProfileService {
      */
     @Transactional(readOnly = true)
     public List<UserMatchResponse> getReadyForMatch() {
-        return userProfileRepository.findAllReadyForMatch().stream()
-                .map(this::toMatchResponseWithAnswers)
+        final List<UserProfile> profiles = userProfileRepository.findAllReadyForMatch();
+        if (profiles.isEmpty()) {
+            return List.of();
+        }
+
+        // Batch-fetch every answer for all profiles in ONE query (no N+1).
+        final List<OnboardingAnswer> allAnswers = onboardingAnswerRepository
+                .findAllByUserProfileIdIn(profiles.stream().map(UserProfile::getId).toList());
+        final Map<Long, List<OnboardingAnswer>> answersByProfile = allAnswers.stream()
+                .collect(Collectors.groupingBy(OnboardingAnswer::getUserProfileId));
+
+        return profiles.stream()
+                .map(profile -> userProfileMapper.toMatchResponse(
+                        profile,
+                        answersByProfile.getOrDefault(profile.getId(), List.of())))
                 .toList();
     }
 

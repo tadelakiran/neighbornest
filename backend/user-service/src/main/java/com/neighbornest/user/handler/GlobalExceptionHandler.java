@@ -6,6 +6,7 @@ import com.neighbornest.user.exception.DuplicateProfileException;
 import com.neighbornest.user.exception.ResourceNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -61,6 +62,32 @@ public class GlobalExceptionHandler {
             final DuplicateProfileException ex, final HttpServletRequest request) {
         log.warn("Conflict: {}", ex.getMessage());
         return buildErrorResponse(HttpStatus.CONFLICT, ex.getMessage(), request);
+    }
+
+    /**
+     * Handles {@link DataIntegrityViolationException} — returns 409 CONFLICT.
+     * <p>
+     * The {@code auth_user_id} column is unique; two concurrent profile-creation
+     * requests can both pass {@code existsByAuthUserId} and then collide on the
+     * DB constraint. That must surface as a clean 409, not a raw 500.
+     * </p>
+     */
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(
+            final DataIntegrityViolationException ex, final HttpServletRequest request) {
+        final Throwable root = ex.getMostSpecificCause();
+        // Only a duplicate-key violation (two profile creations racing the
+        // unique auth_user_id constraint) is a recoverable 409 for the client.
+        if (root instanceof final java.sql.SQLIntegrityConstraintViolationException constraintViolation
+                && constraintViolation.getMessage() != null
+                && constraintViolation.getMessage().toLowerCase().contains("duplicate")) {
+            log.warn("Duplicate profile creation: {}", root.getMessage());
+            return buildErrorResponse(HttpStatus.CONFLICT,
+                    "This profile already exists. Refresh to load your current profile.", request);
+        }
+        log.error("Data integrity violation: {}", ex.getMessage(), ex);
+        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR,
+                "An unexpected error occurred. Please try again later.", request);
     }
 
     /**

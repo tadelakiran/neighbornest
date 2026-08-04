@@ -74,7 +74,7 @@ docker compose up --build
 ```
 
 This starts:
-- 4 MySQL instances (auth `3306`, user `3307`, matching `3308`, nest `3309`)
+- 4 MySQL instances (auth `3310`, user `3307`, matching `3308`, nest `3309` — auth uses `3310` on the host because `3306` is usually reserved for a local MySQL)
 - RabbitMQ management (`5672` AMQP, `15672` console — user/pass `neighbornest`/`neighbornest` by default)
 - All 6 services (Eureka `8761`, Gateway `8080`, auth `8081`, user `8082`, matching `8083`, nest `8084`)
 
