@@ -1,6 +1,7 @@
 package com.neighbornest.auth.security;
 
 import com.neighbornest.auth.service.JwtService;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -9,26 +10,34 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * JWT authentication filter that intercepts incoming requests.
  * <p>
- * Extracts the JWT token from the Authorization header, validates it,
- * loads the user details, and sets the authentication in the
- * {@link SecurityContextHolder} for the current request.
+ * Extracts the JWT token from the Authorization header, validates it, and
+ * builds the {@link org.springframework.security.core.userdetails.UserDetails}
+ * directly from the token's signed claims (email + role).
+ * </p>
+ * <p>
+ * <strong>Performance note:</strong> the principal is assembled from claims —
+ * no {@code findByEmail} database round trip per request. The controllers that
+ * need profile data query the DB themselves; the filter previously duplicated
+ * that lookup purely to build authorities, which doubled the query count on
+ * every authenticated request.
  * </p>
  *
  * @author NeighborNest Team
- * @version 1.0.0
+ * @version 1.1.0
  */
 @Component
 @RequiredArgsConstructor
@@ -36,7 +45,6 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
-    private final UserDetailsService userDetailsService;
 
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String BEARER_PREFIX = "Bearer ";
@@ -59,8 +67,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String token = extractTokenFromRequest(request);
 
         if (token != null && jwtService.validateToken(token)) {
-            final String email = jwtService.extractEmail(token);
-            final UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+            // Identity comes straight from the signed claims — the JWT was just
+            // cryptographically verified, so no DB lookup is needed to trust it.
+            // Parse once and reuse the Claims for both email and role.
+            final Claims claims = jwtService.extractClaims(token);
+            final String email = claims.getSubject();
+            final String role = claims.get("role", String.class);
+
+            final UserDetails userDetails = new org.springframework.security.core.userdetails.User(
+                    email,
+                    "",
+                    true,  // enabled — role-bearing tokens are trusted by the JWT
+                    true,  // accountNonExpired
+                    true,  // credentialsNonExpired
+                    true,  // accountNonLocked
+                    List.of(new SimpleGrantedAuthority("ROLE_" + role))
+            );
 
             final UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(

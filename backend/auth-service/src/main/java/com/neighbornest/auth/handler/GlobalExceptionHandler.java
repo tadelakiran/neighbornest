@@ -8,6 +8,7 @@ import com.neighbornest.auth.exception.TokenExpiredException;
 import com.neighbornest.auth.exception.UserAlreadyExistsException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -49,6 +50,38 @@ public class GlobalExceptionHandler {
             final UserAlreadyExistsException ex, final HttpServletRequest request) {
         log.warn("Conflict error: {}", ex.getMessage());
         return buildErrorResponse(HttpStatus.CONFLICT, ex.getMessage(), request);
+    }
+
+    /**
+     * Handles {@link DataIntegrityViolationException} — returns 409 CONFLICT.
+     * <p>
+     * Two concurrent registrations can both pass the {@code existsByEmail} guard
+     * and then collide on the unique email constraint; the DB constraint is the
+     * final arbiter and must surface as a 409 ("already registered") rather than
+     * a raw 500. The client retries/registers without being told the account
+     * actually exists.
+     * </p>
+     *
+     * @param ex      the exception instance
+     * @param request the current HTTP request
+     * @return a {@link ResponseEntity} with error details
+     */
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(
+            final DataIntegrityViolationException ex, final HttpServletRequest request) {
+        final Throwable root = ex.getMostSpecificCause();
+        // Only a duplicate-key violation (concurrent registrations racing the
+        // unique email constraint) is a "conflict" the client can act on.
+        if (root instanceof final java.sql.SQLIntegrityConstraintViolationException constraintViolation
+                && constraintViolation.getMessage() != null
+                && constraintViolation.getMessage().toLowerCase().contains("duplicate")) {
+            log.warn("Duplicate email registration: {}", root.getMessage());
+            return buildErrorResponse(HttpStatus.CONFLICT,
+                    "This email is already registered. Try signing in instead.", request);
+        }
+        log.error("Data integrity violation: {}", ex.getMessage(), ex);
+        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR,
+                "An unexpected error occurred. Please try again later.", request);
     }
 
     /**

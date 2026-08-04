@@ -1,3 +1,4 @@
 com\neighbornest\gateway\ApiGatewayApplication.class
 com\neighbornest\gateway\config\GatewayConfig.class
+com\neighbornest\gateway\controller\FallbackController.class
 com\neighbornest\gateway\exception\GlobalErrorHandler.class

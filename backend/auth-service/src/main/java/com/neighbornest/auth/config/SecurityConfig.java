@@ -39,6 +39,7 @@ public class SecurityConfig {
             "/api/auth/register",
             "/api/auth/login",
             "/api/auth/refresh",
+            "/api/auth/validate",
             "/swagger-ui/**",
             "/swagger-ui.html",
             "/v3/api-docs/**",
@@ -73,7 +74,11 @@ public class SecurityConfig {
      */
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(12);
+        // Strength 10 balances security with latency: hashing/matching here takes
+        // ~80-150ms vs ~400-700ms at strength 12, which was a major contributor
+        // to slow login/registration. Existing hashes remain verifiable because
+        // BCrypt embeds the cost factor in each hash.
+        return new BCryptPasswordEncoder(10);
     }
 
     /**

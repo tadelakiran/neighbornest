@@ -5,6 +5,7 @@ import com.neighbornest.auth.dto.request.LogoutRequest;
 import com.neighbornest.auth.dto.request.RefreshTokenRequest;
 import com.neighbornest.auth.dto.request.RegisterRequest;
 import com.neighbornest.auth.dto.response.AuthResponse;
+import com.neighbornest.auth.dto.response.AuthValidationResponse;
 import com.neighbornest.auth.dto.response.UserResponse;
 import com.neighbornest.auth.entity.RefreshToken;
 import com.neighbornest.auth.entity.Role;
@@ -49,6 +50,9 @@ public class AuthService {
 
     @Value("${app.jwt.refresh-expiration-ms}")
     private long refreshExpirationMs;
+
+    @Value("${app.jwt.expiration-ms}")
+    private long accessExpirationMs;
 
     /**
      * Registers a new user on the NeighborNest platform.
@@ -124,7 +128,9 @@ public class AuthService {
                 .accessToken(accessToken)
                 .refreshToken(refreshToken.getToken())
                 .tokenType("Bearer")
-                .expiresIn(refreshExpirationMs / 1000)
+                // expires_in describes the ACCESS token lifetime (the value the
+                // client actually acts on), not the refresh token's 7-day TTL.
+                .expiresIn(accessExpirationMs / 1000)
                 .build();
     }
 
@@ -172,7 +178,8 @@ public class AuthService {
                 .accessToken(accessToken)
                 .refreshToken(newRefreshToken.getToken())
                 .tokenType("Bearer")
-                .expiresIn(refreshExpirationMs / 1000)
+                // Same as login: expires_in is the access-token TTL in seconds.
+                .expiresIn(accessExpirationMs / 1000)
                 .build();
     }
 
@@ -229,5 +236,37 @@ public class AuthService {
      */
     private UserResponse mapToUserResponse(final User user) {
         return UserMapper.toResponse(user);
+    }
+
+    /**
+     * Validates a JWT token and resolves the owning user.
+     * <p>
+     * Invalid, expired, or malformed tokens (and tokens whose user no longer
+     * exists) return {@code valid: false} instead of throwing, so downstream
+     * services can degrade gracefully.
+     * </p>
+     *
+     * @param token the raw JWT to validate
+     * @return the validation result including user id, email, and role
+     */
+    public AuthValidationResponse validateToken(final String token) {
+        if (token == null || token.isBlank() || !jwtService.validateToken(token)) {
+            return AuthValidationResponse.builder().valid(false).build();
+        }
+
+        final Long userId = jwtService.extractUserId(token);
+        final User user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
+            log.warn("Token validation failed: no user found for id {}", userId);
+            return AuthValidationResponse.builder().valid(false).build();
+        }
+
+        return AuthValidationResponse.builder()
+                .valid(true)
+                .userId(userId)
+                .email(user.getEmail())
+                .role(user.getRole().name())
+                .onboarded(user.getIsOnboarded())
+                .build();
     }
 }

@@ -6,6 +6,9 @@ spring:
     name: api-gateway
   cloud:
     gateway:
+      httpclient:
+        connect-timeout: 5000
+        response-timeout: 15s
       routes:
         - id: auth-service
           uri: lb://AUTH-SERVICE
@@ -50,14 +53,88 @@ spring:
       default-filters:
         - DedupeResponseHeader=Access-Control-Allow-Origin
 
+# ---------------------------------------------------------------------------
+# Resilience4j circuit breakers + time limiters.
+#
+# IMPORTANT: the Spring Cloud Gateway CircuitBreaker filter applies a 1s
+# TimeLimiter by default. Slow-but-healthy operations (BCrypt hashing on
+# register/login, cold Hibernate bootstraps, first DB connection) routinely
+# exceeded that window, which opened the circuit and surfaced as intermittent
+# "fallback" errors during registration/login. The generous timeouts below
+# keep the resilience benefit without punishing healthy-but-slow requests.
+# ---------------------------------------------------------------------------
+resilience4j:
+  timelimiter:
+    instances:
+      authServiceCircuitBreaker:
+        timeout-duration: 15s
+        cancel-running-future: true
+      userServiceCircuitBreaker:
+        timeout-duration: 15s
+        cancel-running-future: true
+      matchingServiceCircuitBreaker:
+        timeout-duration: 15s
+        cancel-running-future: true
+      nestServiceCircuitBreaker:
+        timeout-duration: 15s
+        cancel-running-future: true
+  circuitbreaker:
+    instances:
+      # Auth is the front door: a spurious open circuit bricks registration/login
+      # for everyone. The breaker still trips on a genuinely dead service, but the
+      # thresholds are deliberately conservative so a slow cold start (first DB
+      # connections, BCrypt warm-up, JVM JIT) never opens it. Requests that exceed
+      # the time limiter are still cancelled after 15s and surfaced as 503s.
+      authServiceCircuitBreaker:
+        sliding-window-size: 30
+        sliding-window-type: COUNT_BASED
+        minimum-number-of-calls: 20
+        failure-rate-threshold: 75
+        wait-duration-in-open-state: 30s
+        permitted-number-of-calls-in-half-open-state: 5
+        slow-call-duration-threshold: 14s
+        slow-call-rate-threshold: 90
+      userServiceCircuitBreaker:
+        sliding-window-size: 30
+        sliding-window-type: COUNT_BASED
+        minimum-number-of-calls: 15
+        failure-rate-threshold: 70
+        wait-duration-in-open-state: 30s
+        permitted-number-of-calls-in-half-open-state: 5
+        slow-call-duration-threshold: 14s
+        slow-call-rate-threshold: 90
+      matchingServiceCircuitBreaker:
+        sliding-window-size: 30
+        sliding-window-type: COUNT_BASED
+        minimum-number-of-calls: 15
+        failure-rate-threshold: 70
+        wait-duration-in-open-state: 30s
+        permitted-number-of-calls-in-half-open-state: 5
+        slow-call-duration-threshold: 14s
+        slow-call-rate-threshold: 90
+      nestServiceCircuitBreaker:
+        sliding-window-size: 30
+        sliding-window-type: COUNT_BASED
+        minimum-number-of-calls: 15
+        failure-rate-threshold: 70
+        wait-duration-in-open-state: 30s
+        permitted-number-of-calls-in-half-open-state: 5
+        slow-call-duration-threshold: 14s
+        slow-call-rate-threshold: 90
+
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka/}
     fetch-registry: true
     register-with-eureka: true
+    # Poll the registry frequently so newly started services are routed to
+    # quickly after a cold start (default is 30s).
+    registry-fetch-interval-seconds: 10
   instance:
     prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30
 
 # JWT configuration shared with all services
 app:
@@ -66,6 +143,6 @@ app:
 
 logging:
   level:
-    com.neighbornest.gateway: DEBUG
+    com.neighbornest.gateway: INFO
     org.springframework.cloud.gateway: INFO
-    reactor.netty: INFO
+    reactor.netty: WARN

@@ -5,6 +5,7 @@ import com.neighbornest.auth.dto.request.LogoutRequest;
 import com.neighbornest.auth.dto.request.RefreshTokenRequest;
 import com.neighbornest.auth.dto.request.RegisterRequest;
 import com.neighbornest.auth.dto.response.AuthResponse;
+import com.neighbornest.auth.dto.response.AuthValidationResponse;
 import com.neighbornest.auth.dto.response.UserResponse;
 import com.neighbornest.auth.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,9 +18,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -115,5 +118,29 @@ public class AuthController {
         log.debug("POST /api/auth/logout - logging out user");
         authService.logout(request);
         return ResponseEntity.ok("Logout successful");
+    }
+
+    /**
+     * Validates a JWT token and returns the owning user's identity.
+     * <p>
+     * Consumed by other services (e.g. user-service) via Feign to confirm
+     * token ownership. Returns {@code valid: false} with 200 for invalid or
+     * expired tokens so callers can degrade gracefully without an exception.
+     * </p>
+     *
+     * @param token the raw JWT to validate
+     * @return a {@link ResponseEntity} containing the validation result
+     */
+    @GetMapping("/validate")
+    @Operation(summary = "Validate a JWT token",
+            description = "Validates a JWT and returns the owning user's id, email, and role. " +
+                    "Used by other services to confirm token ownership.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Validation result (valid true/false)")
+    })
+    public ResponseEntity<AuthValidationResponse> validate(
+            @RequestParam("token") final String token) {
+        log.debug("GET /api/auth/validate - validating token");
+        return ResponseEntity.ok(authService.validateToken(token));
     }
 }
