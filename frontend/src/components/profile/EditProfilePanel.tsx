@@ -118,7 +118,7 @@ export function EditProfilePanel({ profile, open, onClose, onSave }: EditProfile
       {open && (
         <div className="fixed inset-0 z-[80]">
           <motion.div
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            className="absolute inset-0 bg-void/80 backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -133,15 +133,15 @@ export function EditProfilePanel({ profile, open, onClose, onSave }: EditProfile
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', stiffness: 300, damping: 32 }}
-            className="absolute inset-y-0 right-0 flex w-full flex-col border-l border-slate-700 bg-slate-800 shadow-2xl shadow-black/50 sm:w-[480px]"
+            className="absolute inset-y-0 right-0 flex w-full flex-col border-l border-white/10 bg-deep shadow-card sm:w-[480px]"
           >
-            <div className="flex items-center justify-between border-b border-slate-700/70 px-6 py-4">
-              <h2 className="text-lg font-bold text-white">Edit profile</h2>
+            <div className="flex items-center justify-between border-b border-white/5 px-6 py-4">
+              <h2 className="font-display text-lg font-bold text-primary">Edit profile</h2>
               <button
                 type="button"
                 onClick={onClose}
                 aria-label="Close edit panel"
-                className="rounded-lg p-1 text-slate-400 transition-colors hover:bg-slate-700 hover:text-slate-100"
+                className="rounded-md p-1 text-muted transition-colors hover:bg-raised hover:text-primary"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -192,7 +192,7 @@ export function EditProfilePanel({ profile, open, onClose, onSave }: EditProfile
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-3 border-t border-slate-700/70 px-6 py-4">
+              <div className="flex items-center justify-end gap-3 border-t border-white/5 px-6 py-4">
                 <Button variant="ghost" onClick={onClose}>
                   Cancel
                 </Button>

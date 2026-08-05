@@ -9,20 +9,18 @@ import { fadeUpItem, staggerContainer } from '@/lib/motion';
 import { cn } from '@/lib/utils';
 import type { OnboardingData, PersonalityType } from '@/types/user.types';
 
-/** Icon per personality type. */
 const PERSONALITY_ICONS: Record<PersonalityType, typeof Moon> = {
   INTROVERT: Moon,
-  AMBIVERT: Scale,
+  AMBIVERT:  Scale,
   EXTROVERT: Sun,
 };
 
 interface StepPersonalityProps {
-  data: OnboardingData;
+  data:   OnboardingData;
   onNext: (data: OnboardingData) => void;
   onBack: () => void;
 }
 
-/** Step 3 — personality cards + 1-5 "values" ratings (fed to the matcher). */
 export function StepPersonality({ data, onNext, onBack }: StepPersonalityProps) {
   const [personalityType, setPersonalityType] = useState<PersonalityType | null>(data.personalityType);
   const [values, setValues] = useState<Record<string, number>>(data.values);
@@ -37,8 +35,8 @@ export function StepPersonality({ data, onNext, onBack }: StepPersonalityProps) 
   return (
     <motion.div variants={staggerContainer} initial="hidden" animate="show" className="space-y-8">
       <motion.div variants={fadeUpItem}>
-        <h2 className="text-2xl font-bold text-white">How do you recharge?</h2>
-        <p className="mt-1 text-sm text-slate-400">
+        <h2 className="font-display text-2xl font-bold text-[var(--text-primary)]">How do you recharge?</h2>
+        <p className="mt-1 text-sm text-[var(--text-secondary)]">
           Pick what fits best — we match you with neighbors who share your rhythm.
         </p>
       </motion.div>
@@ -57,18 +55,19 @@ export function StepPersonality({ data, onNext, onBack }: StepPersonalityProps) 
       </motion.div>
       <FieldError message={touched && !personalityType ? 'Choose a personality to continue' : undefined} />
 
+      {/* Values ratings */}
       <motion.div variants={fadeUpItem} className="space-y-4">
-        <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-300">
+        <h3 className="text-xs font-medium uppercase tracking-widest text-[var(--text-muted)]">
           Values that shape you
         </h3>
         {VALUE_QUESTIONS.map((question) => (
           <div
             key={question.key}
-            className="rounded-xl border border-slate-700/60 bg-slate-800/50 p-4"
+            className="rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] p-4"
           >
             <div className="flex items-baseline justify-between gap-4">
-              <p className="text-sm font-medium text-slate-200">{question.prompt}</p>
-              <span className="shrink-0 text-xs text-slate-500">
+              <p className="text-sm font-medium text-[var(--text-primary)]">{question.prompt}</p>
+              <span className="shrink-0 text-xs text-[var(--text-muted)]">
                 {values[question.key] ?? 3}/5
               </span>
             </div>
@@ -83,10 +82,10 @@ export function StepPersonality({ data, onNext, onBack }: StepPersonalityProps) 
                     aria-pressed={active}
                     onClick={() => setValues((prev) => ({ ...prev, [question.key]: rating }))}
                     className={cn(
-                      'h-10 w-10 rounded-full border text-sm font-semibold transition-colors duration-150',
+                      'h-10 w-10 rounded-full border text-sm font-semibold transition-all duration-200',
                       active
-                        ? 'border-emerald-500 bg-emerald-500 text-emerald-950 shadow-lg shadow-emerald-500/25'
-                        : 'border-slate-700 bg-slate-800 text-slate-400 hover:border-slate-600 hover:text-slate-200'
+                        ? 'border-accent-500 bg-accent-500 text-white shadow-glow-sm'
+                        : 'border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--text-muted)] hover:border-accent-400 hover:text-accent-600'
                     )}
                   >
                     {rating}
@@ -99,12 +98,8 @@ export function StepPersonality({ data, onNext, onBack }: StepPersonalityProps) 
       </motion.div>
 
       <motion.div variants={fadeUpItem} className="flex items-center justify-between gap-3 pt-2">
-        <Button variant="ghost" onClick={onBack} leftIcon={<ArrowLeft className="h-4 w-4" aria-hidden="true" />}>
-          Back
-        </Button>
-        <Button onClick={handleContinue} disabled={!personalityType} rightIcon={<ArrowRight className="h-4 w-4" aria-hidden="true" />}>
-          Continue
-        </Button>
+        <Button variant="ghost" onClick={onBack} leftIcon={<ArrowLeft className="h-4 w-4" aria-hidden="true" />}>Back</Button>
+        <Button onClick={handleContinue} disabled={!personalityType} rightIcon={<ArrowRight className="h-4 w-4" aria-hidden="true" />}>Continue</Button>
       </motion.div>
     </motion.div>
   );

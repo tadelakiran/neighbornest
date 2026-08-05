@@ -148,13 +148,14 @@ Notes baked into the types:
 - **Settings**: notification toggles (localStorage), change-password form, and a delete-account
   danger zone — password change and deletion are UI-only until the backend endpoints land.
 
-## 🎨 Design System
+## 🎨 Design System — Blue Dynasty
 
-- Backgrounds: `slate-900` (main) · `slate-800` (cards) · `slate-950` (navbar/sidebar)
-- Primary accent: `emerald-500` (buttons, active states, icons)
-- Text: `slate-100` headings · `slate-300` body · `slate-400` muted
-- Borders: `slate-700` · Errors: `rose-500` · Success: `emerald-400`
-- Font: Inter (Google Fonts, loaded in `index.html`)
+- Backgrounds: `bg-void` (#0a0f1c, main) · `bg-deep` (#0f172e, cards) · `bg-surface` (#162044, inputs) · `bg-raised` (#1e2d5f, hover)
+- Accent: `accent-400` (#0ea5e9, primary) · `accent-300` (#38bdf8, highlights) · `accent-500` (#0284c7)
+- Text: `text-primary` (#f8fafc) · `text-secondary` (#94a3b8) · `text-muted` (#64748b)
+- Shadows: `shadow-card` / `shadow-card-hover` / `shadow-glow` · Errors: `rose-500` · Admin: `amber-400`
+- Fonts: Inter (UI) + Space Grotesk (headings via `font-display`) — loaded in `index.html`
+- Signature elements: animated mesh gradient background (`GradientBackground`), cursor spotlight cards (`SpotlightWrapper`/`Card`), magnetic buttons, bento grids, shimmering skeletons, glowing onboarding timeline
 
 ## 🧭 Routes
 

@@ -26,8 +26,8 @@ export function StepReview({ data, onNext, onBack, onEdit, isSubmitting }: StepR
   return (
     <motion.div variants={staggerContainer} initial="hidden" animate="show" className="space-y-6">
       <motion.div variants={fadeUpItem}>
-        <h2 className="text-2xl font-bold text-white">Looks good?</h2>
-        <p className="mt-1 text-sm text-slate-400">
+        <h2 className="font-display text-2xl font-bold text-primary">Looks good?</h2>
+        <p className="mt-1 text-sm text-secondary">
           Review your profile before we save it. You can edit anything later.
         </p>
       </motion.div>
@@ -50,12 +50,12 @@ export function StepReview({ data, onNext, onBack, onEdit, isSubmitting }: StepR
       <Section title="Interests" onEdit={() => onEdit(3)}>
         <div className="flex flex-wrap gap-2">
           {data.interests.length === 0 ? (
-            <span className="text-sm text-slate-500">None selected</span>
+            <span className="text-sm text-muted">None selected</span>
           ) : (
             data.interests.map((interest) => (
               <span
                 key={interest}
-                className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-300"
+                className="rounded-full border border-accent-400/30 bg-accent-400/10 px-3 py-1 text-xs font-medium text-accent-200"
               >
                 {interest}
               </span>
@@ -99,14 +99,14 @@ function Section({ title, onEdit, children }: SectionProps) {
   return (
     <motion.div
       variants={fadeUpItem}
-      className="rounded-xl border border-slate-700/60 bg-slate-800/50 p-4"
+      className="rounded-md border border-white/10 bg-surface/50 p-4"
     >
       <div className="mb-3 flex items-center justify-between">
-        <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-300">{title}</h3>
+        <h3 className="text-xs font-medium uppercase tracking-widest text-muted">{title}</h3>
         <button
           type="button"
           onClick={onEdit}
-          className="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium text-emerald-400 transition-colors hover:bg-emerald-500/10 hover:text-emerald-300"
+          className="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium text-accent-300 transition-colors hover:bg-accent-400/10 hover:text-accent-200"
         >
           <Pencil className="h-3 w-3" aria-hidden="true" />
           Edit
@@ -126,8 +126,8 @@ interface RowProps {
 function Row({ label, value }: RowProps) {
   return (
     <div className="flex items-center justify-between gap-4">
-      <dt className="text-xs text-slate-500">{label}</dt>
-      <dd className="truncate text-sm font-medium text-slate-200">{value}</dd>
+      <dt className="text-xs text-muted">{label}</dt>
+      <dd className="truncate text-sm font-medium text-primary">{value}</dd>
     </div>
   );
 }

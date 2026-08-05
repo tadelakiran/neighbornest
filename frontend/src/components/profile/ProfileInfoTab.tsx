@@ -14,47 +14,35 @@ import type { UserProfile } from '@/types/user.types';
 
 interface ProfileInfoTabProps {
   profile: UserProfile;
-  onEdit: () => void;
+  onEdit:  () => void;
 }
 
-/**
- * Profile Info tab — the onboarding data shown read-only, grouped by category
- * (Basic, Personality & Values, Interests), with an Edit action that opens the
- * slide-over panel.
- */
 export function ProfileInfoTab({ profile, onEdit }: ProfileInfoTabProps) {
-  const answers = profile.onboardingAnswers ?? [];
-  const interests = answers
-    .filter((answer) => answer.questionKey.startsWith('interest_'))
-    .map((answer) => answer.answerValue);
-  const valueRatings = answers.filter((answer) => answer.questionKey.startsWith('values_'));
+  const answers      = profile.onboardingAnswers ?? [];
+  const interests    = answers.filter((a) => a.questionKey.startsWith('interest_')).map((a) => a.answerValue);
+  const valueRatings = answers.filter((a) => a.questionKey.startsWith('values_'));
 
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-white">Profile info</h3>
-        <Button
-          variant="secondary"
-          size="sm"
-          leftIcon={<Pencil className="h-4 w-4" aria-hidden="true" />}
-          onClick={onEdit}
-        >
+        <h3 className="font-display text-lg font-semibold text-[var(--text-primary)]">Profile info</h3>
+        <Button variant="secondary" size="sm" leftIcon={<Pencil className="h-4 w-4" aria-hidden="true" />} onClick={onEdit}>
           Edit profile
         </Button>
       </div>
 
       <InfoGroup title="Basic">
-        <Row label="City" value={profile.city || '—'} />
-        <Row label="Neighborhood" value={profile.neighborhood || '—'} />
+        <Row label="City"          value={profile.city          || '—'} />
+        <Row label="Neighborhood"  value={profile.neighborhood  || '—'} />
         <Row label="Years in city" value={String(profile.yearsInCity)} />
-        <Row label="Occupation" value={profile.occupation || '—'} />
-        <Row label="Work" value={enumLabel(WORK_TYPE_OPTIONS, profile.workType)} />
+        <Row label="Occupation"    value={profile.occupation    || '—'} />
+        <Row label="Work"          value={enumLabel(WORK_TYPE_OPTIONS, profile.workType)} />
       </InfoGroup>
 
       <InfoGroup title="Personality & lifestyle">
-        <Row label="Personality" value={enumLabel(PERSONALITY_OPTIONS, profile.personalityType)} />
-        <Row label="Schedule" value={enumLabel(SCHEDULE_OPTIONS, profile.schedulePreference)} />
-        <Row label="Social goal" value={enumLabel(SOCIAL_GOAL_OPTIONS, profile.socialGoal)} />
+        <Row label="Personality"  value={enumLabel(PERSONALITY_OPTIONS, profile.personalityType)} />
+        <Row label="Schedule"     value={enumLabel(SCHEDULE_OPTIONS, profile.schedulePreference)} />
+        <Row label="Social goal"  value={enumLabel(SOCIAL_GOAL_OPTIONS, profile.socialGoal)} />
         <Row label="Budget level" value={enumLabel(BUDGET_OPTIONS, profile.budgetLevel)} />
       </InfoGroup>
 
@@ -64,14 +52,14 @@ export function ProfileInfoTab({ profile, onEdit }: ProfileInfoTabProps) {
             {interests.map((interest) => (
               <span
                 key={interest}
-                className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-300"
+                className="rounded-full border border-accent-200 bg-accent-50 px-3 py-1 text-xs font-medium text-accent-700"
               >
                 {interest}
               </span>
             ))}
           </div>
         ) : (
-          <p className="text-sm text-slate-500">No interests recorded yet.</p>
+          <p className="text-sm text-[var(--text-muted)]">No interests recorded yet.</p>
         )}
 
         {valueRatings.length > 0 && (
@@ -82,9 +70,9 @@ export function ProfileInfoTab({ profile, onEdit }: ProfileInfoTabProps) {
               return (
                 <span
                   key={answer.questionKey}
-                  className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs text-slate-300"
+                  className="rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-1.5 text-xs text-[var(--text-secondary)]"
                 >
-                  {question.label}: <span className="font-semibold text-emerald-300">{answer.answerValue}/5</span>
+                  {question.label}: <span className="font-semibold text-accent-600">{answer.answerValue}/5</span>
                 </span>
               );
             })}
@@ -95,32 +83,20 @@ export function ProfileInfoTab({ profile, onEdit }: ProfileInfoTabProps) {
   );
 }
 
-interface InfoGroupProps {
-  title: string;
-  children: React.ReactNode;
-}
-
-/** Grouped card with a section title. */
-function InfoGroup({ title, children }: InfoGroupProps) {
+function InfoGroup({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <Card className="p-5">
-      <h4 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-300">{title}</h4>
+      <h4 className="mb-3 text-xs font-medium uppercase tracking-widest text-[var(--text-muted)]">{title}</h4>
       <dl className="space-y-2.5">{children}</dl>
     </Card>
   );
 }
 
-interface RowProps {
-  label: string;
-  value: string;
-}
-
-/** Label/value pair inside an info group. */
-function Row({ label, value }: RowProps) {
+function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between gap-4">
-      <dt className="text-xs text-slate-500">{label}</dt>
-      <dd className="truncate text-sm font-medium text-slate-200">{value}</dd>
+    <div className="flex items-center justify-between gap-4 border-b border-[var(--color-border)] pb-2 last:border-0 last:pb-0">
+      <dt className="text-xs text-[var(--text-muted)]">{label}</dt>
+      <dd className="truncate text-sm font-medium text-[var(--text-primary)]">{value}</dd>
     </div>
   );
 }

@@ -1,26 +1,39 @@
 import { AlertCircle, CheckCircle2, Info, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useToastStore } from '@/stores/toastStore';
 import { TOAST_DURATION_MS } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import type { Toast as ToastEntry, ToastType } from '@/types/auth.types';
 
-/** Icon + accent color per toast type. */
-const TOAST_STYLES: Record<ToastType, { icon: typeof Info; iconClass: string; barClass: string }> = {
-  success: { icon: CheckCircle2, iconClass: 'text-emerald-400', barClass: 'bg-emerald-400' },
-  error: { icon: AlertCircle, iconClass: 'text-rose-400', barClass: 'bg-rose-400' },
-  info: { icon: Info, iconClass: 'text-sky-400', barClass: 'bg-sky-400' },
+const TOAST_STYLES: Record<ToastType, {
+  icon:      typeof Info;
+  iconClass: string;
+  barClass:  string;
+  bgClass:   string;
+}> = {
+  success: {
+    icon:      CheckCircle2,
+    iconClass: 'text-accent-500',
+    barClass:  'bg-accent-500',
+    bgClass:   'border-accent-200 bg-white [data-theme="dark"]:bg-[var(--color-surface)] [data-theme="dark"]:border-accent-700/40',
+  },
+  error: {
+    icon:      AlertCircle,
+    iconClass: 'text-rose-500',
+    barClass:  'bg-rose-500',
+    bgClass:   'border-rose-200 bg-white [data-theme="dark"]:bg-[var(--color-surface)] [data-theme="dark"]:border-rose-700/40',
+  },
+  info: {
+    icon:      Info,
+    iconClass: 'text-accent-400',
+    barClass:  'bg-accent-400',
+    bgClass:   'border-accent-200 bg-white [data-theme="dark"]:bg-[var(--color-surface)] [data-theme="dark"]:border-accent-700/30',
+  },
 };
 
-/**
- * Global toast container — mounted once in App.tsx.
- * Renders the toast stack fixed to the top-right with a slide-in animation;
- * each toast auto-dismisses via the toast store.
- */
 export function ToastContainer() {
-  const toasts = useToastStore((state) => state.toasts);
-  const removeToast = useToastStore((state) => state.removeToast);
-
-  if (toasts.length === 0) return null;
+  const toasts = useToastStore((s) => s.toasts);
+  const removeToast = useToastStore((s) => s.removeToast);
 
   return (
     <div
@@ -28,51 +41,49 @@ export function ToastContainer() {
       aria-live="polite"
       aria-atomic="false"
     >
-      {toasts.map((toast) => (
-        <ToastItem key={toast.id} toast={toast} onDismiss={removeToast} />
-      ))}
+      <AnimatePresence initial={false}>
+        {toasts.map((toast) => (
+          <ToastItem key={toast.id} toast={toast} onDismiss={removeToast} />
+        ))}
+      </AnimatePresence>
     </div>
   );
 }
 
-interface ToastItemProps {
-  toast: ToastEntry;
-  onDismiss: (id: string) => void;
-}
-
-/** Single toast notification card. */
-function ToastItem({ toast, onDismiss }: ToastItemProps) {
-  const { icon: Icon, iconClass, barClass } = TOAST_STYLES[toast.type];
-  // Age the progress bar from the moment the toast was created so a refresh
-  // never restarts the dismissal timer visually.
-  const elapsed = Date.now() - toast.createdAt;
+function ToastItem({ toast, onDismiss }: { toast: ToastEntry; onDismiss: (id: string) => void }) {
+  const { icon: Icon, iconClass, barClass, bgClass } = TOAST_STYLES[toast.type];
+  const elapsed   = Date.now() - toast.createdAt;
   const remaining = Math.max(0, TOAST_DURATION_MS - elapsed);
 
   return (
-    <div
+    <motion.div
       role="status"
+      initial={{ opacity: 0, x: 60, scale: 0.95 }}
+      animate={{ opacity: 1, x: 0,  scale: 1    }}
+      exit={{    opacity: 0, x: 60, scale: 0.95 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
       className={cn(
-        'animate-toast-in pointer-events-auto relative flex items-start gap-3 overflow-hidden rounded-lg',
-        'border border-slate-700 bg-slate-800/95 p-4 shadow-xl shadow-black/30 backdrop-blur'
+        'pointer-events-auto relative flex items-start gap-3 overflow-hidden rounded-lg',
+        'border p-4 shadow-lg',
+        bgClass
       )}
     >
-      <span className={cn('absolute inset-y-0 left-0 w-1', barClass)} aria-hidden="true" />
+      <span className={cn('absolute inset-y-0 left-0 w-1 rounded-l-lg', barClass)} aria-hidden="true" />
       <Icon className={cn('mt-0.5 h-5 w-5 shrink-0', iconClass)} aria-hidden="true" />
-      <p className="flex-1 text-sm leading-snug text-slate-200">{toast.message}</p>
+      <p className="flex-1 text-sm leading-snug text-[var(--text-primary)]">{toast.message}</p>
       <button
         type="button"
         onClick={() => onDismiss(toast.id)}
-        className="shrink-0 rounded p-0.5 text-slate-500 transition-colors hover:text-slate-200"
-        aria-label="Dismiss notification"
+        className="shrink-0 rounded p-0.5 text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)]"
+        aria-label="Dismiss"
       >
         <X className="h-4 w-4" />
       </button>
-      {/* Auto-dismiss progress bar */}
       <span
         className={cn('toast-progress absolute bottom-0 left-0 h-0.5', barClass)}
         style={{ animationDuration: `${remaining}ms` }}
         aria-hidden="true"
       />
-    </div>
+    </motion.div>
   );
 }

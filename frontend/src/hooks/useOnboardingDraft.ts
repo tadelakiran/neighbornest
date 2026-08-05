@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ONBOARDING_DRAFT_KEY } from '@/lib/constants';
 import { ONBOARDING_DATA_DEFAULTS } from '@/lib/onboarding';
 import type { OnboardingData } from '@/types/user.types';
@@ -45,11 +45,34 @@ function loadDraft(): DraftState {
  */
 export function useOnboardingDraft() {
   const [state, setState] = useState<DraftState>(loadDraft);
+  const saveTimer = useRef<number | null>(null);
+  // Always points at the latest draft so the unmount flush can't write a stale
+  // snapshot over a newer one.
+  const latestRef = useRef(state);
+  latestRef.current = state;
 
-  // Auto-save on every change.
+  // Auto-save (debounced 300ms) — writing JSON to localStorage on every
+  // keystroke caused avoidable main-thread jank while typing in the wizard.
   useEffect(() => {
-    window.localStorage.setItem(ONBOARDING_DRAFT_KEY, JSON.stringify(state));
+    if (saveTimer.current !== null) window.clearTimeout(saveTimer.current);
+    saveTimer.current = window.setTimeout(() => {
+      window.localStorage.setItem(ONBOARDING_DRAFT_KEY, JSON.stringify(state));
+      saveTimer.current = null;
+    }, 300);
+    return () => {
+      if (saveTimer.current !== null) window.clearTimeout(saveTimer.current);
+    };
   }, [state]);
+
+  // Flush any pending draft synchronously on unmount (hard nav / tab close).
+  useEffect(() => {
+    return () => {
+      if (saveTimer.current !== null) {
+        window.clearTimeout(saveTimer.current);
+        window.localStorage.setItem(ONBOARDING_DRAFT_KEY, JSON.stringify(latestRef.current));
+      }
+    };
+  }, []);
 
   /** Updates the draft data (accepts a plain value or an updater function). */
   const setData = useCallback(
@@ -67,8 +90,16 @@ export function useOnboardingDraft() {
     setState((current) => ({ ...current, step: clampStep(step) }));
   }, []);
 
-  /** Removes the saved draft (called after the wizard completes successfully). */
+  /**
+   * Removes the saved draft (called after the wizard completes successfully).
+   * Also cancels any pending debounced write so a just-scheduled auto-save can't
+   * resurrect the draft moments after completion.
+   */
   const clearDraft = useCallback(() => {
+    if (saveTimer.current !== null) {
+      window.clearTimeout(saveTimer.current);
+      saveTimer.current = null;
+    }
     window.localStorage.removeItem(ONBOARDING_DRAFT_KEY);
   }, []);
 

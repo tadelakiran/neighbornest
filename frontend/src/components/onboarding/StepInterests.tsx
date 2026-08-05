@@ -9,12 +9,11 @@ import { cn } from '@/lib/utils';
 import type { OnboardingData } from '@/types/user.types';
 
 interface StepInterestsProps {
-  data: OnboardingData;
+  data:   OnboardingData;
   onNext: (data: OnboardingData) => void;
   onBack: () => void;
 }
 
-/** Step 4 — tap the interests that light you up; they power interest matching. */
 export function StepInterests({ data, onNext, onBack }: StepInterestsProps) {
   const [selected, setSelected] = useState<Set<string>>(() => new Set(data.interests));
   const [touched, setTouched] = useState(false);
@@ -22,8 +21,7 @@ export function StepInterests({ data, onNext, onBack }: StepInterestsProps) {
   const toggle = (label: string) => {
     setSelected((prev) => {
       const next = new Set(prev);
-      if (next.has(label)) next.delete(label);
-      else next.add(label);
+      next.has(label) ? next.delete(label) : next.add(label);
       return next;
     });
   };
@@ -37,12 +35,11 @@ export function StepInterests({ data, onNext, onBack }: StepInterestsProps) {
   return (
     <motion.div variants={staggerContainer} initial="hidden" animate="show" className="space-y-8">
       <motion.div variants={fadeUpItem}>
-        <h2 className="text-2xl font-bold text-white">What lights you up?</h2>
-        <p className="mt-1 text-sm text-slate-400">
-          Pick at least one — we use these to match you with neighbors who share
-          your hobbies.
+        <h2 className="font-display text-2xl font-bold text-[var(--text-primary)]">What lights you up?</h2>
+        <p className="mt-1 text-sm text-[var(--text-secondary)]">
+          Pick at least one — we use these to match you with neighbors who share your hobbies.
         </p>
-        <p className="mt-3 text-sm font-semibold text-emerald-400">
+        <p className="mt-3 text-sm font-semibold text-accent-600">
           {selected.size} selected
         </p>
       </motion.div>
@@ -54,14 +51,15 @@ export function StepInterests({ data, onNext, onBack }: StepInterestsProps) {
             <motion.button
               key={option.slug}
               type="button"
-              whileTap={{ scale: 0.95 }}
+              whileTap={{ scale: 0.93 }}
+              whileHover={{ scale: active ? 1 : 1.04 }}
               aria-pressed={active}
               onClick={() => toggle(option.label)}
               className={cn(
-                'rounded-full border px-4 py-2 text-sm font-medium transition-colors duration-200',
+                'rounded-full border px-4 py-2 text-sm font-medium transition-all duration-200',
                 active
-                  ? 'border-emerald-500 bg-emerald-500 text-emerald-950 shadow-lg shadow-emerald-500/25'
-                  : 'border-slate-700 bg-slate-800 text-slate-300 hover:border-slate-600 hover:bg-slate-700/60'
+                  ? 'border-accent-500 bg-accent-500 text-white shadow-glow-sm'
+                  : 'border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--text-secondary)] hover:border-accent-400 hover:text-accent-600'
               )}
             >
               {option.label}
@@ -73,12 +71,8 @@ export function StepInterests({ data, onNext, onBack }: StepInterestsProps) {
       <FieldError message={touched && selected.size === 0 ? 'Pick at least one interest to continue' : undefined} />
 
       <motion.div variants={fadeUpItem} className="flex items-center justify-between gap-3 pt-2">
-        <Button variant="ghost" onClick={onBack} leftIcon={<ArrowLeft className="h-4 w-4" aria-hidden="true" />}>
-          Back
-        </Button>
-        <Button onClick={handleContinue} disabled={selected.size === 0} rightIcon={<ArrowRight className="h-4 w-4" aria-hidden="true" />}>
-          Continue
-        </Button>
+        <Button variant="ghost" onClick={onBack} leftIcon={<ArrowLeft className="h-4 w-4" aria-hidden="true" />}>Back</Button>
+        <Button onClick={handleContinue} disabled={selected.size === 0} rightIcon={<ArrowRight className="h-4 w-4" aria-hidden="true" />}>Continue</Button>
       </motion.div>
     </motion.div>
   );

@@ -37,17 +37,17 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     }
 
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-900 px-4">
+      <div className="mesh-gradient flex min-h-screen items-center justify-center px-4">
         <div className="w-full max-w-md text-center">
-          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-rose-500/30 bg-rose-500/10">
+          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-lg border border-rose-500/30 bg-rose-500/10">
             <AlertTriangle className="h-8 w-8 text-rose-400" aria-hidden="true" />
           </div>
-          <h1 className="text-2xl font-bold text-white">Something went wrong</h1>
-          <p className="mt-2 text-sm text-slate-400">
+          <h1 className="font-display text-2xl font-bold text-primary">Something went wrong</h1>
+          <p className="mt-2 text-sm text-muted">
             An unexpected error occurred while rendering this page. Reload to continue.
           </p>
           {this.state.error && (
-            <p className="mt-4 break-words rounded-lg bg-slate-800 px-4 py-3 font-mono text-xs text-slate-400">
+            <p className="mt-4 break-words rounded-md border border-white/10 bg-deep px-4 py-3 font-mono text-xs text-muted">
               {this.state.error.message}
             </p>
           )}

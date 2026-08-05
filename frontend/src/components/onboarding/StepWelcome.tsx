@@ -4,18 +4,17 @@ import { Button } from '@/components/ui/Button';
 import { APP_NAME } from '@/lib/constants';
 import { fadeUpItem, staggerContainer } from '@/lib/motion';
 
-/** Value props the welcome step advertises. */
 const HIGHLIGHTS = [
-  { icon: Users, text: 'We match you with compatible neighbors' },
-  { icon: MapPin, text: 'Discover your city through local Anchors' },
-  { icon: Heart, text: 'Build real friendships, not just contacts' },
+  { icon: Users,  text: 'We match you with compatible neighbors'        },
+  { icon: MapPin, text: 'Discover your city through local Anchors'      },
+  { icon: Heart,  text: 'Build real friendships, not just contacts'     },
 ];
 
 interface StepWelcomeProps {
   onNext: () => void;
 }
 
-/** Step 1 — a short branded welcome that sets the tone before the questions. */
+/** Step 1 — branded welcome screen. */
 export function StepWelcome({ onNext }: StepWelcomeProps) {
   return (
     <motion.div
@@ -26,16 +25,17 @@ export function StepWelcome({ onNext }: StepWelcomeProps) {
     >
       <motion.span
         variants={fadeUpItem}
-        className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 shadow-lg shadow-emerald-500/30"
+        className="relative flex h-16 w-16 items-center justify-center rounded-xl bg-accent-gradient shadow-glow"
       >
-        <Sparkles className="h-8 w-8 text-emerald-950" aria-hidden="true" />
+        <Sparkles className="h-8 w-8 text-white" aria-hidden="true" />
+        <span className="absolute -inset-2 -z-10 rounded-xl bg-accent-400/15 blur-xl" aria-hidden="true" />
       </motion.span>
 
       <motion.div variants={fadeUpItem} className="space-y-2">
-        <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+        <h1 className="font-display text-3xl font-bold tracking-tight text-[var(--text-primary)] sm:text-4xl">
           Welcome to {APP_NAME}
         </h1>
-        <p className="mx-auto max-w-md text-sm leading-relaxed text-slate-400 sm:text-base">
+        <p className="mx-auto max-w-md text-sm leading-relaxed text-[var(--text-secondary)] sm:text-base">
           Let&apos;s set up your profile so we can match you into a Nest that
           feels like home. It takes about two minutes.
         </p>
@@ -45,12 +45,12 @@ export function StepWelcome({ onNext }: StepWelcomeProps) {
         {HIGHLIGHTS.map(({ icon: Icon, text }) => (
           <li
             key={text}
-            className="flex items-center gap-3 rounded-xl border border-slate-700/50 bg-slate-800/40 px-4 py-3"
+            className="flex items-center gap-3 rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3"
           >
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10">
-              <Icon className="h-4 w-4 text-emerald-400" aria-hidden="true" />
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-accent-100 text-accent-600">
+              <Icon className="h-4 w-4" aria-hidden="true" />
             </span>
-            <span className="text-sm text-slate-300">{text}</span>
+            <span className="text-sm text-[var(--text-secondary)]">{text}</span>
           </li>
         ))}
       </motion.ul>

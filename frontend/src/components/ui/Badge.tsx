@@ -1,33 +1,30 @@
 import type { HTMLAttributes } from 'react';
 import { cn } from '@/lib/utils';
 
-/** Semantic badge variants. */
-type BadgeVariant = 'success' | 'warning' | 'danger' | 'info' | 'neutral';
+type BadgeVariant = 'success' | 'warning' | 'danger' | 'info' | 'neutral' | 'primary';
 
 interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
   variant?: BadgeVariant;
 }
 
-/** Variant-specific classes. */
-const VARIANT_CLASSES: Record<BadgeVariant, string> = {
-  success: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400',
-  warning: 'border-amber-500/30 bg-amber-500/10 text-amber-400',
-  danger: 'border-rose-500/30 bg-rose-500/10 text-rose-400',
-  info: 'border-sky-500/30 bg-sky-500/10 text-sky-400',
-  neutral: 'border-slate-600 bg-slate-700/40 text-slate-300',
+const VARIANTS: Record<BadgeVariant, string> = {
+  primary: 'bg-accent-600 text-white border-accent-600',
+  success: 'bg-accent-100 text-accent-700 border-accent-200 [data-theme="dark"]:bg-accent-900/30 [data-theme="dark"]:text-accent-300 [data-theme="dark"]:border-accent-700/40',
+  info:    'bg-accent-50 text-accent-600 border-accent-200 [data-theme="dark"]:bg-accent-900/20 [data-theme="dark"]:text-accent-400 [data-theme="dark"]:border-accent-700/30',
+  warning: 'bg-amber-50 text-amber-700 border-amber-200 [data-theme="dark"]:bg-amber-900/20 [data-theme="dark"]:text-amber-400 [data-theme="dark"]:border-amber-700/30',
+  danger:  'bg-rose-50 text-rose-600 border-rose-200 [data-theme="dark"]:bg-rose-900/20 [data-theme="dark"]:text-rose-400 [data-theme="dark"]:border-rose-700/30',
+  neutral: 'bg-[var(--color-surface)] text-[var(--text-secondary)] border-[var(--color-border)]',
 };
 
 /**
- * Small status pill used for roles, states, and tags.
- *
- * @param variant - success | warning | danger | info | neutral
+ * Compact status pill — adapts to light/dark mode via CSS variables.
  */
 export function Badge({ variant = 'neutral', className, children, ...props }: BadgeProps) {
   return (
     <span
       className={cn(
         'inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium',
-        VARIANT_CLASSES[variant],
+        VARIANTS[variant],
         className
       )}
       {...props}
