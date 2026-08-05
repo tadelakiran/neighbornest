@@ -58,15 +58,15 @@ export function StepDealbreakers({ data, onNext, onBack }: StepDealbreakersProps
   return (
     <motion.div variants={staggerContainer} initial="hidden" animate="show" className="space-y-8">
       <motion.div variants={fadeUpItem}>
-        <h2 className="text-2xl font-bold text-white">Your everyday rhythm</h2>
-        <p className="mt-1 text-sm text-slate-400">
+        <h2 className="font-display text-2xl font-bold text-primary">Your everyday rhythm</h2>
+        <p className="mt-1 text-sm text-secondary">
           These lifestyle details help us pair you with people who actually fit
           your day-to-day.
         </p>
       </motion.div>
 
       <motion.div variants={fadeUpItem}>
-        <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-300">
+        <h3 className="mb-3 text-xs font-medium uppercase tracking-widest text-muted">
           How do you spend your days?
         </h3>
         <div className="no-scrollbar -mx-1 flex gap-3 overflow-x-auto px-1 pb-2">

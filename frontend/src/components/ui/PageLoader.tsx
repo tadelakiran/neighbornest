@@ -1,20 +1,25 @@
-import { Bird } from 'lucide-react';
+import { Spinner } from '@/components/ui/Spinner';
 
 /**
- * Branded full-screen loader shown by the router's Suspense fallback while a
- * lazy page chunk downloads (only happens once per route, off the critical
- * path of the initial load).
+ * Full-page loading state shown while lazy route chunks download.
+ * Centered spinner on the app background.
  */
 export function PageLoader() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-5 bg-slate-900">
-      <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 shadow-lg shadow-emerald-500/25">
-        <Bird className="h-6 w-6 text-emerald-950" aria-hidden="true" />
-      </span>
-      <div className="h-1 w-44 overflow-hidden rounded-full bg-slate-800">
-        <div className="loading-slide h-full w-1/2 rounded-full bg-gradient-to-r from-emerald-500 to-teal-400" />
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--color-bg)]"
+      role="status"
+      aria-label="Loading page"
+    >
+      {/* Indeterminate progress bar at the top */}
+      <div className="absolute inset-x-0 top-0 h-0.5 overflow-hidden bg-accent-100">
+        <div className="loading-slide absolute inset-y-0 w-1/3 rounded-full bg-accent-500" />
       </div>
-      <p className="text-xs font-medium text-slate-500">Loading your Nest…</p>
+
+      <div className="flex flex-col items-center gap-4">
+        <Spinner size="lg" />
+        <p className="text-sm text-[var(--text-muted)]">Loading…</p>
+      </div>
     </div>
   );
 }

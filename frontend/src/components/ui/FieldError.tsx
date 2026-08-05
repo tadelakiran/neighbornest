@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import { AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -8,23 +7,21 @@ interface FieldErrorProps {
 }
 
 /**
- * Inline validation error with a shake animation. The message is used as the
- * element key so a new message re-triggers the shake.
+ * Inline validation error with a CSS shake. The message is used as the
+ * element key so a new message re-triggers the shake. Pure CSS (no
+ * framer-motion) to keep the onboarding/profile chunks lean.
  */
 export function FieldError({ message, className }: FieldErrorProps) {
   if (!message) return null;
 
   return (
-    <motion.p
+    <p
       key={message}
       role="alert"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1, x: [0, -6, 6, -3, 3, 0] }}
-      transition={{ duration: 0.45, ease: 'easeOut' }}
-      className={cn('mt-1.5 flex items-center gap-1.5 text-xs font-medium text-rose-400', className)}
+      className={cn('error-shake mt-1.5 flex items-center gap-1.5 text-sm font-medium text-rose-400', className)}
     >
-      <AlertCircle className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+      <AlertCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
       {message}
-    </motion.p>
+    </p>
   );
 }

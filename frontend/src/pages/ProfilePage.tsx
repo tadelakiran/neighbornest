@@ -23,9 +23,9 @@ function initialTab(): ProfileTab {
 }
 
 /**
- * Profile dashboard — sticky identity card on the left, tabbed content on the
- * right (Profile Info / My Nests / Settings), an edit slide-over, and a
- * "Become an Anchor" CTA for newcomers.
+ * Profile dashboard — bento grid: identity hero card on the left, tabbed
+ * content on the right (Profile Info / My Nests / Settings), an edit
+ * slide-over, and a "Become an Anchor" CTA for newcomers.
  */
 export function ProfilePage() {
   const { profile, isLoading, error, reload, updateProfile } = useProfile();
@@ -42,14 +42,13 @@ export function ProfilePage() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        {/* Skeleton of the Become-an-Anchor CTA */}
-        <Skeleton className="h-20 rounded-2xl" />
+        <Skeleton className="h-20 rounded-lg" />
         <div className="grid gap-6 lg:grid-cols-3">
-          <Skeleton className="h-80 rounded-2xl lg:col-span-1" />
+          <Skeleton className="h-96 rounded-lg lg:col-span-1" />
           <div className="space-y-6 lg:col-span-2">
-            <Skeleton className="h-14 rounded-2xl" />
-            <Skeleton className="h-72 rounded-2xl" />
-            <Skeleton className="h-72 rounded-2xl" />
+            <Skeleton className="h-14 rounded-lg" />
+            <Skeleton className="h-72 rounded-lg" />
+            <Skeleton className="h-72 rounded-lg" />
           </div>
         </div>
       </div>
@@ -59,11 +58,11 @@ export function ProfilePage() {
   if (error) {
     return (
       <Card className="mx-auto max-w-xl border-dashed p-10 text-center">
-        <span className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl border border-rose-500/30 bg-rose-500/10">
+        <span className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-md border border-rose-500/30 bg-rose-500/10">
           <AlertTriangle className="h-6 w-6 text-rose-400" aria-hidden="true" />
         </span>
-        <h1 className="text-xl font-bold text-white">Couldn&apos;t load your profile</h1>
-        <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-slate-400">{error}</p>
+        <h1 className="font-display text-xl font-bold text-primary">Couldn&apos;t load your profile</h1>
+        <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-muted">{error}</p>
         <Button variant="secondary" className="mt-6" onClick={() => void reload()}>
           Try again
         </Button>
@@ -74,8 +73,8 @@ export function ProfilePage() {
   if (!profile) {
     return (
       <Card className="mx-auto max-w-xl border-dashed p-10 text-center">
-        <h1 className="text-xl font-bold text-white">Finish setting up your profile</h1>
-        <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-slate-400">
+        <h1 className="font-display text-xl font-bold text-primary">Finish setting up your profile</h1>
+        <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-muted">
           Your profile isn&apos;t ready yet. Complete the short onboarding to
           unlock matching, Nests, and everything else.
         </p>
@@ -92,13 +91,13 @@ export function ProfilePage() {
     <div className="space-y-6">
       {/* Become-an-Anchor CTA (newcomers only) */}
       {profile.role === 'NEWCOMER' && (
-        <Card className="flex flex-col gap-4 border-emerald-500/25 bg-gradient-to-r from-emerald-950/70 to-slate-800/70 p-5 sm:flex-row sm:items-center">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-500/15">
-            <Home className="h-5 w-5 text-emerald-400" aria-hidden="true" />
+        <Card className="flex flex-col gap-4 border-accent-400/25 bg-gradient-to-r from-accent-600/20 to-transparent p-5 sm:flex-row sm:items-center">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-accent-400/15">
+            <Home className="h-5 w-5 text-accent-300" aria-hidden="true" />
           </span>
           <div className="flex-1">
-            <p className="text-sm font-semibold text-white">Help others feel at home</p>
-            <p className="text-xs text-slate-400">
+            <p className="text-sm font-semibold text-primary">Help others feel at home</p>
+            <p className="text-xs text-muted">
               Become a local Anchor and host newcomers in your city.
             </p>
           </div>
@@ -110,8 +109,9 @@ export function ProfilePage() {
         </Card>
       )}
 
+      {/* Bento grid */}
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* Left: sticky identity card */}
+        {/* Left: hero identity card */}
         <div className="lg:col-span-1">
           <ProfileHeader profile={profile} />
         </div>

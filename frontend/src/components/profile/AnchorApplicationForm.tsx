@@ -73,22 +73,22 @@ export function AnchorApplicationForm() {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       {/* Banner */}
-      <Card className="relative overflow-hidden border-emerald-500/30 bg-gradient-to-br from-emerald-950 via-slate-900 to-slate-900 p-6">
+      <Card className="relative overflow-hidden border-accent-400/30 bg-gradient-to-br from-accent-600/20 via-deep to-deep p-6">
         <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-          <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-emerald-500/15 blur-3xl" />
+          <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-accent-400/15 blur-3xl" />
         </div>
         <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center">
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 shadow-lg shadow-emerald-500/25">
-            <Home className="h-6 w-6 text-emerald-950" aria-hidden="true" />
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-gradient-to-br from-accent-500 to-accent-400 shadow-glow">
+            <Home className="h-6 w-6 text-white" aria-hidden="true" />
           </span>
           <div className="flex-1">
-            <h1 className="text-xl font-bold text-white">Want to help others feel at home?</h1>
-            <p className="mt-1 text-sm text-slate-400">
+            <h1 className="font-display text-xl font-bold text-primary">Want to help others feel at home?</h1>
+            <p className="mt-1 text-sm text-muted">
               Become an Anchor — a local who hosts and guides newcomers through
               their first months in the city.
             </p>
           </div>
-          <Sparkles className="hidden h-6 w-6 text-emerald-400/60 sm:block" aria-hidden="true" />
+          <Sparkles className="hidden h-6 w-6 text-accent-300/60 sm:block" aria-hidden="true" />
         </div>
       </Card>
 
@@ -161,8 +161,8 @@ export function AnchorApplicationForm() {
         <div className="flex flex-col items-center gap-4 py-2 text-center">
           <SuccessIcon />
           <div className="space-y-1">
-            <p className="text-sm font-semibold text-white">You&apos;re in the running!</p>
-            <p className="text-sm leading-relaxed text-slate-400">
+            <p className="text-sm font-semibold text-primary">You&apos;re in the running!</p>
+            <p className="text-sm leading-relaxed text-muted">
               Our team will review your application. You&apos;ll see the status
               here once it&apos;s approved.
             </p>
@@ -180,8 +180,8 @@ export function AnchorApplicationForm() {
 /** Success check inside the modal. */
 function SuccessIcon() {
   return (
-    <span className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/15">
-      <BadgeCheck className="h-8 w-8 text-emerald-400" aria-hidden="true" />
+    <span className="flex h-14 w-14 items-center justify-center rounded-full bg-accent-400/15 shadow-glow-sm">
+      <BadgeCheck className="h-8 w-8 text-accent-300" aria-hidden="true" />
     </span>
   );
 }

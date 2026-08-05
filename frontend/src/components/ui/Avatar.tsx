@@ -1,27 +1,25 @@
 import { cn, getInitials } from '@/lib/utils';
 
-/** Available avatar sizes. */
-type AvatarSize = 'sm' | 'md' | 'lg';
+type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
 interface AvatarProps {
-  /** Person's name — used for initials fallback and alt text. */
   name: string;
-  /** Optional profile photo URL. */
-  src?: string | null;
-  size?: AvatarSize;
+  src?:      string | null;
+  size?:     AvatarSize;
   className?: string;
 }
 
-/** Pixel classes for each avatar size. */
 const SIZE_CLASSES: Record<AvatarSize, string> = {
+  xs: 'h-6 w-6 text-[10px]',
   sm: 'h-8 w-8 text-xs',
   md: 'h-10 w-10 text-sm',
-  lg: 'h-16 w-16 text-xl',
+  lg: 'h-12 w-12 text-base',
+  xl: 'h-16 w-16 text-xl',
 };
 
 /**
- * Circular avatar that renders a profile photo, or a gradient monogram with the
- * user's initials when no photo is available.
+ * Circular avatar — shows a photo if available, else a gradient monogram.
+ * Gradient is blue-based and works in both light and dark modes.
  */
 export function Avatar({ name, src, size = 'md', className }: AvatarProps) {
   const initials = getInitials(name);
@@ -42,7 +40,8 @@ export function Avatar({ name, src, size = 'md', className }: AvatarProps) {
       aria-label={name}
       className={cn(
         'inline-flex shrink-0 items-center justify-center rounded-full font-semibold',
-        'bg-gradient-to-br from-emerald-500 to-teal-600 text-emerald-50',
+        'bg-gradient-to-br from-accent-500 to-accent-700 text-white',
+        'ring-2 ring-white/80 shadow-md',
         SIZE_CLASSES[size],
         className
       )}

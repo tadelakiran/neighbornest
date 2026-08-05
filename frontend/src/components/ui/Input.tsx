@@ -1,23 +1,17 @@
 import { forwardRef, type InputHTMLAttributes, type ReactNode } from 'react';
-import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
-  /** Field label shown above the input. */
-  label?: string;
-  /** Validation error message shown in rose below the input. */
-  error?: string;
-  /** Helper text shown below the input when there is no error. */
-  hint?: string;
-  /** Icon rendered on the left inside the input. */
-  icon?: ReactNode;
-  /** Element rendered on the right inside the input (e.g. password toggle). */
+  label?:    string;
+  error?:    string;
+  hint?:     string;
+  icon?:     ReactNode;
   trailing?: ReactNode;
 }
 
 /**
- * Text input with label, error/hint text, and optional icons.
- * Forwards its ref so react-hook-form `register` works out of the box.
+ * Minimal text input — white background, blue accent focus ring in light mode;
+ * dark surface + accent ring in dark mode. Forwards its ref for react-hook-form.
  */
 export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   { label, error, hint, icon, trailing, className, id, ...props },
@@ -26,14 +20,17 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   return (
     <div className="w-full">
       {label && (
-        <label htmlFor={id} className="mb-1.5 block text-sm font-medium text-slate-300">
+        <label
+          htmlFor={id}
+          className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]"
+        >
           {label}
         </label>
       )}
 
       <div className="relative">
         {icon && (
-          <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500">
+          <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-[var(--text-subtle)]">
             {icon}
           </span>
         )}
@@ -42,13 +39,16 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
           ref={ref}
           id={id}
           className={cn(
-            'h-11 w-full rounded-lg border border-slate-700 bg-slate-800/80 px-3.5 text-sm text-slate-100',
-            'placeholder:text-slate-500 outline-none transition-colors duration-200',
-            'focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25',
+            'h-11 w-full rounded-md border px-3.5 text-sm',
+            'bg-[var(--color-bg)] text-[var(--text-primary)]',
+            'border-[var(--color-border)] placeholder:text-[var(--text-subtle)]',
+            'outline-none transition-all duration-200',
+            'focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20',
+            'hover:border-accent-300',
             'disabled:cursor-not-allowed disabled:opacity-60',
-            icon && 'pl-10',
+            icon     && 'pl-10',
             trailing && 'pr-10',
-            error && 'border-rose-500/70 focus:border-rose-500 focus:ring-rose-500/25',
+            error    && 'border-rose-400 focus:border-rose-500 focus:ring-rose-400/20',
             className
           )}
           aria-invalid={error ? true : undefined}
@@ -56,23 +56,29 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         />
 
         {trailing && (
-          <span className="absolute inset-y-0 right-0 flex items-center pr-3">{trailing}</span>
+          <span className="absolute inset-y-0 right-0 flex items-center pr-3">
+            {trailing}
+          </span>
         )}
       </div>
 
       {error ? (
-        <motion.p
+        <p
           key={error}
-          className="mt-1.5 text-xs font-medium text-rose-400"
           role="alert"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1, x: [0, -6, 6, -3, 3, 0] }}
-          transition={{ duration: 0.45, ease: 'easeOut' }}
+          className="error-shake mt-1.5 flex items-center gap-1.5 text-xs text-rose-500"
         >
+          <svg viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5 shrink-0" aria-hidden="true">
+            <path
+              fillRule="evenodd"
+              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z"
+              clipRule="evenodd"
+            />
+          </svg>
           {error}
-        </motion.p>
+        </p>
       ) : hint ? (
-        <p className="mt-1.5 text-xs text-slate-500">{hint}</p>
+        <p className="mt-1.5 text-xs text-[var(--text-muted)]">{hint}</p>
       ) : null}
     </div>
   );

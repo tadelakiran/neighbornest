@@ -22,7 +22,7 @@ interface SelectProps {
 
 /**
  * Custom dropdown (not a native `<select>`): styled trigger with an animated
- * chevron, a smooth open/close listbox, emerald highlight on the selected item,
+ * chevron, a smooth open/close listbox, accent highlight on the selected item,
  * and click-outside / Escape dismissal.
  */
 export function Select({
@@ -61,7 +61,9 @@ export function Select({
   return (
     <div className="relative w-full" ref={rootRef}>
       {label && (
-        <label className="mb-1.5 block text-sm font-medium text-slate-300">{label}</label>
+        <label className="mb-2 block text-xs font-medium uppercase tracking-wider text-muted">
+          {label}
+        </label>
       )}
 
       <button
@@ -72,17 +74,19 @@ export function Select({
         aria-expanded={open}
         onClick={() => setOpen((wasOpen) => !wasOpen)}
         className={cn(
-          'flex h-11 w-full items-center justify-between gap-2 rounded-lg border border-slate-700 bg-slate-800/80 px-3.5 text-sm outline-none transition-colors duration-200',
+          'flex h-11 w-full items-center justify-between gap-2 rounded-md border border-white/10 bg-surface px-4 text-sm outline-none transition-all duration-200',
           'disabled:cursor-not-allowed disabled:opacity-60',
-          open ? 'border-emerald-500 ring-2 ring-emerald-500/25' : 'hover:border-slate-600',
-          error && 'border-rose-500/70'
+          open
+            ? 'border-accent-400 ring-2 ring-accent-400/20'
+            : 'hover:border-white/20',
+          error && 'border-rose-500/50'
         )}
       >
-        <span className={cn('truncate', selected ? 'text-slate-100' : 'text-slate-500')}>
+        <span className={cn('truncate', selected ? 'text-primary' : 'text-muted')}>
           {selected?.label ?? placeholder}
         </span>
         <ChevronDown
-          className={cn('h-4 w-4 shrink-0 text-slate-500 transition-transform duration-200', open && 'rotate-180')}
+          className={cn('h-4 w-4 shrink-0 text-muted transition-transform duration-200', open && 'rotate-180')}
           aria-hidden="true"
         />
       </button>
@@ -95,7 +99,7 @@ export function Select({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -6, scale: 0.98 }}
             transition={{ duration: 0.15 }}
-            className="absolute z-30 mt-2 max-h-60 w-full overflow-auto rounded-lg border border-slate-700 bg-slate-800 p-1 shadow-xl shadow-black/40"
+            className="absolute z-30 mt-2 max-h-60 w-full overflow-auto rounded-md border border-white/10 bg-deep p-1 shadow-card"
           >
             {options.map((option) => {
               const isSelected = option.value === value;
@@ -112,8 +116,8 @@ export function Select({
                     className={cn(
                       'flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm transition-colors',
                       isSelected
-                        ? 'bg-emerald-500/10 text-emerald-300'
-                        : 'text-slate-300 hover:bg-slate-700/70'
+                        ? 'bg-accent-400/10 text-accent-200'
+                        : 'text-secondary hover:bg-raised/60'
                     )}
                   >
                     {option.label}
@@ -127,7 +131,14 @@ export function Select({
       </AnimatePresence>
 
       {error && (
-        <p className="mt-1.5 text-xs font-medium text-rose-400" role="alert">
+        <p className="mt-1.5 flex items-center gap-1 text-sm text-rose-400" role="alert">
+          <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 shrink-0" aria-hidden="true">
+            <path
+              fillRule="evenodd"
+              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z"
+              clipRule="evenodd"
+            />
+          </svg>
           {error}
         </p>
       )}

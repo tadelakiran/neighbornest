@@ -26,8 +26,8 @@ interface OnboardingWizardProps {
 const LAST_STEP = 6;
 
 /**
- * The 7-step onboarding wizard: manages the current step, slide direction,
- * localStorage draft (data + step, so a refresh resumes in place), and the two
+ * The 7-step onboarding wizard: a glowing vertical timeline on the left
+ * (desktop), the step content on the right, plus draft auto-save and the two
  * server interactions (create/update profile on step 2, finish + submit
  * answers on step 6).
  */
@@ -70,10 +70,7 @@ export function OnboardingWizard({ initialProfile }: OnboardingWizardProps) {
     setStep(clamped);
   };
 
-  /**
-   * Creates or updates the profile with the wizard's data. Once a profile
-   * exists (created here or passed in), every later save is an update.
-   */
+  /** Creates or updates the profile with the wizard's data. */
   const upsertProfile = async (draftData: OnboardingData): Promise<void> => {
     const payload: ProfileUpdateRequest = {
       fullName: draftData.fullName,
@@ -92,7 +89,6 @@ export function OnboardingWizard({ initialProfile }: OnboardingWizardProps) {
       await userService.updateProfile(payload);
       return;
     }
-    // Create requires fullName + city; the update payload is all-optional.
     const createPayload: ProfileCreateRequest = {
       fullName: draftData.fullName,
       city: draftData.city,
@@ -104,7 +100,6 @@ export function OnboardingWizard({ initialProfile }: OnboardingWizardProps) {
       await userService.createProfile(createPayload);
       setHasProfile(true);
     } catch (error) {
-      // 409 = profile already exists (race) — treat as update.
       const status = (error as { response?: { status?: number } }).response?.status;
       if (status === 409) {
         await userService.updateProfile(payload);
@@ -151,10 +146,12 @@ export function OnboardingWizard({ initialProfile }: OnboardingWizardProps) {
   };
 
   return (
-    <div className="w-full">
+    <div className="grid gap-8 md:grid-cols-[220px_1fr]">
+      {/* Glowing vertical timeline (desktop) / progress bar (mobile) */}
       <StepIndicator current={step} />
 
-      <div className="mt-8">
+      {/* Step content */}
+      <div className="min-w-0">
         <AnimatePresence mode="wait" custom={direction}>
           <motion.div
             key={step}

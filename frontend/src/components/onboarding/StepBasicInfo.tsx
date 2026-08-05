@@ -68,8 +68,8 @@ export function StepBasicInfo({ data, onNext, onBack, isSubmitting }: StepBasicI
       noValidate
     >
       <motion.div variants={fadeUpItem}>
-        <h2 className="text-2xl font-bold text-white">Tell us about you</h2>
-        <p className="mt-1 text-sm text-slate-400">
+        <h2 className="font-display text-2xl font-bold text-[var(--text-primary)]">Tell us about you</h2>
+        <p className="mt-1 text-sm text-[var(--text-secondary)]">
           This becomes your profile — you can change it later from the profile page.
         </p>
       </motion.div>

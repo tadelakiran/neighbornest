@@ -36,7 +36,7 @@ export function Modal({ open, onClose, title, children, maxWidth = 'max-w-md' }:
       {open && (
         <div className="fixed inset-0 z-[90] flex items-center justify-center p-4">
           <motion.div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-void/80 backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -52,22 +52,32 @@ export function Modal({ open, onClose, title, children, maxWidth = 'max-w-md' }:
             exit={{ opacity: 0, scale: 0.95, y: 12 }}
             transition={{ type: 'spring', stiffness: 320, damping: 26 }}
             className={cn(
-              'relative w-full rounded-2xl border border-slate-700 bg-slate-800 p-6 shadow-2xl shadow-black/50',
+              'relative w-full overflow-hidden rounded-xl border border-white/10 bg-deep shadow-card',
+              'shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)]',
               maxWidth
             )}
           >
-            <div className="mb-4 flex items-start justify-between gap-4">
-              {title && <h2 className="text-lg font-bold text-white">{title}</h2>}
-              <button
-                type="button"
-                onClick={onClose}
-                aria-label="Close dialog"
-                className="rounded-lg p-1 text-slate-400 transition-colors hover:bg-slate-700 hover:text-slate-100"
-              >
-                <X className="h-5 w-5" />
-              </button>
+            {/* Top glow hairline */}
+            <div
+              aria-hidden="true"
+              className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent-400/30 to-transparent"
+            />
+            <div className="relative p-6">
+              <div className="mb-4 flex items-start justify-between gap-4">
+                {title && (
+                  <h2 className="text-lg font-bold text-primary">{title}</h2>
+                )}
+                <button
+                  type="button"
+                  onClick={onClose}
+                  aria-label="Close dialog"
+                  className="ml-auto rounded-md p-1 text-muted transition-colors hover:bg-raised hover:text-primary"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              {children}
             </div>
-            {children}
           </motion.div>
         </div>
       )}

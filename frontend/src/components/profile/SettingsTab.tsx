@@ -50,10 +50,10 @@ export function SettingsTab() {
     <div className="space-y-5">
       <Card className="p-5">
         <div className="mb-1 flex items-center gap-2.5">
-          <BellRing className="h-4 w-4 text-emerald-400" aria-hidden="true" />
-          <h4 className="text-sm font-semibold uppercase tracking-wide text-slate-300">Notifications</h4>
+          <BellRing className="h-4 w-4 text-accent-300" aria-hidden="true" />
+          <h4 className="text-xs font-medium uppercase tracking-widest text-muted">Notifications</h4>
         </div>
-        <div className="mt-1 divide-y divide-slate-700/60">
+        <div className="mt-1 divide-y divide-white/5">
           {PREF_LABELS.map(({ key, label, description }) => (
             <Toggle
               key={key}
@@ -68,8 +68,8 @@ export function SettingsTab() {
 
       <Card className="p-5">
         <div className="mb-4 flex items-center gap-2.5">
-          <KeyRound className="h-4 w-4 text-emerald-400" aria-hidden="true" />
-          <h4 className="text-sm font-semibold uppercase tracking-wide text-slate-300">Change password</h4>
+          <KeyRound className="h-4 w-4 text-accent-300" aria-hidden="true" />
+          <h4 className="text-xs font-medium uppercase tracking-widest text-muted">Change password</h4>
         </div>
         <div className="space-y-4">
           <Input id="st-current" type="password" label="Current password" placeholder="••••••••" />
@@ -91,7 +91,7 @@ export function SettingsTab() {
           <Trash2 className="h-4 w-4 text-rose-400" aria-hidden="true" />
           <h4 className="text-sm font-semibold uppercase tracking-wide text-rose-300">Danger zone</h4>
         </div>
-        <p className="text-sm text-slate-400">
+        <p className="text-sm text-muted">
           Deleting your account removes your profile and data permanently. This
           action cannot be undone.
         </p>
@@ -106,7 +106,7 @@ export function SettingsTab() {
         title="Delete your account?"
         maxWidth="max-w-sm"
       >
-        <p className="text-sm leading-relaxed text-slate-400">
+        <p className="text-sm leading-relaxed text-muted">
           This will permanently delete your profile, onboarding answers, and any
           Nest memberships. Are you sure?
         </p>

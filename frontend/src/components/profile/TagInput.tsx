@@ -53,15 +53,15 @@ export function TagInput({
 
   return (
     <div className="w-full">
-      {label && <span className="mb-1.5 block text-sm font-medium text-slate-300">{label}</span>}
+      {label && <span className="mb-2 block text-xs font-medium uppercase tracking-wider text-muted">{label}</span>}
 
       <div
         onClick={() => inputRef.current?.focus()}
         className={cn(
-          'flex flex-wrap items-center gap-2 rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-2.5 transition-colors duration-200',
+          'flex flex-wrap items-center gap-2 rounded-md border border-white/10 bg-surface px-3 py-2.5 transition-colors duration-200',
           error
-            ? 'border-rose-500/70'
-            : 'focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/25'
+            ? 'border-rose-500/50'
+            : 'focus-within:border-accent-400 focus-within:ring-2 focus-within:ring-accent-400/20'
         )}
       >
         <AnimatePresence>
@@ -73,7 +73,7 @@ export function TagInput({
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.5, opacity: 0 }}
               transition={{ type: 'spring', stiffness: 500, damping: 26 }}
-              className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 py-1 pl-2.5 pr-1 text-xs font-medium text-emerald-300"
+              className="inline-flex items-center gap-1 rounded-full bg-accent-400/15 py-1 pl-2.5 pr-1 text-xs font-medium text-accent-200"
             >
               {tag}
               <button
@@ -83,7 +83,7 @@ export function TagInput({
                   removeTag(tag);
                 }}
                 aria-label={`Remove ${tag}`}
-                className="rounded-full p-0.5 text-emerald-400 transition-colors hover:bg-emerald-500/20 hover:text-emerald-200"
+                className="rounded-full p-0.5 text-accent-300 transition-colors hover:bg-accent-400/20 hover:text-accent-100"
               >
                 <X className="h-3 w-3" />
               </button>
@@ -101,15 +101,15 @@ export function TagInput({
             if (text.trim()) addTag(text);
           }}
           placeholder={placeholder}
-          className="min-w-[140px] flex-1 bg-transparent text-sm text-slate-100 outline-none placeholder:text-slate-500"
+          className="min-w-[140px] flex-1 bg-transparent text-sm text-primary outline-none placeholder:text-muted"
         />
 
-        <span className="shrink-0 text-xs text-slate-600">
+        <span className="shrink-0 text-xs text-muted">
           {value.length}/{maxTags}
         </span>
       </div>
 
-      {hint && !error && <p className="mt-1.5 text-xs text-slate-500">{hint}</p>}
+      {hint && !error && <p className="mt-1.5 text-sm text-muted">{hint}</p>}
       <FieldError message={error} />
     </div>
   );

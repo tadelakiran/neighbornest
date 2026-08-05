@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useToastStore } from '@/stores/toastStore';
 import type { ToastType } from '@/types/auth.types';
 
@@ -25,5 +25,7 @@ export function useToast() {
   /** Show an informational toast. */
   const info = useCallback((message: string) => addToast(message, 'info'), [addToast]);
 
-  return { toast, success, error, info };
+  // Stable object identity so consumers can safely list `toast` in dependency
+  // arrays without recreating their callbacks on every render.
+  return useMemo(() => ({ toast, success, error, info }), [toast, success, error, info]);
 }

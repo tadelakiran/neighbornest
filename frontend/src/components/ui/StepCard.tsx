@@ -3,19 +3,20 @@ import { Check, type LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface StepCardProps {
-  icon: LucideIcon;
-  title: string;
+  icon:         LucideIcon;
+  title:        string;
   description?: string;
-  selected: boolean;
-  onClick?: () => void;
-  disabled?: boolean;
-  className?: string;
+  selected:     boolean;
+  onClick?:     () => void;
+  disabled?:    boolean;
+  className?:   string;
 }
 
 /**
- * Large selectable card used for personality and work-type pickers.
- * Selected state: emerald border + glow shadow + animated checkmark.
- * Hover lifts the card; tapping scales it down slightly.
+ * Large selectable card for personality/work-type pickers.
+ * Selected: accent border + soft blue fill.
+ * Unselected: surface card with hover lift.
+ * Works in both light (white surface) and dark (navy surface) modes.
  */
 export function StepCard({
   icon: Icon,
@@ -31,15 +32,15 @@ export function StepCard({
       type="button"
       whileHover={{ y: -4 }}
       whileTap={{ scale: 0.97 }}
-      transition={{ duration: 0.2 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 25 }}
       aria-pressed={selected}
       disabled={disabled}
       onClick={onClick}
       className={cn(
-        'relative flex w-full flex-col items-start gap-3 rounded-2xl border p-5 text-left transition-colors duration-200',
+        'relative flex w-full flex-col items-center gap-3 rounded-lg border p-5 text-center transition-all duration-300',
         selected
-          ? 'border-emerald-500 bg-emerald-500/10 shadow-lg shadow-emerald-500/20'
-          : 'border-slate-700 bg-slate-800/60 hover:border-slate-600',
+          ? 'border-accent-500 bg-accent-50 shadow-glow-sm [data-theme="dark"]:bg-accent-900/20'
+          : 'border-[var(--color-border)] bg-[var(--color-surface)] hover:border-accent-300 hover:shadow-md',
         disabled && 'cursor-not-allowed opacity-60',
         className
       )}
@@ -49,27 +50,36 @@ export function StepCard({
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ type: 'spring', stiffness: 500, damping: 22 }}
-          className="absolute right-4 top-4 flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500 text-emerald-950"
+          className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full bg-accent-500 text-white shadow-sm"
           aria-hidden="true"
         >
           <Check className="h-3.5 w-3.5" strokeWidth={3} />
         </motion.span>
       )}
 
-      <span
+      <motion.span
+        animate={{ scale: selected ? 1.12 : 1 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 20 }}
         className={cn(
-          'flex h-11 w-11 items-center justify-center rounded-xl transition-colors',
-          selected ? 'bg-emerald-500/20 text-emerald-300' : 'bg-slate-900 text-slate-400'
+          'flex h-11 w-11 items-center justify-center rounded-md transition-colors duration-300',
+          selected
+            ? 'bg-accent-100 text-accent-600'
+            : 'bg-[var(--color-surface-2)] text-[var(--text-muted)]'
         )}
       >
         <Icon className="h-5 w-5" aria-hidden="true" />
-      </span>
+      </motion.span>
 
-      <span>
-        <span className={cn('block text-sm font-semibold', selected ? 'text-emerald-200' : 'text-slate-100')}>
+      <span className="flex flex-col items-center">
+        <span className={cn(
+          'block text-sm font-semibold',
+          selected ? 'text-accent-700' : 'text-[var(--text-primary)]'
+        )}>
           {title}
         </span>
-        {description && <span className="mt-0.5 block text-xs text-slate-400">{description}</span>}
+        {description && (
+          <span className="mt-0.5 block text-xs text-[var(--text-muted)]">{description}</span>
+        )}
       </span>
     </motion.button>
   );
