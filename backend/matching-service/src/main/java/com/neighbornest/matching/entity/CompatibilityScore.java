@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -29,11 +30,15 @@ import java.time.LocalDateTime;
  * @version 1.0.0
  */
 @Entity
-@Table(name = "compatibility_scores", indexes = {
-        @Index(name = "idx_compat_user1", columnList = "user_id_1"),
-        @Index(name = "idx_compat_user2", columnList = "user_id_2"),
-        @Index(name = "idx_compat_pair", columnList = "user_id_1, user_id_2")
-})
+@Table(name = "compatibility_scores",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_compat_pair", columnNames = {"user_id_1", "user_id_2"})
+        },
+        indexes = {
+                @Index(name = "idx_compat_user1", columnList = "user_id_1"),
+                @Index(name = "idx_compat_user2", columnList = "user_id_2"),
+                @Index(name = "idx_compat_pair", columnList = "user_id_1, user_id_2")
+        })
 @Getter
 @Setter
 @NoArgsConstructor

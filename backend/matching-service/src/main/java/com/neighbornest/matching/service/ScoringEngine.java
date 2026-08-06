@@ -2,6 +2,7 @@ package com.neighbornest.matching.service;
 
 import com.neighbornest.matching.client.dto.OnboardingAnswerDto;
 import com.neighbornest.matching.client.dto.UserMatchDto;
+import com.neighbornest.matching.constants.AppConstants;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -31,7 +32,7 @@ public class ScoringEngine {
     public static final String INTEREST_PREFIX = "interest_";
 
     /** Penalty applied when a candidate's budget level differs by more than one step. */
-    public static final double BUDGET_DEALBREAKER_PENALTY = 20.0;
+    public static final double BUDGET_DEALBREAKER_PENALTY = AppConstants.DEALBREAKER_PENALTY;
 
     /**
      * Computes the compatibility score between two users.

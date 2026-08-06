@@ -13,6 +13,8 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -114,6 +116,40 @@ public class GlobalExceptionHandler {
                 .build();
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+    /**
+     * Handles {@link MethodArgumentTypeMismatchException} — returns 400 BAD REQUEST.
+     * <p>
+     * Raised when a path/query parameter cannot be converted to its target type
+     * (e.g. {@code ?status=BOGUS} on the anchor-applications filter, or a
+     * non-numeric id path variable). Without this, such requests would fall
+     * through to the generic 500 handler.
+     * </p>
+     */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponse> handleTypeMismatch(
+            final MethodArgumentTypeMismatchException ex, final HttpServletRequest request) {
+        log.warn("Type mismatch for parameter '{}': {}", ex.getName(), ex.getValue());
+        return buildErrorResponse(HttpStatus.BAD_REQUEST,
+                "Invalid value for parameter '" + ex.getName() + "': " + ex.getValue(), request);
+    }
+
+    /**
+     * Handles {@link MaxUploadSizeExceededException} — returns 413 PAYLOAD TOO LARGE.
+     * <p>
+     * Raised by the servlet container when a multipart upload exceeds the
+     * configured {@code spring.servlet.multipart.max-file-size}. The photo
+     * service also enforces a 5 MB cap, but this handler keeps the container
+     * limit from surfacing as a raw 500.
+     * </p>
+     */
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ErrorResponse> handleMaxUploadSize(
+            final MaxUploadSizeExceededException ex, final HttpServletRequest request) {
+        log.warn("Upload too large: {}", ex.getMessage());
+        return buildErrorResponse(HttpStatus.PAYLOAD_TOO_LARGE,
+                "Uploaded file exceeds the 5 MB size limit.", request);
     }
 
     /**

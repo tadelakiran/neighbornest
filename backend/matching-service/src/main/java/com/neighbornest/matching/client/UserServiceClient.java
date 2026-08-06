@@ -1,5 +1,6 @@
 package com.neighbornest.matching.client;
 
+import com.neighbornest.matching.client.dto.CurrentUserProfileDto;
 import com.neighbornest.matching.client.dto.UserCityDto;
 import com.neighbornest.matching.client.dto.UserMatchDto;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -37,4 +38,20 @@ public interface UserServiceClient {
      */
     @GetMapping("/api/users/{userId}/profile")
     UserCityDto getUserCity(@PathVariable("userId") Long userId);
+
+    /**
+     * Resolves the current caller's profile id via the user-service {@code /me}
+     * endpoint (the Authorization header is forwarded by the Feign interceptor).
+     * <p>
+     * The JWT's {@code userId} claim is the <em>auth-service</em> user id, but
+     * proposals store <em>profile</em> ids. This lookup bridges the two so
+     * member-scoped operations (e.g. responding to a proposal) compare against
+     * the correct id space. Returns {@code null} when the caller has no profile
+     * or the user-service is unavailable (see fallback factory).
+     * </p>
+     *
+     * @return the current user's profile id, or {@code null}
+     */
+    @GetMapping("/api/users/me")
+    CurrentUserProfileDto getMyProfile();
 }

@@ -1,216 +1,96 @@
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Bell, ChevronDown, LayoutDashboard, LogOut, Settings, User as UserIcon } from 'lucide-react';
-import { Avatar } from '@/components/ui/Avatar';
-import { Button } from '@/components/ui/Button';
-import { DarkModeToggle } from '@/components/ui/DarkModeToggle';
-import { useAuth } from '@/hooks/useAuth';
-import { useToast } from '@/hooks/useToast';
-import { cn } from '@/lib/utils';
-import { ROUTES } from '@/lib/constants';
+import React from 'react';
+import { motion } from 'framer-motion';
+import { Menu, Bell, ShieldCheck, LogOut, User } from 'lucide-react';
 
-interface NavbarProps {
-  onMenuClick: () => void;
+export interface NavbarProps {
+  user?: {
+    fullName?: string;
+    role?: string;
+    city?: string;
+  };
+  onMenuClick?: () => void;
+  onLogout?: () => void;
+  className?: string;
 }
 
-/** Geometric nest mark */
-export function NestMark({ className }: { className?: string }) {
+export const Navbar: React.FC<NavbarProps> = ({
+  user,
+  onMenuClick,
+  onLogout,
+  className = ""
+}) => {
   return (
-    <span aria-hidden="true" className={cn('relative inline-flex items-center justify-center', className)}>
-      <svg viewBox="0 0 32 32" fill="none" className="h-full w-full">
-        <path d="M16 5 L27 25 H5 Z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
-        <path d="M16 13 L23 25 H9 Z" fill="currentColor" opacity="0.3" />
-        <path d="M16 19 L19 25 H13 Z" fill="currentColor" />
-        <circle cx="16" cy="5" r="1.6" fill="currentColor" />
-      </svg>
-    </span>
-  );
-}
-
-/** Brand wordmark + logo */
-export function BrandLogo({ compact = false }: { compact?: boolean }) {
-  return (
-    <Link to={ROUTES.DASHBOARD} className="group flex items-center gap-2.5">
-      <span className="flex h-9 w-9 items-center justify-center rounded-md bg-accent-500 text-white shadow-md transition-all duration-200 group-hover:bg-accent-600 group-hover:shadow-glow">
-        <NestMark className="h-5 w-5" />
-      </span>
-      {!compact && (
-        <span className="font-display text-lg font-bold tracking-tight text-[var(--text-primary)]">
-          Neighbor<span className="text-accent-600">Nest</span>
-        </span>
-      )}
-    </Link>
-  );
-}
-
-const PILL_LINKS = [
-  { label: 'Dashboard', to: ROUTES.DASHBOARD, icon: LayoutDashboard },
-  { label: 'My Nest',   to: ROUTES.MY_NEST },
-  { label: 'Messages',  to: ROUTES.MESSAGES },
-];
-
-/**
- * Top navigation bar — white/light in light mode, dark navy in dark mode.
- * Includes: brand logo, pill nav (desktop), notification bell, dark mode toggle, user dropdown.
- */
-export const Navbar = memo(function Navbar({ onMenuClick }: NavbarProps) {
-  const navigate  = useNavigate();
-  const location  = useLocation();
-  const toast     = useToast();
-  const { user, logout } = useAuth();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!menuOpen) return;
-    const handle = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false);
-    };
-    document.addEventListener('mousedown', handle);
-    return () => document.removeEventListener('mousedown', handle);
-  }, [menuOpen]);
-
-  const handleLogout = useCallback(() => {
-    setMenuOpen(false);
-    void logout();
-  }, [logout]);
-
-  const handleSettings = useCallback(() => {
-    setMenuOpen(false);
-    navigate(`${ROUTES.PROFILE}?tab=settings`);
-  }, [navigate]);
-
-  const userLabel = user?.fullName ?? 'My Account';
-  const isActive  = (to: string) => location.pathname === to;
-
-  return (
-    <header className="fixed inset-x-0 top-0 z-40 border-b border-[var(--color-border)] bg-[var(--color-bg)]/90 backdrop-blur-xl theme-transition shadow-sm">
-      <div className="flex h-16 items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
-
-        {/* Left: hamburger + logo */}
-        <div className="flex items-center gap-3">
+    <motion.header 
+      initial={{ y: -20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.3 }}
+      className={`sticky top-0 z-40 w-full backdrop-blur-xl bg-white/80 dark:bg-slate-900/80 border-b border-slate-200/80 dark:border-slate-800 px-4 md:px-8 py-3.5 flex items-center justify-between shadow-sm ${className}`}
+    >
+      <div className="flex items-center gap-3">
+        {onMenuClick && (
           <button
-            type="button"
             onClick={onMenuClick}
-            className="rounded-md p-2 text-[var(--text-secondary)] transition-colors hover:bg-[var(--color-surface)] hover:text-[var(--text-primary)] lg:hidden"
-            aria-label="Open navigation menu"
+            className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 lg:hidden transition-colors"
+            aria-label="Open Navigation Menu"
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
+            <Menu className="w-5 h-5" />
           </button>
-          <BrandLogo />
-        </div>
+        )}
 
-        {/* Center: pill nav (desktop) */}
-        <nav
-          aria-label="Primary"
-          className="hidden items-center gap-1 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] p-1 lg:flex"
-        >
-          {PILL_LINKS.map(({ label, to }) => {
-            const active = isActive(to);
-            return (
-              <Link
-                key={to}
-                to={to}
-                className={cn(
-                  'rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-200',
-                  active
-                    ? 'bg-accent-500 text-white shadow-sm'
-                    : 'text-[var(--text-secondary)] hover:bg-[var(--color-surface-2)] hover:text-[var(--text-primary)]'
-                )}
-              >
-                {label}
-              </Link>
-            );
-          })}
-        </nav>
-
-        {/* Right: bell + dark mode + avatar */}
-        <div className="flex items-center gap-1.5 sm:gap-2">
-
-          {/* Notification bell */}
-          <button
-            type="button"
-            onClick={() => toast.info('No new notifications.')}
-            className="relative rounded-md p-2 text-[var(--text-secondary)] transition-colors hover:bg-[var(--color-surface)] hover:text-[var(--text-primary)]"
-            aria-label="Notifications"
-          >
-            <Bell className="h-5 w-5" />
-            <span className="absolute right-2 top-2 flex h-2 w-2" aria-hidden="true">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent-500 opacity-60" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-accent-500 ring-2 ring-[var(--color-bg)]" />
-            </span>
-          </button>
-
-          {/* Dark mode toggle */}
-          <DarkModeToggle variant="icon" />
-
-          {/* User dropdown */}
-          <div className="relative" ref={menuRef}>
-            <button
-              type="button"
-              onClick={() => setMenuOpen((o) => !o)}
-              className="flex items-center gap-2 rounded-full p-1 pr-2 transition-all duration-200 hover:bg-[var(--color-surface)]"
-              aria-haspopup="menu"
-              aria-expanded={menuOpen}
-            >
-              <span className="rounded-full ring-2 ring-accent-400/60 shadow-sm">
-                <Avatar name={userLabel} src={user?.profilePhotoUrl} size="sm" />
-              </span>
-              <span className="hidden max-w-[8rem] truncate text-sm font-medium text-[var(--text-primary)] sm:block">
-                {userLabel}
-              </span>
-              <ChevronDown
-                className={cn(
-                  'hidden h-4 w-4 text-[var(--text-muted)] transition-transform duration-200 sm:block',
-                  menuOpen && 'rotate-180'
-                )}
-                aria-hidden="true"
-              />
-            </button>
-
-            {menuOpen && (
-              <div
-                role="menu"
-                className="animate-scale-in absolute right-0 mt-2 w-52 overflow-hidden rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] shadow-lg"
-              >
-                <div className="border-b border-[var(--color-border)] px-4 py-3">
-                  <p className="truncate text-sm font-semibold text-[var(--text-primary)]">{userLabel}</p>
-                  <p className="truncate text-xs text-[var(--text-muted)]">{user?.email ?? '—'}</p>
-                </div>
-                {[
-                  { icon: UserIcon, label: 'Profile',  action: () => { setMenuOpen(false); navigate(ROUTES.PROFILE); } },
-                  { icon: Settings, label: 'Settings', action: handleSettings },
-                ].map(({ icon: Icon, label, action }) => (
-                  <button
-                    key={label}
-                    type="button"
-                    role="menuitem"
-                    onClick={action}
-                    className="flex w-full items-center gap-2.5 px-4 py-2.5 text-sm text-[var(--text-secondary)] transition-colors hover:bg-[var(--color-surface)] hover:text-[var(--text-primary)]"
-                  >
-                    <Icon className="h-4 w-4 text-[var(--text-muted)]" />
-                    {label}
-                  </button>
-                ))}
-                <div className="border-t border-[var(--color-border)] p-1.5">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    fullWidth
-                    leftIcon={<LogOut className="h-4 w-4 text-rose-500" />}
-                    onClick={handleLogout}
-                    className="justify-start text-rose-600 hover:bg-rose-50 hover:text-rose-700"
-                  >
-                    Log out
-                  </Button>
-                </div>
-              </div>
-            )}
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/25 font-black text-base">
+            N
+          </div>
+          <div>
+            <h1 className="text-base font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-1.5">
+              NestMatch <span className="text-[10px] uppercase font-bold tracking-widest text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-2 py-0.5 rounded-full border border-indigo-200 dark:border-indigo-800">Pro</span>
+            </h1>
           </div>
         </div>
       </div>
-    </header>
+
+      <div className="flex items-center gap-3">
+        <button 
+          className="p-2 rounded-xl text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors relative"
+          aria-label="Notifications"
+        >
+          <Bell className="w-5 h-5" />
+          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-pink-500 animate-pulse" />
+        </button>
+
+        {user ? (
+          <div className="flex items-center gap-3 pl-3 border-l border-slate-200 dark:border-slate-800">
+            <div className="hidden sm:block text-right">
+              <p className="text-xs font-bold text-slate-900 dark:text-white">
+                {user.fullName || 'Community Member'}
+              </p>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 capitalize">
+                {user.role === 'ANCHOR' ? 'Anchor Guide' : 'Explorer'}
+              </p>
+            </div>
+
+            <div className="w-9 h-9 rounded-xl bg-indigo-500/10 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 flex items-center justify-center font-bold">
+              <User className="w-4 h-4" />
+            </div>
+
+            {onLogout && (
+              <button
+                onClick={onLogout}
+                className="p-2 rounded-xl text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors"
+                title="Log out"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 px-3 py-1.5 rounded-xl border border-emerald-200/60 flex items-center gap-1.5">
+              <ShieldCheck className="w-3.5 h-3.5" /> Secure Session
+            </span>
+          </div>
+        )}
+      </div>
+    </motion.header>
   );
-});
+};

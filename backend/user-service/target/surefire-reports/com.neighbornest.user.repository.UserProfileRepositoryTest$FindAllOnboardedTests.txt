@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.neighbornest.user.repository.UserProfileRepositoryTest$FindAllOnboardedTests
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.063 s -- in com.neighbornest.user.repository.UserProfileRepositoryTest$FindAllOnboardedTests
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.140 s -- in com.neighbornest.user.repository.UserProfileRepositoryTest$FindAllOnboardedTests

@@ -30,6 +30,10 @@ public class AnchorApplicationResponse {
     @JsonProperty("user_profile_id")
     private Long userProfileId;
 
+    @Schema(description = "Applicant's full name (populated for admin review views)", example = "John Doe")
+    @JsonProperty("full_name")
+    private String fullName;
+
     @Schema(description = "Years the applicant has lived in the city", example = "5")
     @JsonProperty("years_in_city")
     private int yearsInCity;
@@ -58,4 +62,8 @@ public class AnchorApplicationResponse {
     @Schema(description = "Timestamp when the application was reviewed", example = "2025-01-18T10:30:00")
     @JsonProperty("reviewed_at")
     private LocalDateTime reviewedAt;
+
+    @Schema(description = "Note left by the reviewer", example = "Strong local knowledge and availability")
+    @JsonProperty("review_note")
+    private String reviewNote;
 }

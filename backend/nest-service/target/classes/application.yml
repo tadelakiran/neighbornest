@@ -7,21 +7,24 @@ spring:
   datasource:
     url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3309}/${DB_NAME:nest_db}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
     username: ${MYSQL_USER:root}
-    password: ${MYSQL_PASSWORD:22A91A1252@s}
+    # Local/dev default only — always override with MYSQL_PASSWORD (or backend/.env).
+    password: ${MYSQL_PASSWORD:root}
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       maximum-pool-size: 10
       minimum-idle: 5
       idle-timeout: 30000
+      max-lifetime: 1800000
       connection-timeout: 30000
+      connection-test-query: SELECT 1
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
-        format_sql: true
+        format_sql: false
     open-in-view: false
   cloud:
     openfeign:
@@ -39,8 +42,11 @@ eureka:
       defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka/}
     fetch-registry: true
     register-with-eureka: true
+    registry-fetch-interval-seconds: 10
   instance:
     prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30
 
 # Application-specific configuration
 app:
@@ -53,7 +59,7 @@ app:
 
 logging:
   level:
-    com.neighbornest.nest: DEBUG
-    org.springframework.security: INFO
-    org.springframework.web: INFO
+    com.neighbornest.nest: INFO
+    org.springframework.security: WARN
+    org.springframework.web: WARN
     org.hibernate.SQL: WARN

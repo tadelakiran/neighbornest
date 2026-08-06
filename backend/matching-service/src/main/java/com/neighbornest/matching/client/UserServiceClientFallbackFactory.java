@@ -1,5 +1,6 @@
 package com.neighbornest.matching.client;
 
+import com.neighbornest.matching.client.dto.CurrentUserProfileDto;
 import com.neighbornest.matching.client.dto.UserCityDto;
 import com.neighbornest.matching.client.dto.UserMatchDto;
 import com.neighbornest.matching.exception.ServiceUnavailableException;
@@ -42,6 +43,13 @@ public class UserServiceClientFallbackFactory implements FallbackFactory<UserSer
             public UserCityDto getUserCity(final Long userId) {
                 // Allow Nest creation to proceed with an empty city during an outage.
                 return UserCityDto.builder().city("").build();
+            }
+
+            @Override
+            public CurrentUserProfileDto getMyProfile() {
+                // A null result signals "could not resolve the current profile";
+                // the controller translates it into a clean 4xx instead of a 500.
+                return null;
             }
         };
     }

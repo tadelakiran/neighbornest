@@ -10,5 +10,7 @@ public enum ProposalStatus {
     PENDING,
     ACCEPTED,
     REJECTED,
-    EXPIRED
+    EXPIRED,
+    /** Proposal fully accepted and a Nest was created for it. */
+    COMPLETED
 }

@@ -3,10 +3,14 @@ package com.neighbornest.matching.service;
 import com.neighbornest.matching.client.NestServiceClient;
 import com.neighbornest.matching.client.UserServiceClient;
 import com.neighbornest.matching.client.dto.CreateNestRequest;
+import com.neighbornest.matching.client.dto.NestResponseDto;
 import com.neighbornest.matching.config.MatchingProperties;
+import com.neighbornest.matching.constants.AppConstants;
 import com.neighbornest.matching.dto.request.ProposalCreateRequest;
 import com.neighbornest.matching.dto.response.MatchProposalResponse;
+import com.neighbornest.matching.dto.response.ProposalExecutionResponse;
 import com.neighbornest.matching.dto.response.ProposalMemberResponse;
+import com.neighbornest.matching.event.ProposalAcceptedEvent;
 import com.neighbornest.matching.entity.MatchProposal;
 import com.neighbornest.matching.entity.MatchProposalMember;
 import com.neighbornest.matching.entity.ProposalResponse;
@@ -15,10 +19,12 @@ import com.neighbornest.matching.entity.RoleInNest;
 import com.neighbornest.matching.exception.BadRequestException;
 import com.neighbornest.matching.exception.ProposalExpiredException;
 import com.neighbornest.matching.exception.ResourceNotFoundException;
+import com.neighbornest.matching.exception.ServiceUnavailableException;
 import com.neighbornest.matching.repository.MatchProposalMemberRepository;
 import com.neighbornest.matching.repository.MatchProposalRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,6 +54,7 @@ public class MatchProposalService {
     private final NestServiceClient nestServiceClient;
     private final UserServiceClient userServiceClient;
     private final MatchingProperties matchingProperties;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * Creates a new proposal with the given members and anchors.
@@ -59,6 +66,7 @@ public class MatchProposalService {
     public MatchProposalResponse createProposal(final ProposalCreateRequest request) {
         log.info("Creating proposal for {} users", request.getUserIds().size());
 
+        validateSize(request);
         validateAnchors(request);
 
         final MatchProposal proposal = MatchProposal.builder()
@@ -101,7 +109,11 @@ public class MatchProposalService {
     public MatchProposalResponse respond(final Long proposalId, final Long userId, final boolean accept) {
         log.info("User {} responding {} to proposal {}", userId, accept ? "accept" : "decline", proposalId);
 
-        final MatchProposal proposal = proposalRepository.findById(proposalId)
+        // Pessimistic lock: concurrent member responses must serialize so the
+        // "all accepted?" check always sees the latest responses. Without it,
+        // two simultaneous responses could both read a stale member list and
+        // never promote the proposal, leaving it stuck PENDING.
+        final MatchProposal proposal = proposalRepository.findByIdForUpdate(proposalId)
                 .orElseThrow(() -> new ResourceNotFoundException("Proposal not found with id: " + proposalId));
 
         if (proposal.getStatus() != ProposalStatus.PENDING) {
@@ -148,13 +160,28 @@ public class MatchProposalService {
 
     /**
      * Executes an accepted proposal by creating a Nest in the nest-service.
+     * <p>
+     * Captures the created Nest's ID on the proposal and moves it to
+     * {@link ProposalStatus#COMPLETED}. This is also called automatically
+     * once all members have accepted (see {@link #respond}).
+     * </p>
      *
      * @param proposalId the proposal ID
-     * @return the executed proposal
+     * @return the execution result including the Nest ID
      */
     @Transactional
-    public MatchProposalResponse execute(final Long proposalId) {
-        final MatchProposal proposal = proposalRepository.findById(proposalId)
+    public ProposalExecutionResponse execute(final Long proposalId) {
+        return executeProposal(proposalId);
+    }
+
+    /**
+     * Performs the actual Nest creation and proposal completion.
+     *
+     * @param proposalId the proposal ID
+     * @return the execution result including the Nest ID
+     */
+    private ProposalExecutionResponse executeProposal(final Long proposalId) {
+        final MatchProposal proposal = proposalRepository.findByIdForUpdate(proposalId)
                 .orElseThrow(() -> new ResourceNotFoundException("Proposal not found with id: " + proposalId));
 
         if (proposal.getStatus() != ProposalStatus.ACCEPTED) {
@@ -173,10 +200,44 @@ public class MatchProposalService {
                         .toList())
                 .build();
 
-        nestServiceClient.createNest(request);
-        log.info("Proposal {} executed: Nest creation triggered", proposalId);
+        final NestResponseDto nest = nestServiceClient.createNest(request);
+        if (nest == null || nest.getId() == null) {
+            // A 200 without a Nest ID is still a failure — do not record a
+            // COMPLETED proposal with no Nest. Keep it ACCEPTED for retry.
+            throw new ServiceUnavailableException("Nest-service did not return a Nest ID");
+        }
 
-        return toResponse(proposal, members);
+        proposal.setNestId(nest.getId());
+        proposal.setStatus(ProposalStatus.COMPLETED);
+        proposalRepository.save(proposal);
+
+        log.info("Proposal {} executed: Nest {} created", proposalId, proposal.getNestId());
+
+        return ProposalExecutionResponse.builder()
+                .proposalId(proposalId)
+                .nestId(proposal.getNestId())
+                .message("Nest created successfully")
+                .build();
+    }
+
+    /**
+     * Validates the total size of a proposal (5-8 people) and the anchor
+     * count (1-2), per the product rules.
+     *
+     * @param request the proposal creation request
+     */
+    private void validateSize(final ProposalCreateRequest request) {
+        final int total = request.getUserIds().size();
+        if (total < AppConstants.MIN_NEST_SIZE || total > AppConstants.MAX_NEST_SIZE) {
+            throw new BadRequestException("A Nest proposal requires between "
+                    + AppConstants.MIN_NEST_SIZE + " and " + AppConstants.MAX_NEST_SIZE + " people");
+        }
+
+        final int anchors = request.getAnchorIds() == null ? 0 : request.getAnchorIds().size();
+        if (anchors < AppConstants.MIN_ANCHORS || anchors > AppConstants.MAX_ANCHORS) {
+            throw new BadRequestException("A Nest proposal requires between "
+                    + AppConstants.MIN_ANCHORS + " and " + AppConstants.MAX_ANCHORS + " anchors");
+        }
     }
 
     /**
@@ -237,6 +298,9 @@ public class MatchProposalService {
             proposal.setStatus(ProposalStatus.ACCEPTED);
             proposal.setAcceptedAt(LocalDateTime.now());
             proposalRepository.save(proposal);
+            // Publish AFTER_COMMIT so Nest creation never runs inside this
+            // (now committed) transaction — see ProposalExecutionListener.
+            eventPublisher.publishEvent(new ProposalAcceptedEvent(proposal.getId()));
         }
     }
 
@@ -254,6 +318,7 @@ public class MatchProposalService {
                 .proposedAt(proposal.getProposedAt())
                 .expiresAt(proposal.getExpiresAt())
                 .acceptedAt(proposal.getAcceptedAt())
+                .nestId(proposal.getNestId())
                 .members(members.stream().map(this::toMemberResponse).toList())
                 .build();
     }

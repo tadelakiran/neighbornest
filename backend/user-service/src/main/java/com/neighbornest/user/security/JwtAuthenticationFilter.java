@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -57,10 +59,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (token != null && jwtService.isValid(token)) {
             final Long userId = jwtService.extractUserId(token);
+            final String role = jwtService.extractRole(token);
+
+            // Expose the JWT role as a Spring Security authority (ROLE_<role>)
+            // so @PreAuthorize("hasRole('ADMIN')") works on admin endpoints.
+            final List<GrantedAuthority> authorities = role != null
+                    ? List.of(new SimpleGrantedAuthority("ROLE_" + role))
+                    : List.of();
 
             final AuthenticatedUser principal = new AuthenticatedUser(userId, null);
             final UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(principal, null, List.of());
+                    new UsernamePasswordAuthenticationToken(principal, null, authorities);
 
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authentication);

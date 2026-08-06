@@ -236,10 +236,15 @@ All domain-service endpoints require a `Bearer` token (see the auth flow below).
 | POST   | `/api/users/profile`             | Create profile (authUserId from JWT)            |
 | GET    | `/api/users/me`                  | Get current profile + onboarding answers        |
 | PUT    | `/api/users/me`                  | Update profile fields                           |
+| DELETE | `/api/users/me`                  | Delete profile + answers + anchor applications |
+| POST   | `/api/users/me/photo`            | Upload profile photo (JPG/PNG/WEBP/GIF, 5 MB)   |
+| GET    | `/api/users/photo/{fileName}`    | Serve a stored profile photo                    |
 | POST   | `/api/users/onboarding`          | Submit onboarding answers (marks onboarded)     |
 | GET    | `/api/users/onboarding/status`   | Check onboarding completion                     |
 | POST   | `/api/users/anchor-apply`        | Submit anchor application                       |
 | GET    | `/api/users/anchor-application`  | Get my anchor application                       |
+| GET    | `/api/users/anchor-applications` | List anchor applications (ADMIN, optional `?status=` filter) |
+| PUT    | `/api/users/anchor-applications/{id}/review` | Approve/reject application (ADMIN)    |
 | GET    | `/api/users/{userId}/profile`    | Public profile view (for Nest members)          |
 | GET    | `/api/users/ready-for-match`     | Users ready for matching (used via Feign)       |
 

@@ -1,197 +1,112 @@
-import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { ArrowRight, Eye, EyeOff, Lock, Mail, Sparkles, User as UserIcon } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
-import { useAuth } from '@/hooks/useAuth';
-import { cn } from '@/lib/utils';
-import { PASSWORD_REGEX, ROUTES } from '@/lib/constants';
+import { motion } from 'framer-motion';
+import { Heart, MapPin, Users } from 'lucide-react';
+import { BrandLogo } from '@/components/layout/Navbar';
+import { RegisterForm } from '@/components/auth/RegisterForm';
+import { LazyImage } from '@/components/ui/LazyImage';
+import { DarkModeToggle } from '@/components/ui/DarkModeToggle';
+import { APP_NAME } from '@/lib/constants';
+import { IMAGES } from '@/lib/images';
 
-const registerSchema = z
-  .object({
-    fullName: z.string().min(2, 'Full name must be at least 2 characters').max(100),
-    email: z.string().min(1, 'Email is required').email('Enter a valid email address'),
-    password: z
-      .string()
-      .min(8, 'Password must be at least 8 characters')
-      .regex(PASSWORD_REGEX, 'Must include uppercase, lowercase, digit, and special character'),
-    confirmPassword: z.string().min(1, 'Please confirm your password'),
-  })
-  .refine((d) => d.password === d.confirmPassword, {
-    message: 'Passwords do not match',
-    path: ['confirmPassword'],
-  });
-
-type RegisterFormValues = z.infer<typeof registerSchema>;
-
-const STRENGTH_CHECKS = [
-  (v: string) => /[a-z]/.test(v),
-  (v: string) => /[A-Z]/.test(v),
-  (v: string) => /\d/.test(v),
-  (v: string) => /[^A-Za-z0-9]/.test(v),
-  (v: string) => v.length >= 8,
+const FEATURES = [
+  { icon: Users,  title: 'Curated Nests',    text: 'Join small groups of people who share your vibe.' },
+  { icon: MapPin, title: 'Local Anchors',    text: 'Guided by locals who know the city inside out.'   },
+  { icon: Heart,  title: 'Real friendships', text: 'From first hello to lifelong connections.'        },
 ];
 
-export function RegisterForm() {
-  const { register: registerAction } = useAuth();
-  const [showPassword, setShowPassword] = useState(false);
+const stagger = {
+  container: { hidden: {}, show: { transition: { staggerChildren: 0.12, delayChildren: 0.2 } } },
+  item:       { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22,1,0.36,1] } } },
+};
 
-  const {
-    register,
-    handleSubmit,
-    watch,
-    formState: { errors, isSubmitting },
-  } = useForm<RegisterFormValues>({
-    resolver: zodResolver(registerSchema),
-    defaultValues: { fullName: '', email: '', password: '', confirmPassword: '' },
-  });
-
-  const password = watch('password');
-  const strength = useMemo(() => STRENGTH_CHECKS.filter((c) => c(password)).length, [password]);
-
-  const onSubmit = handleSubmit(async (values) => {
-    await registerAction({
-      fullName: values.fullName,
-      email: values.email,
-      password: values.password,
-    });
-  });
-
-  const strengthLabel = strength <= 2 ? 'Weak' : strength <= 4 ? 'Good' : 'Strong';
-  const strengthTextColor =
-    strength <= 2 ? 'text-rose-500' : strength <= 4 ? 'text-amber-500' : 'text-emerald-600';
-  const strengthColor =
-    strength <= 2 ? 'bg-rose-400' : strength <= 4 ? 'bg-amber-400' : 'bg-emerald-500';
-
+export function RegisterPage() {
   return (
-    <div className="relative overflow-hidden rounded-[24px] border border-[var(--color-border)] bg-[var(--color-bg)] p-6 shadow-[0_16px_55px_-28px_rgba(15,23,42,0.55)] theme-transition sm:p-7">
-      <div className="absolute inset-x-0 top-0 h-1 rounded-t-[24px] bg-accent-gradient" aria-hidden="true" />
-
-      <div className="mb-6 space-y-2">
-        <div className="inline-flex items-center gap-2 rounded-full border border-accent-200/60 bg-accent-50 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.28em] text-accent-700">
-          <Sparkles className="h-3.5 w-3.5" />
-          Create account
+    <div className="flex min-h-screen">
+      <div className="relative hidden w-[55%] flex-col justify-between overflow-hidden lg:flex">
+        <div className="absolute inset-0">
+          <LazyImage
+            src={IMAGES.community}
+            alt="Neighbors spending time together in a warm community"
+            aspectRatio="1/1"
+            placeholder="blur"
+            wrapperClassName="absolute inset-0"
+            className="object-cover"
+            loading="eager"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-accent-900/90 via-accent-800/70 to-accent-700/30" />
+          <div className="absolute inset-0 bg-gradient-to-t from-accent-950/60 via-transparent to-transparent" />
         </div>
 
-        <h2 className="font-display text-[28px] font-bold leading-tight text-[var(--text-primary)]">
-          Create your account
-        </h2>
-        <p className="text-sm text-[var(--text-muted)]">
-          Takes less than a minute. No credit card required.
+        <div className="relative flex items-center justify-between p-10">
+          <BrandLogo />
+        </div>
+
+        <motion.div
+          className="relative max-w-lg space-y-10 px-10 pb-14"
+          variants={stagger.container}
+          initial="hidden"
+          animate="show"
+        >
+          <motion.div variants={stagger.item} className="space-y-4">
+            <h1 className="font-display text-4xl font-bold leading-tight tracking-tight text-white">
+              Find your people in a{' '}
+              <span className="bg-gradient-to-r from-blue-200 to-blue-100 bg-clip-text text-transparent">
+                new city
+              </span>
+              .
+            </h1>
+            <p className="text-lg leading-relaxed text-blue-100/90">
+              {APP_NAME} matches newcomers into small curated groups with local Anchors — real
+              friendships, zero awkward networking.
+            </p>
+          </motion.div>
+
+          <motion.ul variants={stagger.container} className="space-y-5">
+            {FEATURES.map(({ icon: Icon, title, text }) => (
+              <motion.li key={title} variants={stagger.item} className="flex items-start gap-4">
+                <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-white/20 bg-white/10 backdrop-blur-sm">
+                  <Icon className="h-5 w-5 text-blue-100" aria-hidden="true" />
+                </span>
+                <div>
+                  <p className="font-semibold text-white">{title}</p>
+                  <p className="text-sm text-blue-200/80">{text}</p>
+                </div>
+              </motion.li>
+            ))}
+          </motion.ul>
+        </motion.div>
+
+        <p className="relative px-10 pb-6 text-xs text-blue-300/60">
+          © {new Date().getFullYear()} {APP_NAME}
         </p>
       </div>
 
-      <form onSubmit={onSubmit} className="space-y-4" noValidate>
-        <Input
-          id="fullName"
-          type="text"
-          label="Full name"
-          placeholder="Jane Doe"
-          autoComplete="name"
-          icon={<UserIcon className="h-4 w-4" aria-hidden="true" />}
-          error={errors.fullName?.message}
-          className="h-12 rounded-2xl border-slate-200 bg-slate-50/90 text-slate-900 shadow-sm transition-all duration-200 focus-within:border-accent-400 focus-within:ring-4 focus-within:ring-accent-100"
-          {...register('fullName')}
-        />
-
-        <Input
-          id="email"
-          type="email"
-          label="Email"
-          placeholder="you@example.com"
-          autoComplete="email"
-          icon={<Mail className="h-4 w-4" aria-hidden="true" />}
-          error={errors.email?.message}
-          className="h-12 rounded-2xl border-slate-200 bg-slate-50/90 text-slate-900 shadow-sm transition-all duration-200 focus-within:border-accent-400 focus-within:ring-4 focus-within:ring-accent-100"
-          {...register('email')}
-        />
-
-        <div className="space-y-2.5">
-          <Input
-            id="password"
-            type={showPassword ? 'text' : 'password'}
-            label="Password"
-            placeholder="Create a strong password"
-            autoComplete="new-password"
-            icon={<Lock className="h-4 w-4" aria-hidden="true" />}
-            error={errors.password?.message}
-            className="h-12 rounded-2xl border-slate-200 bg-slate-50/90 text-slate-900 shadow-sm transition-all duration-200 focus-within:border-accent-400 focus-within:ring-4 focus-within:ring-accent-100"
-            trailing={
-              <button
-                type="button"
-                onClick={() => setShowPassword((v) => !v)}
-                className="rounded-full p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
-              >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            }
-            {...register('password')}
-          />
-
-          <div className="rounded-2xl border border-slate-100 bg-slate-50/80 px-3 py-2.5">
-            <div className="mb-2 flex items-center justify-between text-[11px] font-medium">
-              <span className="text-slate-500">Password strength</span>
-              <span className={cn('uppercase tracking-[0.18em]', strengthTextColor)}>
-                {strengthLabel}
-              </span>
-            </div>
-
-            <div className="flex gap-1.5" aria-hidden="true">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <span
-                  key={i}
-                  className={cn(
-                    'h-1.5 flex-1 rounded-full transition-all duration-300',
-                    i < strength ? strengthColor : 'bg-slate-200'
-                  )}
-                />
-              ))}
-            </div>
-          </div>
+      <div className="flex w-full flex-col items-center justify-center px-4 py-12 sm:px-8 lg:w-[45%]">
+        <div className="absolute right-4 top-4 flex items-center gap-2">
+          <DarkModeToggle variant="icon" />
         </div>
 
-        <Input
-          id="confirmPassword"
-          type={showPassword ? 'text' : 'password'}
-          label="Confirm password"
-          placeholder="Repeat your password"
-          autoComplete="new-password"
-          icon={<Lock className="h-4 w-4" aria-hidden="true" />}
-          error={errors.confirmPassword?.message}
-          className="h-12 rounded-2xl border-slate-200 bg-slate-50/90 text-slate-900 shadow-sm transition-all duration-200 focus-within:border-accent-400 focus-within:ring-4 focus-within:ring-accent-100"
-          {...register('confirmPassword')}
-        />
+        <div className="w-full max-w-md">
+          <div className="mb-8 flex items-center justify-between lg:hidden">
+            <BrandLogo />
+          </div>
 
-        <Button
-          type="submit"
-          variant="primary"
-          size="lg"
-          fullWidth
-          isLoading={isSubmitting}
-          className="h-12 rounded-2xl bg-gradient-to-r from-accent-500 to-accent-600 text-sm font-semibold shadow-lg shadow-accent-500/25 transition-all hover:-translate-y-0.5 hover:shadow-accent-500/35"
-          rightIcon={<ArrowRight className="h-4 w-4" aria-hidden="true" />}
-        >
-          {isSubmitting ? 'Creating account…' : 'Create account'}
-        </Button>
-
-        <p className="text-center text-sm text-slate-500">
-          Already have an account?{' '}
-          <Link
-            to={ROUTES.LOGIN}
-            className="group relative font-semibold text-accent-600 transition-colors hover:text-accent-700"
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            className="relative rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] p-8 shadow-xl theme-transition"
           >
-            Sign in
-            <span
-              aria-hidden="true"
-              className="absolute -bottom-0.5 left-0 h-px w-0 bg-accent-gradient transition-all duration-300 group-hover:w-full"
-            />
-          </Link>
-        </p>
-      </form>
+            <div className="absolute inset-x-0 top-0 h-0.5 rounded-t-xl bg-accent-gradient opacity-100" aria-hidden="true" />
+
+            <div className="mb-7 space-y-1.5">
+              <h2 className="font-display text-2xl font-bold text-[var(--text-primary)]">Create your account</h2>
+              <p className="text-sm text-[var(--text-muted)]">Takes less than a minute. No credit card required.</p>
+            </div>
+
+            <RegisterForm />
+          </motion.div>
+        </div>
+      </div>
     </div>
   );
 }

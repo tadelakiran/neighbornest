@@ -1,10 +1,12 @@
 package com.neighbornest.user.service;
 
 import com.neighbornest.user.dto.request.AnchorApplyRequest;
+import com.neighbornest.user.dto.request.AnchorReviewRequest.ReviewDecision;
 import com.neighbornest.user.dto.response.AnchorApplicationResponse;
 import com.neighbornest.user.entity.AnchorApplication;
 import com.neighbornest.user.entity.AnchorStatus;
 import com.neighbornest.user.entity.UserProfile;
+import com.neighbornest.user.entity.UserRole;
 import com.neighbornest.user.exception.BadRequestException;
 import com.neighbornest.user.exception.ResourceNotFoundException;
 import com.neighbornest.user.repository.AnchorApplicationRepository;
@@ -19,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -136,6 +139,119 @@ class AnchorApplicationServiceTest {
                     .hasMessageContaining("Complete onboarding");
 
             verify(anchorApplicationRepository, never()).save(any(AnchorApplication.class));
+        }
+    }
+
+    @Nested
+    @DisplayName("review method")
+    class ReviewTests {
+
+        @Test
+        @DisplayName("Should approve a pending application and promote the profile to ANCHOR")
+        void shouldApproveAndPromote() {
+            final AnchorApplication application = AnchorApplication.builder()
+                    .id(1L)
+                    .userProfileId(7L)
+                    .status(AnchorStatus.PENDING)
+                    .appliedAt(LocalDateTime.now())
+                    .build();
+            final UserProfile profile = profile(true);
+            profile.setRole(UserRole.NEWCOMER);
+
+            when(anchorApplicationRepository.findById(1L)).thenReturn(Optional.of(application));
+            when(anchorApplicationRepository.save(application)).thenReturn(application);
+            when(userProfileRepository.findById(7L)).thenReturn(Optional.of(profile));
+
+            final AnchorApplicationResponse response = service.review(1L, ReviewDecision.APPROVE, "Great fit");
+
+            assertThat(response.getStatus()).isEqualTo(AnchorStatus.APPROVED);
+            assertThat(response.getReviewNote()).isEqualTo("Great fit");
+            assertThat(response.getReviewedAt()).isNotNull();
+            assertThat(response.getFullName()).isEqualTo("John Doe");
+            assertThat(profile.getRole()).isEqualTo(UserRole.ANCHOR);
+            verify(userProfileRepository).save(profile);
+        }
+
+        @Test
+        @DisplayName("Should reject a pending application without promoting the profile")
+        void shouldRejectWithoutPromotion() {
+            final AnchorApplication application = AnchorApplication.builder()
+                    .id(1L)
+                    .userProfileId(7L)
+                    .status(AnchorStatus.PENDING)
+                    .appliedAt(LocalDateTime.now())
+                    .build();
+
+            when(anchorApplicationRepository.findById(1L)).thenReturn(Optional.of(application));
+            when(anchorApplicationRepository.save(application)).thenReturn(application);
+            when(userProfileRepository.findById(7L)).thenReturn(Optional.of(profile(true)));
+
+            final AnchorApplicationResponse response = service.review(1L, ReviewDecision.REJECT, null);
+
+            assertThat(response.getStatus()).isEqualTo(AnchorStatus.REJECTED);
+            assertThat(response.getFullName()).isEqualTo("John Doe");
+            verify(userProfileRepository, never()).save(any(UserProfile.class));
+        }
+
+        @Test
+        @DisplayName("Should throw when the application does not exist")
+        void shouldThrowWhenApplicationMissing() {
+            when(anchorApplicationRepository.findById(99L)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> service.review(99L, ReviewDecision.APPROVE, null))
+                    .isInstanceOf(ResourceNotFoundException.class)
+                    .hasMessageContaining("Anchor application not found");
+        }
+
+        @Test
+        @DisplayName("Should throw when the application is not pending")
+        void shouldThrowWhenAlreadyReviewed() {
+            final AnchorApplication application = AnchorApplication.builder()
+                    .id(1L)
+                    .userProfileId(7L)
+                    .status(AnchorStatus.APPROVED)
+                    .appliedAt(LocalDateTime.now())
+                    .build();
+            when(anchorApplicationRepository.findById(1L)).thenReturn(Optional.of(application));
+
+            assertThatThrownBy(() -> service.review(1L, ReviewDecision.APPROVE, null))
+                    .isInstanceOf(BadRequestException.class)
+                    .hasMessageContaining("Only pending applications");
+        }
+    }
+
+    @Nested
+    @DisplayName("listApplications method")
+    class ListApplicationsTests {
+
+        @Test
+        @DisplayName("Should list all applications with applicant names when no status filter is given")
+        void shouldListAll() {
+            when(anchorApplicationRepository.findAllByOrderByAppliedAtDesc())
+                    .thenReturn(List.of(AnchorApplication.builder().id(1L).userProfileId(7L).status(AnchorStatus.PENDING).build()));
+            when(userProfileRepository.findAllById(List.of(7L)))
+                    .thenReturn(List.of(profile(true)));
+
+            final var responses = service.listApplications(null);
+
+            assertThat(responses).hasSize(1);
+            assertThat(responses.get(0).getId()).isEqualTo(1L);
+            assertThat(responses.get(0).getFullName()).isEqualTo("John Doe");
+        }
+
+        @Test
+        @DisplayName("Should filter applications by status")
+        void shouldFilterByStatus() {
+            when(anchorApplicationRepository.findAllByStatusOrderByAppliedAtDesc(AnchorStatus.PENDING))
+                    .thenReturn(List.of(AnchorApplication.builder().id(2L).userProfileId(7L).status(AnchorStatus.PENDING).build()));
+            when(userProfileRepository.findAllById(List.of(7L)))
+                    .thenReturn(List.of(profile(true)));
+
+            final var responses = service.listApplications(AnchorStatus.PENDING);
+
+            assertThat(responses).hasSize(1);
+            assertThat(responses.get(0).getStatus()).isEqualTo(AnchorStatus.PENDING);
+            assertThat(responses.get(0).getFullName()).isEqualTo("John Doe");
         }
     }
 

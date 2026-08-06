@@ -1,9 +1,13 @@
 package com.neighbornest.matching.controller;
 
+import com.neighbornest.matching.client.UserServiceClient;
+import com.neighbornest.matching.client.dto.CurrentUserProfileDto;
 import com.neighbornest.matching.dto.request.ProposalCreateRequest;
 import com.neighbornest.matching.dto.request.ProposalRespondRequest;
 import com.neighbornest.matching.dto.response.CompatibilityResponse;
 import com.neighbornest.matching.dto.response.MatchProposalResponse;
+import com.neighbornest.matching.dto.response.ProposalExecutionResponse;
+import com.neighbornest.matching.exception.BadRequestException;
 import com.neighbornest.matching.security.AuthenticatedUser;
 import com.neighbornest.matching.service.MatchProposalService;
 import com.neighbornest.matching.service.MatchingAlgorithmService;
@@ -49,6 +53,7 @@ public class MatchingController {
 
     private final MatchingAlgorithmService matchingAlgorithmService;
     private final MatchProposalService matchProposalService;
+    private final UserServiceClient userServiceClient;
 
     /**
      * Triggers compatibility calculation for a user against all eligible users.
@@ -132,7 +137,7 @@ public class MatchingController {
             @Valid @RequestBody final ProposalRespondRequest request) {
 
         log.debug("POST /api/matching/proposals/{}/respond", proposalId);
-        return ResponseEntity.ok(matchProposalService.respond(proposalId, principal.userId(), request.getAccept()));
+        return ResponseEntity.ok(matchProposalService.respond(proposalId, resolveProfileId(principal), request.getAccept()));
     }
 
     /**
@@ -153,10 +158,28 @@ public class MatchingController {
     }
 
     /**
+     * Translates the JWT principal (auth-service user id) into the caller's
+     * <em>profile</em> id via the user-service, so member-scoped operations
+     * compare against the id space the proposal members actually use.
+     *
+     * @param principal the authenticated user from the JWT
+     * @return the caller's user-service profile id
+     * @throws BadRequestException if no profile can be resolved
+     */
+    private Long resolveProfileId(final AuthenticatedUser principal) {
+        final CurrentUserProfileDto profile = userServiceClient.getMyProfile();
+        if (profile == null || profile.getId() == null) {
+            log.warn("Could not resolve profile id for auth user {}", principal.userId());
+            throw new BadRequestException("Could not resolve your user profile. Complete your profile first.");
+        }
+        return profile.getId();
+    }
+
+    /**
      * Executes an accepted proposal by creating a Nest.
      *
      * @param proposalId the proposal ID
-     * @return the executed proposal
+     * @return the execution result including the Nest ID
      */
     @PostMapping("/execute/{proposalId}")
     @Operation(summary = "Execute accepted proposal",
@@ -166,7 +189,7 @@ public class MatchingController {
             @ApiResponse(responseCode = "400", description = "Proposal is not in ACCEPTED status"),
             @ApiResponse(responseCode = "503", description = "Nest-service unavailable")
     })
-    public ResponseEntity<MatchProposalResponse> execute(@PathVariable("proposalId") final Long proposalId) {
+    public ResponseEntity<ProposalExecutionResponse> execute(@PathVariable("proposalId") final Long proposalId) {
         log.debug("POST /api/matching/execute/{} - executing proposal", proposalId);
         return ResponseEntity.ok(matchProposalService.execute(proposalId));
     }

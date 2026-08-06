@@ -13,6 +13,7 @@ import com.neighbornest.user.entity.UserRole;
 import com.neighbornest.user.exception.BadRequestException;
 import com.neighbornest.user.exception.DuplicateProfileException;
 import com.neighbornest.user.exception.ResourceNotFoundException;
+import com.neighbornest.user.repository.AnchorApplicationRepository;
 import com.neighbornest.user.repository.OnboardingAnswerRepository;
 import com.neighbornest.user.repository.UserProfileRepository;
 import com.neighbornest.user.util.UserProfileMapper;
@@ -21,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -45,8 +47,10 @@ public class UserProfileService {
 
     private final UserProfileRepository userProfileRepository;
     private final OnboardingAnswerRepository onboardingAnswerRepository;
+    private final AnchorApplicationRepository anchorApplicationRepository;
     private final AuthServiceClient authServiceClient;
     private final UserProfileMapper userProfileMapper;
+    private final PhotoStorageService photoStorageService;
 
     /**
      * Creates a new profile for the authenticated user.
@@ -117,6 +121,64 @@ public class UserProfileService {
         final UserProfile saved = userProfileRepository.save(profile);
         log.info("Profile updated for authUserId: {}", authUserId);
         return toResponseWithAnswers(saved);
+    }
+
+    /**
+     * Deletes the profile of the authenticated user along with all dependent
+     * data (onboarding answers and anchor applications).
+     *
+     * @param authUserId the auth-service user ID from the JWT
+     * @throws ResourceNotFoundException if no profile exists for the user
+     */
+    @Transactional
+    public void deleteProfile(final Long authUserId) {
+        final UserProfile profile = findProfileByAuthUserId(authUserId);
+
+        onboardingAnswerRepository.deleteByUserProfileId(profile.getId());
+        anchorApplicationRepository.deleteByUserProfileId(profile.getId());
+        userProfileRepository.delete(profile);
+
+        deleteStoredPhoto(profile.getProfilePhotoUrl());
+
+        log.info("Profile deleted for authUserId: {}", authUserId);
+    }
+
+    /**
+     * Uploads and stores a profile photo for the authenticated user, updating
+     * the profile's photo URL to the served location.
+     *
+     * @param authUserId the auth-service user ID from the JWT
+     * @param file       the uploaded image file
+     * @return the updated profile as a {@link ProfileResponse}
+     * @throws ResourceNotFoundException if no profile exists for the user
+     */
+    @Transactional
+    public ProfileResponse uploadProfilePhoto(final Long authUserId, final MultipartFile file) {
+        final UserProfile profile = findProfileByAuthUserId(authUserId);
+
+        final String previousUrl = profile.getProfilePhotoUrl();
+        final String storedName = photoStorageService.store(file);
+        profile.setProfilePhotoUrl("/api/users/photo/" + storedName);
+        final UserProfile saved = userProfileRepository.save(profile);
+
+        // Best-effort cleanup of the replaced photo so files don't accumulate.
+        deleteStoredPhoto(previousUrl);
+
+        log.info("Profile photo updated for authUserId: {}", authUserId);
+        return toResponseWithAnswers(saved);
+    }
+
+    /**
+     * Deletes a stored photo file when the profile's photo URL points at a
+     * user-service-managed file (never an external URL). Best-effort — a
+     * failed file delete only logs a warning and never fails the request.
+     *
+     * @param photoUrl the profile photo URL, may be {@code null}
+     */
+    private void deleteStoredPhoto(final String photoUrl) {
+        if (photoUrl != null && photoUrl.startsWith("/api/users/photo/")) {
+            photoStorageService.delete(photoUrl.substring("/api/users/photo/".length()));
+        }
     }
 
     /**
