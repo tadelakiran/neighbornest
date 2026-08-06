@@ -42,6 +42,10 @@ public class MatchProposalResponse {
     @JsonProperty("accepted_at")
     private LocalDateTime acceptedAt;
 
+    @Schema(description = "ID of the Nest created after execution", example = "5")
+    @JsonProperty("nest_id")
+    private Long nestId;
+
     @Schema(description = "Members of the proposal")
     private List<ProposalMemberResponse> members;
 }

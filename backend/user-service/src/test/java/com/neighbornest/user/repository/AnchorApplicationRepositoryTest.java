@@ -12,6 +12,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -88,6 +89,52 @@ class AnchorApplicationRepositoryTest {
         void shouldReturnEmptyWhenNoApplication() {
             assertThat(anchorApplicationRepository.findTopByUserProfileIdOrderByAppliedAtDesc(999L))
                     .isEmpty();
+        }
+    }
+
+    @Nested
+    @DisplayName("findAllByStatusOrderByAppliedAtDesc method")
+    class FindByStatusTests {
+
+        @Test
+        @DisplayName("Should return only applications matching the status")
+        void shouldFilterByStatus() {
+            anchorApplicationRepository.saveAndFlush(application(1L, 3));
+            final AnchorApplication approved = anchorApplicationRepository.saveAndFlush(application(2L, 6));
+            approved.setStatus(AnchorStatus.APPROVED);
+            anchorApplicationRepository.saveAndFlush(approved);
+            entityManager.flush();
+            entityManager.clear();
+
+            final List<AnchorApplication> pending =
+                    anchorApplicationRepository.findAllByStatusOrderByAppliedAtDesc(AnchorStatus.PENDING);
+            final List<AnchorApplication> allApproved =
+                    anchorApplicationRepository.findAllByStatusOrderByAppliedAtDesc(AnchorStatus.APPROVED);
+
+            assertThat(pending).hasSize(1);
+            assertThat(pending.get(0).getUserProfileId()).isEqualTo(1L);
+            assertThat(allApproved).hasSize(1);
+            assertThat(allApproved.get(0).getUserProfileId()).isEqualTo(2L);
+        }
+    }
+
+    @Nested
+    @DisplayName("deleteByUserProfileId method")
+    class DeleteByProfileTests {
+
+        @Test
+        @DisplayName("Should delete every application recorded for a profile")
+        void shouldDeleteAllForProfile() {
+            anchorApplicationRepository.saveAndFlush(application(1L, 3));
+            anchorApplicationRepository.saveAndFlush(application(1L, 5));
+            anchorApplicationRepository.saveAndFlush(application(2L, 6));
+            entityManager.flush();
+            entityManager.clear();
+
+            anchorApplicationRepository.deleteByUserProfileId(1L);
+
+            assertThat(anchorApplicationRepository.findTopByUserProfileIdOrderByAppliedAtDesc(1L)).isEmpty();
+            assertThat(anchorApplicationRepository.findTopByUserProfileIdOrderByAppliedAtDesc(2L)).isPresent();
         }
     }
 }

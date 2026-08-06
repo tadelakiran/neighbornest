@@ -87,6 +87,30 @@ class MatchingAlgorithmServiceTest {
                     .isInstanceOf(BadRequestException.class)
                     .hasMessageContaining("not eligible");
         }
+
+        @Test
+        @DisplayName("Should store every pair with userId1 < userId2 (normalized orientation)")
+        void shouldNormalizePairOrientation() {
+            // Subject 3 has a HIGHER id than both candidates, so without
+            // normalization the stored rows would be (3,1) and (3,2). The
+            // rule requires the smaller id to always be userId1.
+            when(userServiceClient.getReadyForMatch()).thenReturn(List.of(
+                    user(3L, "values_adventure", "5"),
+                    user(1L, "values_adventure", "5"),
+                    user(2L, "values_adventure", "1")));
+
+            service.calculateForUser(3L);
+
+            final ArgumentCaptor<List<CompatibilityScore>> captor = ArgumentCaptor.forClass(List.class);
+            verify(scoreRepository).saveAll(captor.capture());
+            assertThat(captor.getValue()).hasSize(2);
+            assertThat(captor.getValue())
+                    .allMatch(score -> score.getUserId1() < score.getUserId2());
+            assertThat(captor.getValue().stream().map(CompatibilityScore::getUserId1))
+                    .containsExactlyInAnyOrder(1L, 2L);
+            assertThat(captor.getValue().stream().map(CompatibilityScore::getUserId2))
+                    .containsExactlyInAnyOrder(3L, 3L);
+        }
     }
 
     @Nested
@@ -117,6 +141,41 @@ class MatchingAlgorithmServiceTest {
 
             verify(scoreRepository, times(1)).findByUserId1OrderByOverallScoreDesc(eq(1L), any(Pageable.class));
             verify(scoreRepository, times(1)).findByUserId2OrderByOverallScoreDesc(eq(1L), any(Pageable.class));
+        }
+
+        @Test
+        @DisplayName("Should enrich partners with name and city from the user-service")
+        void shouldEnrichWithProfiles() {
+            when(scoreRepository.findByUserId1OrderByOverallScoreDesc(eq(1L), any(Pageable.class)))
+                    .thenReturn(List.of(score(1L, 2L, "90.00")));
+            when(scoreRepository.findByUserId2OrderByOverallScoreDesc(eq(1L), any(Pageable.class)))
+                    .thenReturn(List.of());
+            when(userServiceClient.getReadyForMatch()).thenReturn(List.of(
+                    UserMatchDto.builder().userId(2L).fullName("Jane Roe").city("New York").build()));
+
+            final List<CompatibilityResponse> responses = service.getTopCompatibles(1L);
+
+            assertThat(responses).hasSize(1);
+            assertThat(responses.get(0).getUserId()).isEqualTo(2L);
+            assertThat(responses.get(0).getFullName()).isEqualTo("Jane Roe");
+            assertThat(responses.get(0).getCity()).isEqualTo("New York");
+        }
+
+        @Test
+        @DisplayName("Should not fail enrichment when the user-service is down")
+        void shouldGracefullyDegradeWhenProfilesUnavailable() {
+            when(scoreRepository.findByUserId1OrderByOverallScoreDesc(eq(1L), any(Pageable.class)))
+                    .thenReturn(List.of(score(1L, 2L, "90.00")));
+            when(scoreRepository.findByUserId2OrderByOverallScoreDesc(eq(1L), any(Pageable.class)))
+                    .thenReturn(List.of());
+            when(userServiceClient.getReadyForMatch())
+                    .thenThrow(new RuntimeException("user-service down"));
+
+            final List<CompatibilityResponse> responses = service.getTopCompatibles(1L);
+
+            assertThat(responses).hasSize(1);
+            assertThat(responses.get(0).getUserId()).isEqualTo(2L);
+            assertThat(responses.get(0).getFullName()).isNull();
         }
     }
 

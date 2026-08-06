@@ -1,5 +1,7 @@
 package com.neighbornest.nest.controller;
 
+import com.neighbornest.nest.client.UserProfileSummary;
+import com.neighbornest.nest.client.UserServiceClient;
 import com.neighbornest.nest.dto.request.CreateNestRequest;
 import com.neighbornest.nest.dto.request.ExpenseRequest;
 import com.neighbornest.nest.dto.request.MeetingRequest;
@@ -9,6 +11,7 @@ import com.neighbornest.nest.dto.response.MeetingResponse;
 import com.neighbornest.nest.dto.response.NestResponse;
 import com.neighbornest.nest.dto.response.VibeCheckResponse;
 import com.neighbornest.nest.dto.response.VibeCheckStatusResponse;
+import com.neighbornest.nest.exception.BadRequestException;
 import com.neighbornest.nest.security.AuthenticatedUser;
 import com.neighbornest.nest.service.ExpenseService;
 import com.neighbornest.nest.service.MeetingService;
@@ -57,6 +60,7 @@ public class NestController {
     private final MeetingService meetingService;
     private final ExpenseService expenseService;
     private final VibeCheckService vibeCheckService;
+    private final UserServiceClient userServiceClient;
 
     /**
      * Creates a Nest (called by the matching-service via Feign).
@@ -110,8 +114,9 @@ public class NestController {
     public ResponseEntity<List<NestResponse>> getMyNests(
             @AuthenticationPrincipal final AuthenticatedUser principal) {
 
-        log.debug("GET /api/nests/my-nests - for userId: {}", principal.userId());
-        return ResponseEntity.ok(nestService.getMyNests(principal.userId()));
+        final Long profileId = resolveProfileId(principal);
+        log.debug("GET /api/nests/my-nests - for profileId: {}", profileId);
+        return ResponseEntity.ok(nestService.getMyNests(profileId));
     }
 
     /**
@@ -177,7 +182,7 @@ public class NestController {
             @Valid @RequestBody final ExpenseRequest request) {
 
         log.debug("POST /api/nests/{}/expenses - creating expense", nestId);
-        final ExpenseResponse response = expenseService.createExpense(nestId, principal.userId(), request);
+        final ExpenseResponse response = expenseService.createExpense(nestId, resolveProfileId(principal), request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -220,7 +225,7 @@ public class NestController {
             @Valid @RequestBody final VibeCheckRequest request) {
 
         log.debug("POST /api/nests/{}/vibe-check - submitting check", nestId);
-        final VibeCheckResponse response = vibeCheckService.submit(nestId, principal.userId(), request);
+        final VibeCheckResponse response = vibeCheckService.submit(nestId, resolveProfileId(principal), request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -278,5 +283,23 @@ public class NestController {
     public ResponseEntity<NestResponse> disband(@PathVariable("nestId") final Long nestId) {
         log.debug("POST /api/nests/{}/disband - disbanding nest", nestId);
         return ResponseEntity.ok(nestService.disband(nestId));
+    }
+
+    /**
+     * Translates the JWT principal (auth-service user id) into the caller's
+     * <em>profile</em> id via the user-service, so member-scoped operations
+     * query the id space the Nest membership data actually uses.
+     *
+     * @param principal the authenticated user from the JWT
+     * @return the caller's user-service profile id
+     * @throws BadRequestException if no profile can be resolved
+     */
+    private Long resolveProfileId(final AuthenticatedUser principal) {
+        final UserProfileSummary profile = userServiceClient.getMyProfile();
+        if (profile == null || profile.getId() == null) {
+            log.warn("Could not resolve profile id for auth user {}", principal.userId());
+            throw new BadRequestException("Could not resolve your user profile. Complete your profile first.");
+        }
+        return profile.getId();
     }
 }

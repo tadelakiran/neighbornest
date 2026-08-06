@@ -16,6 +16,7 @@ import com.neighbornest.user.entity.WorkType;
 import com.neighbornest.user.exception.BadRequestException;
 import com.neighbornest.user.exception.DuplicateProfileException;
 import com.neighbornest.user.exception.ResourceNotFoundException;
+import com.neighbornest.user.repository.AnchorApplicationRepository;
 import com.neighbornest.user.repository.OnboardingAnswerRepository;
 import com.neighbornest.user.repository.UserProfileRepository;
 import com.neighbornest.user.util.UserProfileMapper;
@@ -28,6 +29,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -37,6 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -62,10 +66,16 @@ class UserProfileServiceTest {
     private OnboardingAnswerRepository onboardingAnswerRepository;
 
     @Mock
+    private AnchorApplicationRepository anchorApplicationRepository;
+
+    @Mock
     private AuthServiceClient authServiceClient;
 
     @Mock
     private UserProfileMapper userProfileMapper;
+
+    @Mock
+    private PhotoStorageService photoStorageService;
 
     private UserProfileService service;
 
@@ -74,7 +84,8 @@ class UserProfileServiceTest {
     @BeforeEach
     void setUp() {
         service = new UserProfileService(
-                userProfileRepository, onboardingAnswerRepository, authServiceClient, userProfileMapper);
+                userProfileRepository, onboardingAnswerRepository, anchorApplicationRepository,
+                authServiceClient, userProfileMapper, photoStorageService);
     }
 
     /**
@@ -267,6 +278,116 @@ class UserProfileServiceTest {
 
             assertThatThrownBy(() -> service.updateProfile(AUTH_USER_ID, request))
                     .isInstanceOf(ResourceNotFoundException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("deleteProfile method")
+    class DeleteProfileTests {
+
+        @Test
+        @DisplayName("Should delete answers, anchor applications and the profile")
+        void shouldDeleteProfileAndDependentData() {
+            final UserProfile profile = profile(AUTH_USER_ID);
+            when(userProfileRepository.findByAuthUserId(AUTH_USER_ID)).thenReturn(Optional.of(profile));
+
+            service.deleteProfile(AUTH_USER_ID);
+
+            verify(onboardingAnswerRepository).deleteByUserProfileId(7L);
+            verify(anchorApplicationRepository).deleteByUserProfileId(7L);
+            verify(userProfileRepository).delete(profile);
+        }
+
+        @Test
+        @DisplayName("Should delete a stored photo when the profile had one")
+        void shouldDeleteStoredPhoto() {
+            final UserProfile profile = profile(AUTH_USER_ID);
+            profile.setProfilePhotoUrl("/api/users/photo/abc123.jpg");
+            when(userProfileRepository.findByAuthUserId(AUTH_USER_ID)).thenReturn(Optional.of(profile));
+
+            service.deleteProfile(AUTH_USER_ID);
+
+            verify(photoStorageService).delete("abc123.jpg");
+        }
+
+        @Test
+        @DisplayName("Should not touch external photo URLs on delete")
+        void shouldIgnoreExternalPhotoUrl() {
+            final UserProfile profile = profile(AUTH_USER_ID);
+            profile.setProfilePhotoUrl("https://storage.example.com/photos/user1.jpg");
+            when(userProfileRepository.findByAuthUserId(AUTH_USER_ID)).thenReturn(Optional.of(profile));
+
+            service.deleteProfile(AUTH_USER_ID);
+
+            verify(photoStorageService, never()).delete(anyString());
+        }
+
+        @Test
+        @DisplayName("Should throw when the profile does not exist")
+        void shouldThrowWhenProfileMissing() {
+            when(userProfileRepository.findByAuthUserId(AUTH_USER_ID)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> service.deleteProfile(AUTH_USER_ID))
+                    .isInstanceOf(ResourceNotFoundException.class);
+
+            verify(userProfileRepository, never()).delete(any(UserProfile.class));
+        }
+    }
+
+    @Nested
+    @DisplayName("uploadProfilePhoto method")
+    class UploadProfilePhotoTests {
+
+        @Test
+        @DisplayName("Should store the photo and update the profile photo URL")
+        void shouldStorePhotoAndUpdateUrl() {
+            final UserProfile profile = profile(AUTH_USER_ID);
+            final MultipartFile file = new MockMultipartFile("file", "photo.jpg", "image/jpeg", new byte[]{1, 2, 3});
+
+            when(userProfileRepository.findByAuthUserId(AUTH_USER_ID)).thenReturn(Optional.of(profile));
+            when(photoStorageService.store(file)).thenReturn("abc123.jpg");
+            when(userProfileRepository.save(profile)).thenReturn(profile);
+            when(onboardingAnswerRepository.findByUserProfileIdOrderByQuestionKeyAsc(7L)).thenReturn(List.of());
+            when(userProfileMapper.toProfileResponse(any(UserProfile.class), anyList()))
+                    .thenReturn(ProfileResponse.builder().id(7L).profilePhotoUrl("/api/users/photo/abc123.jpg").build());
+
+            final ProfileResponse response = service.uploadProfilePhoto(AUTH_USER_ID, file);
+
+            assertThat(response.getProfilePhotoUrl()).isEqualTo("/api/users/photo/abc123.jpg");
+            assertThat(profile.getProfilePhotoUrl()).isEqualTo("/api/users/photo/abc123.jpg");
+            verify(photoStorageService).store(file);
+        }
+
+        @Test
+        @DisplayName("Should delete the previous stored photo when replacing one")
+        void shouldDeletePreviousPhotoOnReplacement() {
+            final UserProfile profile = profile(AUTH_USER_ID);
+            profile.setProfilePhotoUrl("/api/users/photo/old.jpg");
+            final MultipartFile file = new MockMultipartFile("file", "photo.jpg", "image/jpeg", new byte[]{1});
+
+            when(userProfileRepository.findByAuthUserId(AUTH_USER_ID)).thenReturn(Optional.of(profile));
+            when(photoStorageService.store(file)).thenReturn("new.jpg");
+            when(userProfileRepository.save(profile)).thenReturn(profile);
+            when(onboardingAnswerRepository.findByUserProfileIdOrderByQuestionKeyAsc(7L)).thenReturn(List.of());
+            when(userProfileMapper.toProfileResponse(any(UserProfile.class), anyList()))
+                    .thenReturn(ProfileResponse.builder().id(7L).build());
+
+            service.uploadProfilePhoto(AUTH_USER_ID, file);
+
+            verify(photoStorageService).delete("old.jpg");
+            assertThat(profile.getProfilePhotoUrl()).isEqualTo("/api/users/photo/new.jpg");
+        }
+
+        @Test
+        @DisplayName("Should throw when the profile does not exist")
+        void shouldThrowWhenProfileMissing() {
+            when(userProfileRepository.findByAuthUserId(AUTH_USER_ID)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> service.uploadProfilePhoto(
+                    AUTH_USER_ID, new MockMultipartFile("file", "photo.jpg", "image/jpeg", new byte[]{1})))
+                    .isInstanceOf(ResourceNotFoundException.class);
+
+            verify(photoStorageService, never()).store(any());
         }
     }
 

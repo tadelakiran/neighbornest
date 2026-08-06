@@ -17,6 +17,10 @@ spring:
       max-lifetime: 1800000
       connection-timeout: 30000
       connection-test-query: SELECT 1
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
   jpa:
     hibernate:
       ddl-auto: update
@@ -49,6 +53,8 @@ eureka:
 app:
   jwt:
     secret: ${JWT_SECRET:VGhpcyBpcyBhIHNlY3JldCBrZXkgZm9yIE5laWdoYm9yTmVzdCBKV1QgdG9rZW4gc2lnbmluZyAtIGRldmVsb3BtZW50IG9ubHk=}
+  upload:
+    photo-dir: ${PHOTO_DIR:./uploads/photos}
 
 logging:
   level:

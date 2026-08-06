@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.neighbornest.user.controller.UserProfileControllerTest
 -------------------------------------------------------------------------------
-Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 11.68 s -- in com.neighbornest.user.controller.UserProfileControllerTest
+Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 35.02 s -- in com.neighbornest.user.controller.UserProfileControllerTest

@@ -50,6 +50,9 @@ public class MatchProposal {
     @Column(name = "accepted_at")
     private LocalDateTime acceptedAt;
 
+    @Column(name = "nest_id")
+    private Long nestId;
+
     /**
      * Sets the {@code proposedAt} timestamp before persisting for the first time.
      */

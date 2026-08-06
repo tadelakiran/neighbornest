@@ -1,6 +1,7 @@
 package com.neighbornest.matching.client;
 
 import com.neighbornest.matching.client.dto.CreateNestRequest;
+import com.neighbornest.matching.client.dto.NestResponseDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,7 +24,8 @@ public interface NestServiceClient {
      * Creates a Nest within the nest-service.
      *
      * @param request the nest creation payload
+     * @return the created Nest summary including its ID
      */
     @PostMapping("/api/nests")
-    void createNest(@RequestBody CreateNestRequest request);
+    NestResponseDto createNest(@RequestBody CreateNestRequest request);
 }

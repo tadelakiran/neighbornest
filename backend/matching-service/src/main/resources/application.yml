@@ -54,7 +54,8 @@ app:
     secret: ${JWT_SECRET:VGhpcyBpcyBhIHNlY3JldCBrZXkgZm9yIE5laWdoYm9yTmVzdCBKV1QgdG9rZW4gc2lnbmluZyAtIGRldmVsb3BtZW50IG9ubHk=}
   matching:
     top-n: 20
-    proposal-expiry-hours: 72
+    # Proposals stay open for 7 days (168 hours) before the scheduler expires them.
+    proposal-expiry-hours: 168
     weights:
       values: 0.40
       lifestyle: 0.35

@@ -1,6 +1,7 @@
 package com.neighbornest.user.controller;
 
 import com.neighbornest.user.dto.request.AnchorApplyRequest;
+import com.neighbornest.user.dto.request.AnchorReviewRequest;
 import com.neighbornest.user.dto.request.OnboardingSubmitRequest;
 import com.neighbornest.user.dto.request.ProfileCreateRequest;
 import com.neighbornest.user.dto.request.ProfileUpdateRequest;
@@ -8,9 +9,11 @@ import com.neighbornest.user.dto.response.AnchorApplicationResponse;
 import com.neighbornest.user.dto.response.OnboardingStatusResponse;
 import com.neighbornest.user.dto.response.ProfileResponse;
 import com.neighbornest.user.dto.response.UserMatchResponse;
+import com.neighbornest.user.entity.AnchorStatus;
 import com.neighbornest.user.security.AuthenticatedUser;
 import com.neighbornest.user.service.AnchorApplicationService;
 import com.neighbornest.user.service.OnboardingService;
+import com.neighbornest.user.service.PhotoStorageService;
 import com.neighbornest.user.service.UserProfileService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -20,10 +23,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,7 +37,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -58,6 +67,7 @@ public class UserProfileController {
     private final UserProfileService userProfileService;
     private final OnboardingService onboardingService;
     private final AnchorApplicationService anchorApplicationService;
+    private final PhotoStorageService photoStorageService;
 
     /**
      * Creates a profile for the authenticated user.
@@ -214,6 +224,118 @@ public class UserProfileController {
 
         log.debug("GET /api/users/anchor-application - for authUserId: {}", principal.authUserId());
         return ResponseEntity.ok(anchorApplicationService.getMyApplication(principal.authUserId()));
+    }
+
+    /**
+     * Deletes the authenticated user's profile and all dependent data.
+     *
+     * @param principal the authenticated user from the JWT
+     * @return 204 NO CONTENT
+     */
+    @DeleteMapping("/me")
+    @Operation(summary = "Delete user profile",
+            description = "Deletes the profile of the authenticated user including onboarding answers and anchor applications.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Profile deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "Profile not found")
+    })
+    public ResponseEntity<Void> deleteProfile(
+            @AuthenticationPrincipal final AuthenticatedUser principal) {
+
+        log.debug("DELETE /api/users/me - deleting profile for authUserId: {}", principal.authUserId());
+        userProfileService.deleteProfile(principal.authUserId());
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Uploads a profile photo for the authenticated user.
+     *
+     * @param principal the authenticated user from the JWT
+     * @param file      the uploaded image file
+     * @return the updated profile
+     */
+    @PostMapping(value = "/me/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Upload profile photo",
+            description = "Uploads an image (JPG, PNG, WEBP, GIF; max 5 MB) as the authenticated user's profile photo.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Photo uploaded and profile updated"),
+            @ApiResponse(responseCode = "400", description = "Invalid or unsupported image"),
+            @ApiResponse(responseCode = "404", description = "Profile not found")
+    })
+    public ResponseEntity<ProfileResponse> uploadProfilePhoto(
+            @AuthenticationPrincipal final AuthenticatedUser principal,
+            @RequestPart("file") final MultipartFile file) {
+
+        log.debug("POST /api/users/me/photo - uploading photo for authUserId: {}", principal.authUserId());
+        return ResponseEntity.ok(userProfileService.uploadProfilePhoto(principal.authUserId(), file));
+    }
+
+    /**
+     * Serves a stored profile photo.
+     *
+     * @param fileName the stored photo file name
+     * @return the photo as an image resource
+     */
+    @GetMapping("/photo/{fileName}")
+    @Operation(summary = "Get profile photo",
+            description = "Returns a stored profile photo by its file name.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Photo retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "Photo not found")
+    })
+    public ResponseEntity<Resource> getProfilePhoto(@PathVariable("fileName") final String fileName) {
+        log.debug("GET /api/users/photo/{} - serving photo", fileName);
+        return ResponseEntity.ok()
+                .contentType(photoStorageService.contentTypeFor(fileName))
+                .body(photoStorageService.resolve(fileName));
+    }
+
+    /**
+     * Lists anchor applications for admin review, optionally filtered by status.
+     *
+     * @param status optional status filter (PENDING, APPROVED, REJECTED)
+     * @return the list of applications
+     */
+    @GetMapping("/anchor-applications")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "List anchor applications (admin)",
+            description = "Lists all anchor applications, optionally filtered by status. Admin only.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Applications retrieved successfully"),
+            @ApiResponse(responseCode = "403", description = "Forbidden - ADMIN role required")
+    })
+    public ResponseEntity<List<AnchorApplicationResponse>> listAnchorApplications(
+            @RequestParam(name = "status", required = false) final AnchorStatus status) {
+
+        log.debug("GET /api/users/anchor-applications - listing applications (status: {})", status);
+        return ResponseEntity.ok(anchorApplicationService.listApplications(status));
+    }
+
+    /**
+     * Approves or rejects a pending anchor application (admin action).
+     *
+     * @param applicationId the application ID
+     * @param request       the review decision
+     * @return the updated application
+     */
+    @PutMapping("/anchor-applications/{applicationId}/review")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Review anchor application (admin)",
+            description = "Approves or rejects a pending anchor application and promotes the applicant to ANCHOR on approval. Admin only.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Application reviewed successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid decision or application already reviewed"),
+            @ApiResponse(responseCode = "403", description = "Forbidden - ADMIN role required"),
+            @ApiResponse(responseCode = "404", description = "Application not found")
+    })
+    public ResponseEntity<AnchorApplicationResponse> reviewAnchorApplication(
+            @PathVariable("applicationId") final Long applicationId,
+            @Valid @RequestBody final AnchorReviewRequest request) {
+
+        log.debug("PUT /api/users/anchor-applications/{}/review - decision: {}", applicationId, request.getDecision());
+        final AnchorApplicationResponse response =
+                anchorApplicationService.review(applicationId, request.getDecision(), request.getNote());
+        return ResponseEntity.ok(response);
     }
 
     /**

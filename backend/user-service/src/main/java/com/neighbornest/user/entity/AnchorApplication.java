@@ -72,6 +72,9 @@ public class AnchorApplication {
     @Column(name = "reviewed_at")
     private LocalDateTime reviewedAt;
 
+    @Column(name = "review_note", columnDefinition = "TEXT")
+    private String reviewNote;
+
     /**
      * Sets the {@code appliedAt} timestamp before persisting for the first time.
      */

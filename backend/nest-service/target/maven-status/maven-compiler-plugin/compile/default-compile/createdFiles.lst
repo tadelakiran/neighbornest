@@ -8,6 +8,7 @@ com\neighbornest\nest\dto\response\NestMemberResponse$NestMemberResponseBuilder.
 com\neighbornest\nest\controller\NestController.class
 com\neighbornest\nest\dto\response\ExpenseSplitResponse.class
 com\neighbornest\nest\dto\response\VibeCheckStatusResponse.class
+com\neighbornest\nest\client\UserServiceClientFallbackFactory$1.class
 com\neighbornest\nest\entity\SplitType.class
 com\neighbornest\nest\config\SecurityConfig.class
 com\neighbornest\nest\repository\NestRepository.class

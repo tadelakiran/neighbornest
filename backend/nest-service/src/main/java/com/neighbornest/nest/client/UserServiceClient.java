@@ -25,4 +25,20 @@ public interface UserServiceClient {
      */
     @GetMapping("/api/users/{userId}/profile")
     UserProfileSummary getProfile(@PathVariable("userId") Long userId);
+
+    /**
+     * Resolves the current caller's profile via the user-service {@code /me}
+     * endpoint (the Authorization header is forwarded by the Feign interceptor).
+     * <p>
+     * The JWT's {@code userId} claim is the <em>auth-service</em> user id, but
+     * Nest members are keyed by <em>profile</em> ids. This lookup bridges the
+     * two so member-scoped operations (my-nests, expenses, vibe checks) query
+     * the correct rows. Returns {@code null} when the caller has no profile or
+     * the user-service is unavailable (see fallback factory).
+     * </p>
+     *
+     * @return the current user's profile summary (id + name), or {@code null}
+     */
+    @GetMapping("/api/users/me")
+    UserProfileSummary getMyProfile();
 }

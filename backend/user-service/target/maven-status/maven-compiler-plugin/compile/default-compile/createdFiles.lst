@@ -1,3 +1,4 @@
+com\neighbornest\user\dto\request\AnchorReviewRequest$ReviewDecision.class
 com\neighbornest\user\config\SecurityConfig.class
 com\neighbornest\user\dto\request\OnboardingSubmitRequest.class
 com\neighbornest\user\dto\request\ProfileUpdateRequest$ProfileUpdateRequestBuilder.class
@@ -15,6 +16,7 @@ com\neighbornest\user\dto\request\AnchorApplyRequest$AnchorApplyRequestBuilder.c
 com\neighbornest\user\exception\BadRequestException.class
 com\neighbornest\user\dto\request\ProfileCreateRequest.class
 com\neighbornest\user\dto\response\OnboardingStatusResponse.class
+com\neighbornest\user\dto\request\AnchorReviewRequest.class
 com\neighbornest\user\dto\response\ErrorResponse.class
 com\neighbornest\user\dto\response\OnboardingStatusResponse$OnboardingStatusResponseBuilder.class
 com\neighbornest\user\entity\OnboardingAnswer.class
@@ -36,12 +38,14 @@ com\neighbornest\user\dto\response\OnboardingAnswerResponse.class
 com\neighbornest\user\UserServiceApplication.class
 com\neighbornest\user\entity\AnchorStatus.class
 com\neighbornest\user\repository\OnboardingAnswerRepository.class
+com\neighbornest\user\service\PhotoStorageService.class
 com\neighbornest\user\security\AuthenticatedUser.class
 com\neighbornest\user\entity\OnboardingAnswer$OnboardingAnswerBuilder.class
 com\neighbornest\user\dto\request\ProfileUpdateRequest.class
 com\neighbornest\user\dto\response\ErrorResponse$ErrorResponseBuilder.class
 com\neighbornest\user\entity\AnchorApplication.class
 com\neighbornest\user\dto\request\OnboardingSubmitRequest$OnboardingSubmitRequestBuilder.class
+com\neighbornest\user\dto\request\AnchorReviewRequest$AnchorReviewRequestBuilder.class
 com\neighbornest\user\entity\PersonalityType.class
 com\neighbornest\user\security\JwtAuthenticationFilter.class
 com\neighbornest\user\config\OpenApiConfig.class

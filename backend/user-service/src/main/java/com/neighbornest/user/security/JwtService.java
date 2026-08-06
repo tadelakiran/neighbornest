@@ -75,6 +75,21 @@ public class JwtService {
     }
 
     /**
+     * Extracts the role claim from the given JWT.
+     * <p>
+     * Used to build Spring Security authorities (e.g. {@code ROLE_ADMIN}) so
+     * method-level security like {@code @PreAuthorize("hasRole('ADMIN')")}
+     * can restrict admin-only endpoints.
+     * </p>
+     *
+     * @param token the JWT token
+     * @return the role contained in the token, or {@code null} if absent
+     */
+    public String extractRole(final String token) {
+        return extractAllClaims(token).get("role", String.class);
+    }
+
+    /**
      * Extracts all claims from the given JWT.
      *
      * @param token the JWT token

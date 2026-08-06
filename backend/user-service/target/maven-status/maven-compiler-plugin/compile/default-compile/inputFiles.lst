@@ -5,6 +5,7 @@ C:\Users\sai kiran\Desktop\project-stschool\backend\user-service\src\main\java\c
 C:\Users\sai kiran\Desktop\project-stschool\backend\user-service\src\main\java\com\neighbornest\user\config\SecurityConfig.java
 C:\Users\sai kiran\Desktop\project-stschool\backend\user-service\src\main\java\com\neighbornest\user\controller\UserProfileController.java
 C:\Users\sai kiran\Desktop\project-stschool\backend\user-service\src\main\java\com\neighbornest\user\dto\request\AnchorApplyRequest.java
+C:\Users\sai kiran\Desktop\project-stschool\backend\user-service\src\main\java\com\neighbornest\user\dto\request\AnchorReviewRequest.java
 C:\Users\sai kiran\Desktop\project-stschool\backend\user-service\src\main\java\com\neighbornest\user\dto\request\OnboardingAnswerRequest.java
 C:\Users\sai kiran\Desktop\project-stschool\backend\user-service\src\main\java\com\neighbornest\user\dto\request\OnboardingSubmitRequest.java
 C:\Users\sai kiran\Desktop\project-stschool\backend\user-service\src\main\java\com\neighbornest\user\dto\request\ProfileCreateRequest.java
@@ -38,6 +39,7 @@ C:\Users\sai kiran\Desktop\project-stschool\backend\user-service\src\main\java\c
 C:\Users\sai kiran\Desktop\project-stschool\backend\user-service\src\main\java\com\neighbornest\user\security\JwtService.java
 C:\Users\sai kiran\Desktop\project-stschool\backend\user-service\src\main\java\com\neighbornest\user\service\AnchorApplicationService.java
 C:\Users\sai kiran\Desktop\project-stschool\backend\user-service\src\main\java\com\neighbornest\user\service\OnboardingService.java
+C:\Users\sai kiran\Desktop\project-stschool\backend\user-service\src\main\java\com\neighbornest\user\service\PhotoStorageService.java
 C:\Users\sai kiran\Desktop\project-stschool\backend\user-service\src\main\java\com\neighbornest\user\service\UserProfileService.java
 C:\Users\sai kiran\Desktop\project-stschool\backend\user-service\src\main\java\com\neighbornest\user\UserServiceApplication.java
 C:\Users\sai kiran\Desktop\project-stschool\backend\user-service\src\main\java\com\neighbornest\user\util\UserProfileMapper.java

@@ -1,6 +1,7 @@
 package com.neighbornest.matching.client;
 
 import com.neighbornest.matching.client.dto.CreateNestRequest;
+import com.neighbornest.matching.client.dto.NestResponseDto;
 import com.neighbornest.matching.exception.ServiceUnavailableException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.openfeign.FallbackFactory;
@@ -32,7 +33,7 @@ public class NestServiceClientFallbackFactory implements FallbackFactory<NestSer
         log.warn("Nest-service is unavailable, returning 503 fallback. Cause: {}", cause.getMessage());
         return new NestServiceClient() {
             @Override
-            public void createNest(final CreateNestRequest request) {
+            public NestResponseDto createNest(final CreateNestRequest request) {
                 throw new ServiceUnavailableException("Nest-service is temporarily unavailable");
             }
         };

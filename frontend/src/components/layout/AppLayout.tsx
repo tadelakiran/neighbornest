@@ -1,51 +1,57 @@
-import { Suspense, useCallback, useState } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Navbar } from '@/components/layout/Navbar';
-import { Sidebar } from '@/components/layout/Sidebar';
-import { GradientBackground } from '@/components/ui/GradientBackground';
-import { Spinner } from '@/components/ui/Spinner';
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Navbar } from './Navbar';
+import { Sidebar } from './Sidebar';
 
-/**
- * Authenticated app shell: fixed Navbar + Sidebar, animated mesh gradient
- * background, and smooth page transitions via Framer Motion.
- */
-export function AppLayout() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const location = useLocation();
+export interface AppLayoutProps {
+  children: React.ReactNode;
+  user?: {
+    fullName?: string;
+    role?: string;
+    city?: string;
+  };
+  onLogout?: () => void;
+  className?: string;
+}
 
-  const openSidebar  = useCallback(() => setSidebarOpen(true),  []);
-  const closeSidebar = useCallback(() => setSidebarOpen(false), []);
+export const AppLayout: React.FC<AppLayoutProps> = ({
+  children,
+  user,
+  onLogout,
+  className = ""
+}) => {
+  const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
 
   return (
-    <div className="relative min-h-screen bg-[var(--color-bg)] theme-transition">
-      <GradientBackground />
-      <Navbar onMenuClick={openSidebar} />
-      <Sidebar open={sidebarOpen} onClose={closeSidebar} />
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col relative overflow-x-hidden">
+      {/* Background ambient lighting */}
+      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/3 right-1/4 w-[500px] h-[500px] bg-purple-500/5 dark:bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
 
-      <main className="relative pt-16 lg:pl-64">
-        <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-          <Suspense
-            fallback={
-              <div className="flex min-h-[55vh] items-center justify-center">
-                <Spinner size="lg" />
-              </div>
-            }
-          >
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.div
-                key={location.pathname}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -4 }}
-                transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-              >
-                <Outlet />
-              </motion.div>
-            </AnimatePresence>
-          </Suspense>
-        </div>
-      </main>
+      {/* Top Navbar */}
+      <Navbar 
+        user={user} 
+        onMenuClick={() => setSidebarOpen(true)} 
+        onLogout={onLogout} 
+      />
+
+      <div className="flex-1 flex relative">
+        {/* Sidebar */}
+        <Sidebar 
+          isOpen={sidebarOpen} 
+          onClose={() => setSidebarOpen(false)} 
+        />
+
+        {/* Main Content Area */}
+        <motion.main 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className={`flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full ${className}`}
+        >
+          {children}
+        </motion.main>
+      </div>
     </div>
   );
-}
+};

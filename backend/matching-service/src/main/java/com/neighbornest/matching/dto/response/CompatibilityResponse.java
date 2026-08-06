@@ -30,6 +30,9 @@ public class CompatibilityResponse {
     @JsonProperty("full_name")
     private String fullName;
 
+    @Schema(description = "City of the other user", example = "San Francisco")
+    private String city;
+
     @Schema(description = "Overall compatibility score (0-100)", example = "87.50")
     @JsonProperty("overall_score")
     private BigDecimal overallScore;

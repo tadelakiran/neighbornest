@@ -27,9 +27,21 @@ public class UserServiceClientFallbackFactory implements FallbackFactory<UserSer
     @Override
     public UserServiceClient create(final Throwable cause) {
         log.warn("User-service is unavailable, returning fallback profile. Cause: {}", cause.getMessage());
-        return userId -> UserProfileSummary.builder()
-                .id(userId)
-                .fullName("Neighbor")
-                .build();
+        return new UserServiceClient() {
+            @Override
+            public UserProfileSummary getProfile(final Long userId) {
+                return UserProfileSummary.builder()
+                        .id(userId)
+                        .fullName("Neighbor")
+                        .build();
+            }
+
+            @Override
+            public UserProfileSummary getMyProfile() {
+                // A null result signals "could not resolve the current profile";
+                // controllers translate it into a clean 4xx instead of a 500.
+                return null;
+            }
+        };
     }
 }
