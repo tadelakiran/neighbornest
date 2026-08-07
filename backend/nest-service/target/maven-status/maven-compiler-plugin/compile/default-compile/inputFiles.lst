@@ -34,6 +34,7 @@ C:\Users\sai kiran\Desktop\project-stschool\backend\nest-service\src\main\java\c
 C:\Users\sai kiran\Desktop\project-stschool\backend\nest-service\src\main\java\com\neighbornest\nest\event\NestEventPublisher.java
 C:\Users\sai kiran\Desktop\project-stschool\backend\nest-service\src\main\java\com\neighbornest\nest\event\NestGraduatedEvent.java
 C:\Users\sai kiran\Desktop\project-stschool\backend\nest-service\src\main\java\com\neighbornest\nest\exception\BadRequestException.java
+C:\Users\sai kiran\Desktop\project-stschool\backend\nest-service\src\main\java\com\neighbornest\nest\exception\ForbiddenException.java
 C:\Users\sai kiran\Desktop\project-stschool\backend\nest-service\src\main\java\com\neighbornest\nest\exception\InvalidOperationException.java
 C:\Users\sai kiran\Desktop\project-stschool\backend\nest-service\src\main\java\com\neighbornest\nest\exception\ResourceNotFoundException.java
 C:\Users\sai kiran\Desktop\project-stschool\backend\nest-service\src\main\java\com\neighbornest\nest\handler\GlobalExceptionHandler.java

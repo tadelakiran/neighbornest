@@ -12,6 +12,7 @@ import com.neighbornest.nest.entity.NestStatus;
 import com.neighbornest.nest.event.NestCreatedEvent;
 import com.neighbornest.nest.event.NestEventPublisher;
 import com.neighbornest.nest.event.NestGraduatedEvent;
+import com.neighbornest.nest.exception.ForbiddenException;
 import com.neighbornest.nest.exception.InvalidOperationException;
 import com.neighbornest.nest.exception.ResourceNotFoundException;
 import com.neighbornest.nest.repository.NestMemberRepository;
@@ -177,6 +178,132 @@ class NestServiceTest {
             assertThatThrownBy(() -> nestService.graduate(1L))
                     .isInstanceOf(InvalidOperationException.class)
                     .hasMessageContaining("Only active nests can graduate");
+        }
+    }
+
+    @Nested
+    @DisplayName("leave method")
+    class LeaveTests {
+
+        @Test
+        @DisplayName("Should mark the member as LEFT")
+        void shouldMarkMemberAsLeft() {
+            final Nest nest = nest(1L, "Mission Mates", NestStatus.ACTIVE);
+            final NestMember actor = member(1L, 7L, NestRole.MEMBER);
+            when(nestRepository.findById(1L)).thenReturn(Optional.of(nest));
+            when(nestMemberRepository.findByNestIdAndUserId(1L, 7L)).thenReturn(Optional.of(actor));
+            when(nestMemberRepository.findByNestId(1L)).thenReturn(List.of(actor));
+            when(userServiceClient.getProfile(7L)).thenReturn(profile(7L, "John Doe"));
+
+            final NestResponse response = nestService.leave(1L, 7L);
+
+            assertThat(actor.getStatus()).isEqualTo(NestMemberStatus.LEFT);
+            verify(nestMemberRepository).save(actor);
+            assertThat(response.getMembers().get(0).getStatus()).isEqualTo(NestMemberStatus.LEFT);
+        }
+
+        @Test
+        @DisplayName("Should reject leaving an ended nest")
+        void shouldRejectLeavingEndedNest() {
+            when(nestRepository.findById(1L)).thenReturn(Optional.of(nest(1L, "Done Nest", NestStatus.DISBANDED)));
+
+            assertThatThrownBy(() -> nestService.leave(1L, 7L))
+                    .isInstanceOf(InvalidOperationException.class)
+                    .hasMessageContaining("already ended");
+        }
+
+        @Test
+        @DisplayName("Should reject a user who is not an active member")
+        void shouldRejectNonMember() {
+            when(nestRepository.findById(1L)).thenReturn(Optional.of(nest(1L, "Mission Mates", NestStatus.ACTIVE)));
+            when(nestMemberRepository.findByNestIdAndUserId(1L, 7L)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> nestService.leave(1L, 7L))
+                    .isInstanceOf(ForbiddenException.class)
+                    .hasMessageContaining("not an active member");
+        }
+    }
+
+    @Nested
+    @DisplayName("removeMember method")
+    class RemoveMemberTests {
+
+        @Test
+        @DisplayName("Should let an anchor remove a member")
+        void shouldLetAnchorRemoveMember() {
+            final Nest nest = nest(1L, "Mission Mates", NestStatus.ACTIVE);
+            final NestMember anchor = member(1L, 7L, NestRole.ANCHOR);
+            final NestMember target = member(1L, 8L, NestRole.MEMBER);
+            when(nestRepository.findById(1L)).thenReturn(Optional.of(nest));
+            when(nestMemberRepository.findByNestIdAndUserId(1L, 7L)).thenReturn(Optional.of(anchor));
+            when(nestMemberRepository.findByNestIdAndUserId(1L, 8L)).thenReturn(Optional.of(target));
+            when(nestMemberRepository.findByNestId(1L)).thenReturn(List.of(anchor, target));
+            when(userServiceClient.getProfile(7L)).thenReturn(profile(7L, "Jane Anchor"));
+            when(userServiceClient.getProfile(8L)).thenReturn(profile(8L, "John Doe"));
+
+            final NestResponse response = nestService.removeMember(1L, 7L, 8L);
+
+            assertThat(target.getStatus()).isEqualTo(NestMemberStatus.REMOVED);
+            verify(nestMemberRepository).save(target);
+            assertThat(response.getMembers()).hasSize(2);
+        }
+
+        @Test
+        @DisplayName("Should forbid a non-anchor from removing a member")
+        void shouldForbidNonAnchor() {
+            when(nestRepository.findById(1L)).thenReturn(Optional.of(nest(1L, "Mission Mates", NestStatus.ACTIVE)));
+            when(nestMemberRepository.findByNestIdAndUserId(1L, 7L))
+                    .thenReturn(Optional.of(member(1L, 7L, NestRole.MEMBER)));
+
+            assertThatThrownBy(() -> nestService.removeMember(1L, 7L, 8L))
+                    .isInstanceOf(ForbiddenException.class)
+                    .hasMessageContaining("Only anchors");
+        }
+
+        @Test
+        @DisplayName("Should forbid an anchor from removing themselves")
+        void shouldForbidSelfRemoval() {
+            when(nestRepository.findById(1L)).thenReturn(Optional.of(nest(1L, "Mission Mates", NestStatus.ACTIVE)));
+            when(nestMemberRepository.findByNestIdAndUserId(1L, 7L))
+                    .thenReturn(Optional.of(member(1L, 7L, NestRole.ANCHOR)));
+
+            assertThatThrownBy(() -> nestService.removeMember(1L, 7L, 7L))
+                    .isInstanceOf(ForbiddenException.class)
+                    .hasMessageContaining("use leave instead");
+        }
+    }
+
+    @Nested
+    @DisplayName("requireMember method")
+    class AccessControlTests {
+
+        @Test
+        @DisplayName("Should allow an active member")
+        void shouldAllowActiveMember() {
+            when(nestRepository.findById(1L)).thenReturn(Optional.of(nest(1L, "Mission Mates", NestStatus.ACTIVE)));
+            when(nestMemberRepository.findByNestIdAndUserId(1L, 7L))
+                    .thenReturn(Optional.of(member(1L, 7L, NestRole.MEMBER)));
+
+            nestService.requireMember(1L, 7L);
+        }
+
+        @Test
+        @DisplayName("Should throw when the user is not an active member")
+        void shouldRejectNonMember() {
+            when(nestRepository.findById(1L)).thenReturn(Optional.of(nest(1L, "Mission Mates", NestStatus.ACTIVE)));
+            when(nestMemberRepository.findByNestIdAndUserId(1L, 7L)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> nestService.requireMember(1L, 7L))
+                    .isInstanceOf(ForbiddenException.class);
+        }
+
+        @Test
+        @DisplayName("Should throw when the nest does not exist")
+        void shouldRejectMissingNest() {
+            when(nestRepository.findById(99L)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> nestService.requireMember(99L, 7L))
+                    .isInstanceOf(ResourceNotFoundException.class);
         }
     }
 

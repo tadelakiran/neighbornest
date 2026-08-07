@@ -42,9 +42,9 @@ export function Card({ padded = true, flat = false, hairline = false, className,
       onMouseLeave={handleMouseLeave}
       className={cn(
         'group/card relative overflow-hidden rounded-lg',
-        'bg-[var(--color-bg)] border border-[var(--color-border)]',
+        'bg-[var(--color-surface)] border border-[var(--color-border)]',
         'shadow-card transition-all duration-300 theme-transition',
-        !flat && 'hover:border-accent-300 hover:shadow-card-hover',
+        !flat && 'hover:border-accent-300/50 hover:shadow-card-hover',
         padded && 'p-6',
         className
       )}

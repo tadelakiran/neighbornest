@@ -34,3 +34,40 @@ export const wizardPageTransition: Variants = {
     transition: { duration: 0.3, ease: 'easeIn' },
   }),
 };
+
+/**
+ * Page-level enter transition used by every route (slide + fade in from the
+ * right). Wrap route content in a motion.div with these variants.
+ */
+export const pageEnter: Variants = {
+  hidden: { opacity: 0, y: 14, x: 8 },
+  show: {
+    opacity: 1,
+    y: 0,
+    x: 0,
+    transition: { duration: 0.38, ease: EASE_OUT_EXPO },
+  },
+};
+
+/** Exit variant — pages drift out softly when the route changes. */
+export const pageExit: Variants = {
+  exit: {
+    opacity: 0,
+    y: -8,
+    x: -12,
+    transition: { duration: 0.22, ease: 'easeIn' },
+  },
+};
+
+/** Card-list entrance: children fade up with a stagger. */
+export const cardStagger: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.1, delayChildren: 0.08 } },
+};
+
+/** Individual card in a staggered list — rises from below. */
+export const cardRise: Variants = {
+  hidden: { opacity: 0, y: 40 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: EASE_OUT_EXPO } },
+  exit: { opacity: 0, x: -200, transition: { duration: 0.3, ease: 'easeIn' } },
+};

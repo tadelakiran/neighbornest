@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.neighbornest.notificationservice.listener.NestEventListenerTest
+-------------------------------------------------------------------------------
+Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.901 s -- in com.neighbornest.notificationservice.listener.NestEventListenerTest

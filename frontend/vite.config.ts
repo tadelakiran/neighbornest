@@ -30,6 +30,21 @@ export default defineConfig({
       },
     },
   },
+  // Pre-bundle heavy deps when the dev server starts (not on first page load),
+  // so the very first visit isn't blocked by esbuild dependency discovery.
+  // react/react-dom are pre-bundled automatically and don't need listing here.
+  optimizeDeps: {
+    include: [
+      'react-router-dom',
+      'axios',
+      'zustand',
+      'framer-motion',
+      'lucide-react',
+      'react-hook-form',
+      'zod',
+      '@hookform/resolvers',
+    ],
+  },
   build: {
     target: 'es2020',
     // 559 kB single-chunk baseline -> focused vendor chunks + lazy routes.

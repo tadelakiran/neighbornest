@@ -2,6 +2,7 @@ package com.neighbornest.nest.handler;
 
 import com.neighbornest.nest.dto.response.ErrorResponse;
 import com.neighbornest.nest.exception.BadRequestException;
+import com.neighbornest.nest.exception.ForbiddenException;
 import com.neighbornest.nest.exception.InvalidOperationException;
 import com.neighbornest.nest.exception.ResourceNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -51,6 +52,16 @@ public class GlobalExceptionHandler {
             final BadRequestException ex, final HttpServletRequest request) {
         log.warn("Bad request: {}", ex.getMessage());
         return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
+    }
+
+    /**
+     * Handles {@link ForbiddenException} — returns 403 FORBIDDEN.
+     */
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<ErrorResponse> handleForbidden(
+            final ForbiddenException ex, final HttpServletRequest request) {
+        log.warn("Forbidden: {}", ex.getMessage());
+        return buildErrorResponse(HttpStatus.FORBIDDEN, ex.getMessage(), request);
     }
 
     /**

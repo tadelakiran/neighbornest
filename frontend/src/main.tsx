@@ -14,3 +14,21 @@ createRoot(rootElement).render(
     <App />
   </StrictMode>
 );
+
+/**
+ * Fades out the inline splash screen from index.html once React has mounted.
+ * The fade is purely visual — the element is removed from the DOM afterwards
+ * so it never blocks interaction or memory.
+ */
+function dismissSplash(): void {
+  const splash = document.getElementById('app-splash');
+  if (!splash) return;
+  requestAnimationFrame(() => {
+    splash.classList.add('is-done');
+    window.setTimeout(() => splash.remove(), 600);
+  });
+}
+
+// Wait for the first paint of the app before hiding the branded loader —
+// this makes the handoff from splash -> app seamless instead of flashing blank.
+requestAnimationFrame(() => requestAnimationFrame(dismissSplash));

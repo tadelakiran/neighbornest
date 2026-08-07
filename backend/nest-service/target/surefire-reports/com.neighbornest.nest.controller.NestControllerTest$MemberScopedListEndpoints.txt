@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.neighbornest.nest.controller.NestControllerTest$MemberScopedListEndpoints
+-------------------------------------------------------------------------------
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 9.394 s -- in com.neighbornest.nest.controller.NestControllerTest$MemberScopedListEndpoints

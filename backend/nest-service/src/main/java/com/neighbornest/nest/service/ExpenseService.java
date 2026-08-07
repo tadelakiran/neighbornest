@@ -13,7 +13,6 @@ import com.neighbornest.nest.exception.ResourceNotFoundException;
 import com.neighbornest.nest.repository.ExpenseRepository;
 import com.neighbornest.nest.repository.ExpenseSplitRepository;
 import com.neighbornest.nest.repository.NestMemberRepository;
-import com.neighbornest.nest.repository.NestRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -40,8 +39,8 @@ public class ExpenseService {
 
     private final ExpenseRepository expenseRepository;
     private final ExpenseSplitRepository expenseSplitRepository;
-    private final NestRepository nestRepository;
     private final NestMemberRepository nestMemberRepository;
+    private final NestService nestService;
 
     /**
      * Creates an expense with its splits for a Nest.
@@ -54,7 +53,7 @@ public class ExpenseService {
      */
     @Transactional
     public ExpenseResponse createExpense(final Long nestId, final Long payerId, final ExpenseRequest request) {
-        ensureNestExists(nestId);
+        nestService.requireMember(nestId, payerId);
 
         final Expense expense = Expense.builder()
                 .nestId(nestId)
@@ -80,13 +79,49 @@ public class ExpenseService {
      * Lists all expenses for a Nest with their splits.
      *
      * @param nestId the nest ID
+     * @param userId the user profile ID (must be a member)
      * @return the list of expenses
      */
     @Transactional(readOnly = true)
-    public List<ExpenseResponse> listExpenses(final Long nestId) {
+    public List<ExpenseResponse> listExpenses(final Long nestId, final Long userId) {
+        nestService.requireMember(nestId, userId);
+
         return expenseRepository.findByNestIdOrderByCreatedAtDesc(nestId).stream()
                 .map(expense -> toResponse(expense, expenseSplitRepository.findByExpenseId(expense.getId())))
                 .toList();
+    }
+
+    /**
+     * Marks the current user's split of an expense as settled ("settle up").
+     * <p>
+     * Only the member who owes the share can settle their own split. Settling
+     * an already-settled split is idempotent — the current state is returned.
+     * </p>
+     *
+     * @param nestId    the nest ID
+     * @param expenseId the expense ID
+     * @param userId    the user profile ID settling their share
+     * @return the updated expense
+     * @throws ResourceNotFoundException if the Nest or the expense or the user's split does not exist
+     */
+    @Transactional
+    public ExpenseResponse settleSplit(final Long nestId, final Long expenseId, final Long userId) {
+        final Expense expense = expenseRepository.findById(expenseId)
+                .filter(e -> e.getNestId().equals(nestId))
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Expense not found with id: " + expenseId + " in nest: " + nestId));
+
+        final ExpenseSplit split = expenseSplitRepository.findByExpenseIdAndUserId(expenseId, userId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "No split found for user: " + userId + " on expense: " + expenseId));
+
+        if (!split.isSettled()) {
+            split.setSettled(true);
+            expenseSplitRepository.save(split);
+            log.info("User {} settled their split on expense: {}", userId, expenseId);
+        }
+
+        return toResponse(expense, expenseSplitRepository.findByExpenseId(expenseId));
     }
 
     /**
@@ -130,6 +165,17 @@ public class ExpenseService {
             throw new BadRequestException("Custom splits are required when splitType is CUSTOM");
         }
 
+        final List<Long> activeMembers = nestMemberRepository.findByNestId(expense.getNestId()).stream()
+                .filter(member -> member.getStatus() == NestMemberStatus.ACCEPTED)
+                .map(NestMember::getUserId)
+                .toList();
+
+        final boolean containsNonMember = request.getSplits().stream()
+                .anyMatch(split -> !activeMembers.contains(split.getUserId()));
+        if (containsNonMember) {
+            throw new BadRequestException("Custom splits can only reference active members of the nest");
+        }
+
         final BigDecimal total = request.getSplits().stream()
                 .map(split -> split.getAmountOwed())
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -145,17 +191,6 @@ public class ExpenseService {
                         .amountOwed(split.getAmountOwed())
                         .build())
                 .toList();
-    }
-
-    /**
-     * Verifies the nest exists.
-     *
-     * @param nestId the nest ID
-     */
-    private void ensureNestExists(final Long nestId) {
-        if (!nestRepository.existsById(nestId)) {
-            throw new ResourceNotFoundException("Nest not found with id: " + nestId);
-        }
     }
 
     /**

@@ -37,6 +37,7 @@ com\neighbornest\nest\client\UserServiceClientFallbackFactory.class
 com\neighbornest\nest\dto\response\VibeCheckResponse$VibeCheckResponseBuilder.class
 com\neighbornest\nest\NestServiceApplication.class
 com\neighbornest\nest\dto\response\NestResponse$NestResponseBuilder.class
+com\neighbornest\nest\exception\ForbiddenException.class
 com\neighbornest\nest\dto\request\MeetingRequest.class
 com\neighbornest\nest\client\UserProfileSummary.class
 com\neighbornest\nest\security\JwtAuthenticationFilter.class

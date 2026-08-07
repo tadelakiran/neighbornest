@@ -10,12 +10,22 @@ export const ROUTES = {
   LOGIN: '/login',
   REGISTER: '/register',
   DASHBOARD: '/dashboard',
+  DISCOVER: '/discover',
+  PROPOSALS: '/proposals',
   PROFILE: '/profile',
   ONBOARDING: '/onboarding',
   ANCHOR_APPLY: '/profile/anchor-apply',
-  MY_NEST: '/my-nest',
+  /** My Nest — list of the user's Nests. */
+  MY_NEST: '/nests',
+  /** Nest detail hub — path pattern `/nests/:nestId`. */
+  NEST_DETAIL: '/nests/:nestId',
   MESSAGES: '/messages',
 } as const;
+
+/** Builds a nest detail path from a nest id. */
+export function nestDetailPath(nestId: number | string): string {
+  return `/nests/${nestId}`;
+}
 
 /** localStorage key that holds the refresh token (access token stays in memory only). */
 export const REFRESH_TOKEN_STORAGE_KEY = 'neighbornest.refreshToken';

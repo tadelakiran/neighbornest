@@ -3,9 +3,10 @@ package com.neighbornest.nest.service;
 import com.neighbornest.nest.dto.request.MeetingRequest;
 import com.neighbornest.nest.dto.response.MeetingResponse;
 import com.neighbornest.nest.entity.Meeting;
+import com.neighbornest.nest.entity.MeetingStatus;
+import com.neighbornest.nest.exception.InvalidOperationException;
 import com.neighbornest.nest.exception.ResourceNotFoundException;
 import com.neighbornest.nest.repository.MeetingRepository;
-import com.neighbornest.nest.repository.NestRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,7 @@ import java.util.List;
 public class MeetingService {
 
     private final MeetingRepository meetingRepository;
-    private final NestRepository nestRepository;
+    private final NestService nestService;
 
     /**
      * Schedules a new meeting for a Nest.
@@ -36,8 +37,8 @@ public class MeetingService {
      * @throws ResourceNotFoundException if the Nest does not exist
      */
     @Transactional
-    public MeetingResponse scheduleMeeting(final Long nestId, final MeetingRequest request) {
-        ensureNestExists(nestId);
+    public MeetingResponse scheduleMeeting(final Long nestId, final Long userId, final MeetingRequest request) {
+        nestService.requireMember(nestId, userId);
 
         final Meeting meeting = Meeting.builder()
                 .nestId(nestId)
@@ -60,22 +61,81 @@ public class MeetingService {
      * @param nestId the nest ID
      * @return the list of meetings
      */
+    /**
+     * Lists all meetings for a Nest.
+     *
+     * @param nestId the nest ID
+     * @param userId the user profile ID (must be a member)
+     * @return the list of meetings
+     */
     @Transactional(readOnly = true)
-    public List<MeetingResponse> listMeetings(final Long nestId) {
+    public List<MeetingResponse> listMeetings(final Long nestId, final Long userId) {
+        nestService.requireMember(nestId, userId);
+
         return meetingRepository.findByNestIdOrderByScheduledAtDesc(nestId).stream()
                 .map(this::toResponse)
                 .toList();
     }
 
     /**
-     * Verifies the nest exists.
+     * Marks a meeting as completed.
      *
-     * @param nestId the nest ID
+     * @param nestId    the nest ID
+     * @param meetingId the meeting ID
+     * @param userId    the user profile ID (must be a member)
+     * @return the updated meeting
+     * @throws InvalidOperationException if the meeting is not currently scheduled
      */
-    private void ensureNestExists(final Long nestId) {
-        if (!nestRepository.existsById(nestId)) {
-            throw new ResourceNotFoundException("Nest not found with id: " + nestId);
+    @Transactional
+    public MeetingResponse completeMeeting(final Long nestId, final Long meetingId, final Long userId) {
+        nestService.requireMember(nestId, userId);
+        final Meeting meeting = findMeeting(nestId, meetingId);
+
+        if (meeting.getStatus() != MeetingStatus.SCHEDULED) {
+            throw new InvalidOperationException("Only scheduled meetings can be completed");
         }
+
+        meeting.setStatus(MeetingStatus.COMPLETED);
+        final Meeting saved = meetingRepository.save(meeting);
+        log.info("Meeting {} completed for nest {}", meetingId, nestId);
+        return toResponse(saved);
+    }
+
+    /**
+     * Marks a meeting as cancelled.
+     *
+     * @param nestId    the nest ID
+     * @param meetingId the meeting ID
+     * @param userId    the user profile ID (must be a member)
+     * @return the updated meeting
+     * @throws InvalidOperationException if the meeting is not currently scheduled
+     */
+    @Transactional
+    public MeetingResponse cancelMeeting(final Long nestId, final Long meetingId, final Long userId) {
+        nestService.requireMember(nestId, userId);
+        final Meeting meeting = findMeeting(nestId, meetingId);
+
+        if (meeting.getStatus() != MeetingStatus.SCHEDULED) {
+            throw new InvalidOperationException("Only scheduled meetings can be cancelled");
+        }
+
+        meeting.setStatus(MeetingStatus.CANCELLED);
+        final Meeting saved = meetingRepository.save(meeting);
+        log.info("Meeting {} cancelled for nest {}", meetingId, nestId);
+        return toResponse(saved);
+    }
+
+    /**
+     * Finds a meeting within a nest or throws.
+     *
+     * @param nestId    the nest ID
+     * @param meetingId the meeting ID
+     * @return the meeting entity
+     */
+    private Meeting findMeeting(final Long nestId, final Long meetingId) {
+        return meetingRepository.findByIdAndNestId(meetingId, nestId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Meeting not found with id: " + meetingId + " in nest: " + nestId));
     }
 
     /**

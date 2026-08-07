@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Heart, MapPin, Users } from 'lucide-react';
-import { BrandLogo } from '@/components/layout/Navbar';
+import { BrandLogo } from '@/components/ui/BrandLogo';
 import { LoginForm } from '@/components/auth/LoginForm';
 import { LazyImage } from '@/components/ui/LazyImage';
 import { DarkModeToggle } from '@/components/ui/DarkModeToggle';

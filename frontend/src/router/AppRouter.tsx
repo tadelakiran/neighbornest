@@ -19,10 +19,14 @@ const ComingSoonPage = lazy(() =>
   import('@/pages/ComingSoonPage').then((m) => ({ default: m.ComingSoonPage }))
 );
 const DashboardPage = lazy(() => import('@/pages/DashboardPage').then((m) => ({ default: m.DashboardPage })));
+const DiscoverPage = lazy(() => import('@/pages/DiscoverPage').then((m) => ({ default: m.DiscoverPage })));
 const LoginPage = lazy(() => import('@/pages/LoginPage').then((m) => ({ default: m.LoginPage })));
+const MyNestsPage = lazy(() => import('@/pages/MyNestsPage').then((m) => ({ default: m.MyNestsPage })));
+const NestDetailPage = lazy(() => import('@/pages/NestDetailPage').then((m) => ({ default: m.NestDetailPage })));
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })));
 const OnboardingPage = lazy(() => import('@/pages/OnboardingPage').then((m) => ({ default: m.OnboardingPage })));
 const ProfilePage = lazy(() => import('@/pages/ProfilePage').then((m) => ({ default: m.ProfilePage })));
+const ProposalsPage = lazy(() => import('@/pages/ProposalsPage').then((m) => ({ default: m.ProposalsPage })));
 const RegisterPage = lazy(() => import('@/pages/RegisterPage').then((m) => ({ default: m.RegisterPage })));
 
 /**
@@ -43,8 +47,7 @@ function AnchorApplyRoute() {
  * - Public routes render inside PublicLayout (no shell).
  * - Private routes are wrapped in ProtectedRoute; `/onboarding` is standalone
  *   (full-screen) while everything else renders inside AppLayout.
- * - `/my-nest` and `/messages` resolve to ComingSoon placeholders until their
- *   modules land.
+ * - `/messages` resolves to a ComingSoon placeholder until that module lands.
  * - Every page is lazy-loaded; Suspense shows a branded loader while a chunk
  *   downloads (only happens once per route, after the initial load).
  */
@@ -65,17 +68,12 @@ export function AppRouter() {
 
           <Route element={<AppLayout />}>
             <Route path={ROUTES.DASHBOARD} element={<DashboardPage />} />
+            <Route path={ROUTES.DISCOVER} element={<DiscoverPage />} />
+            <Route path={ROUTES.PROPOSALS} element={<ProposalsPage />} />
+            <Route path={ROUTES.MY_NEST} element={<MyNestsPage />} />
+            <Route path={ROUTES.NEST_DETAIL} element={<NestDetailPage />} />
             <Route path={ROUTES.PROFILE} element={<ProfilePage />} />
             <Route path={ROUTES.ANCHOR_APPLY} element={<AnchorApplyRoute />} />
-            <Route
-              path={ROUTES.MY_NEST}
-              element={
-                <ComingSoonPage
-                  title="My Nest"
-                  description="See your Nest's members, meetings, and shared moments here once matching goes live (Module 3)."
-                />
-              }
-            />
             <Route
               path={ROUTES.MESSAGES}
               element={

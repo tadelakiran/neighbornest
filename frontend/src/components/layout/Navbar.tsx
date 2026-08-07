@@ -1,96 +1,102 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Menu, Bell, ShieldCheck, LogOut, User } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Bell, Compass, LogOut, Menu } from 'lucide-react';
+import { Avatar } from '@/components/ui/Avatar';
+import { DarkModeToggle } from '@/components/ui/DarkModeToggle';
+import { useAuth } from '@/hooks/useAuth';
+import { useAuthStore } from '@/stores/authStore';
+import { ROUTES } from '@/lib/constants';
 
-export interface NavbarProps {
-  user?: {
-    fullName?: string;
-    role?: string;
-    city?: string;
-  };
+interface NavbarProps {
   onMenuClick?: () => void;
-  onLogout?: () => void;
   className?: string;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({
-  user,
-  onMenuClick,
-  onLogout,
-  className = ""
-}) => {
+/**
+ * Top app bar — Blue Dynasty glass navbar. Shows the brand, a notifications
+ * bell, theme toggle, the current user's avatar chip (links to Profile), and
+ * a logout action. Mobile hamburger is visible below lg.
+ */
+export function Navbar({ onMenuClick, className = '' }: NavbarProps) {
+  const navigate = useNavigate();
+  const { logout } = useAuth();
+  const user = useAuthStore((state) => state.user);
+  const firstName = user?.fullName?.split(' ')[0] ?? 'Member';
+
   return (
-    <motion.header 
-      initial={{ y: -20, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.3 }}
-      className={`sticky top-0 z-40 w-full backdrop-blur-xl bg-white/80 dark:bg-slate-900/80 border-b border-slate-200/80 dark:border-slate-800 px-4 md:px-8 py-3.5 flex items-center justify-between shadow-sm ${className}`}
+    <header
+      className={`sticky top-0 z-40 w-full border-b border-white/[0.06] bg-void/70 backdrop-blur-xl ${className}`}
     >
-      <div className="flex items-center gap-3">
-        {onMenuClick && (
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 md:px-8">
+        {/* Left: hamburger + brand */}
+        <div className="flex items-center gap-3">
+          {onMenuClick && (
+            <button
+              onClick={onMenuClick}
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.03] text-secondary transition-colors hover:text-primary lg:hidden"
+              aria-label="Open navigation menu"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+          )}
+
           <button
-            onClick={onMenuClick}
-            className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 lg:hidden transition-colors"
-            aria-label="Open Navigation Menu"
+            onClick={() => navigate(ROUTES.DASHBOARD)}
+            className="flex items-center gap-2.5"
+            aria-label="Go to dashboard"
           >
-            <Menu className="w-5 h-5" />
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent-gradient shadow-glow-sm">
+              <Compass className="h-5 w-5 text-white" aria-hidden="true" />
+            </span>
+            <span className="hidden font-display text-base font-bold tracking-tight text-primary sm:block">
+              Neighbor<span className="text-gradient">Nest</span>
+            </span>
           </button>
-        )}
-
-        <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/25 font-black text-base">
-            N
-          </div>
-          <div>
-            <h1 className="text-base font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-1.5">
-              NestMatch <span className="text-[10px] uppercase font-bold tracking-widest text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-2 py-0.5 rounded-full border border-indigo-200 dark:border-indigo-800">Pro</span>
-            </h1>
-          </div>
         </div>
-      </div>
 
-      <div className="flex items-center gap-3">
-        <button 
-          className="p-2 rounded-xl text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors relative"
-          aria-label="Notifications"
-        >
-          <Bell className="w-5 h-5" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-pink-500 animate-pulse" />
-        </button>
+        {/* Right: actions */}
+        <div className="flex items-center gap-2">
+          <button
+            className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.03] text-secondary transition-colors hover:text-primary"
+            aria-label="Notifications"
+          >
+            <Bell className="h-[18px] w-[18px]" />
+            <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-accent-400 shadow-[0_0_8px_rgba(14,165,233,0.8)]" aria-hidden="true" />
+          </button>
 
-        {user ? (
-          <div className="flex items-center gap-3 pl-3 border-l border-slate-200 dark:border-slate-800">
-            <div className="hidden sm:block text-right">
-              <p className="text-xs font-bold text-slate-900 dark:text-white">
-                {user.fullName || 'Community Member'}
-              </p>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 capitalize">
-                {user.role === 'ANCHOR' ? 'Anchor Guide' : 'Explorer'}
-              </p>
-            </div>
+          <DarkModeToggle />
 
-            <div className="w-9 h-9 rounded-xl bg-indigo-500/10 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 flex items-center justify-center font-bold">
-              <User className="w-4 h-4" />
-            </div>
-
-            {onLogout && (
+          {user ? (
+            <div className="flex items-center gap-2 pl-2">
               <button
-                onClick={onLogout}
-                className="p-2 rounded-xl text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors"
+                onClick={() => navigate(ROUTES.PROFILE)}
+                className="flex items-center gap-2.5 rounded-xl border border-white/[0.08] bg-white/[0.03] py-1 pl-1 pr-3 transition-colors hover:border-accent-400/30"
+                aria-label={`Open profile of ${user.fullName}`}
+              >
+                <Avatar name={user.fullName} src={user.profilePhotoUrl} size="sm" />
+                <span className="hidden text-left md:block">
+                  <span className="block text-xs font-semibold leading-tight text-primary">{firstName}</span>
+                  <span className="block text-[10px] capitalize leading-tight text-muted">
+                    {user.role?.toLowerCase() ?? 'member'}
+                  </span>
+                </span>
+              </button>
+
+              <button
+                onClick={() => void logout()}
+                className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.03] text-secondary transition-colors hover:border-rose-400/30 hover:text-rose-400"
+                aria-label="Log out"
                 title="Log out"
               >
-                <LogOut className="w-4 h-4" />
+                <LogOut className="h-[18px] w-[18px]" />
               </button>
-            )}
-          </div>
-        ) : (
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 px-3 py-1.5 rounded-xl border border-emerald-200/60 flex items-center gap-1.5">
-              <ShieldCheck className="w-3.5 h-3.5" /> Secure Session
+            </div>
+          ) : (
+            <span className="rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-secondary">
+              Guest
             </span>
-          </div>
-        )}
+          )}
+        </div>
       </div>
-    </motion.header>
+    </header>
   );
-};
+}

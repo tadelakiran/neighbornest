@@ -29,7 +29,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -128,19 +130,73 @@ public class NestController {
      */
     @PostMapping("/{nestId}/meetings")
     @Operation(summary = "Schedule meeting",
-            description = "Schedules a new meeting for a Nest.")
+            description = "Schedules a new meeting for a Nest. Only members can schedule.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Meeting scheduled successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid input data"),
+            @ApiResponse(responseCode = "403", description = "Not a member of the Nest"),
             @ApiResponse(responseCode = "404", description = "Nest not found")
     })
     public ResponseEntity<MeetingResponse> scheduleMeeting(
             @PathVariable("nestId") final Long nestId,
+            @AuthenticationPrincipal final AuthenticatedUser principal,
             @Valid @RequestBody final MeetingRequest request) {
 
         log.debug("POST /api/nests/{}/meetings - scheduling meeting", nestId);
-        final MeetingResponse response = meetingService.scheduleMeeting(nestId, request);
+        final MeetingResponse response = meetingService.scheduleMeeting(nestId, resolveProfileId(principal), request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    /**
+     * Marks a meeting as completed.
+     *
+     * @param nestId    the nest ID
+     * @param meetingId the meeting ID
+     * @param principal the authenticated user from the JWT
+     * @return the updated meeting
+     */
+    @PostMapping("/{nestId}/meetings/{meetingId}/complete")
+    @Operation(summary = "Complete meeting",
+            description = "Marks a scheduled meeting as completed.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Meeting completed successfully"),
+            @ApiResponse(responseCode = "403", description = "Not a member of the Nest"),
+            @ApiResponse(responseCode = "404", description = "Meeting not found"),
+            @ApiResponse(responseCode = "409", description = "Meeting is not scheduled")
+    })
+    public ResponseEntity<MeetingResponse> completeMeeting(
+            @PathVariable("nestId") final Long nestId,
+            @PathVariable("meetingId") final Long meetingId,
+            @AuthenticationPrincipal final AuthenticatedUser principal) {
+
+        log.debug("POST /api/nests/{}/meetings/{}/complete - completing meeting", nestId, meetingId);
+        return ResponseEntity.ok(meetingService.completeMeeting(nestId, meetingId, resolveProfileId(principal)));
+    }
+
+    /**
+     * Marks a meeting as cancelled.
+     *
+     * @param nestId    the nest ID
+     * @param meetingId the meeting ID
+     * @param principal the authenticated user from the JWT
+     * @return the updated meeting
+     */
+    @PostMapping("/{nestId}/meetings/{meetingId}/cancel")
+    @Operation(summary = "Cancel meeting",
+            description = "Cancels a scheduled meeting.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Meeting cancelled successfully"),
+            @ApiResponse(responseCode = "403", description = "Not a member of the Nest"),
+            @ApiResponse(responseCode = "404", description = "Meeting not found"),
+            @ApiResponse(responseCode = "409", description = "Meeting is not scheduled")
+    })
+    public ResponseEntity<MeetingResponse> cancelMeeting(
+            @PathVariable("nestId") final Long nestId,
+            @PathVariable("meetingId") final Long meetingId,
+            @AuthenticationPrincipal final AuthenticatedUser principal) {
+
+        log.debug("POST /api/nests/{}/meetings/{}/cancel - cancelling meeting", nestId, meetingId);
+        return ResponseEntity.ok(meetingService.cancelMeeting(nestId, meetingId, resolveProfileId(principal)));
     }
 
     /**
@@ -151,13 +207,17 @@ public class NestController {
      */
     @GetMapping("/{nestId}/meetings")
     @Operation(summary = "List meetings",
-            description = "Returns all meetings for a Nest.")
+            description = "Returns all meetings for a Nest. Only members can view.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Meetings retrieved successfully")
+            @ApiResponse(responseCode = "200", description = "Meetings retrieved successfully"),
+            @ApiResponse(responseCode = "403", description = "Not a member of the Nest")
     })
-    public ResponseEntity<List<MeetingResponse>> listMeetings(@PathVariable("nestId") final Long nestId) {
+    public ResponseEntity<List<MeetingResponse>> listMeetings(
+            @PathVariable("nestId") final Long nestId,
+            @AuthenticationPrincipal final AuthenticatedUser principal) {
+
         log.debug("GET /api/nests/{}/meetings - listing meetings", nestId);
-        return ResponseEntity.ok(meetingService.listMeetings(nestId));
+        return ResponseEntity.ok(meetingService.listMeetings(nestId, resolveProfileId(principal)));
     }
 
     /**
@@ -194,13 +254,41 @@ public class NestController {
      */
     @GetMapping("/{nestId}/expenses")
     @Operation(summary = "List expenses",
-            description = "Returns all expenses for a Nest with their splits.")
+            description = "Returns all expenses for a Nest with their splits. Only members can view.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Expenses retrieved successfully")
+            @ApiResponse(responseCode = "200", description = "Expenses retrieved successfully"),
+            @ApiResponse(responseCode = "403", description = "Not a member of the Nest")
     })
-    public ResponseEntity<List<ExpenseResponse>> listExpenses(@PathVariable("nestId") final Long nestId) {
+    public ResponseEntity<List<ExpenseResponse>> listExpenses(
+            @PathVariable("nestId") final Long nestId,
+            @AuthenticationPrincipal final AuthenticatedUser principal) {
+
         log.debug("GET /api/nests/{}/expenses - listing expenses", nestId);
-        return ResponseEntity.ok(expenseService.listExpenses(nestId));
+        return ResponseEntity.ok(expenseService.listExpenses(nestId, resolveProfileId(principal)));
+    }
+
+    /**
+     * Marks the current user's split of an expense as settled.
+     *
+     * @param nestId    the nest ID
+     * @param expenseId the expense ID
+     * @param principal the authenticated user from the JWT
+     * @return the updated expense
+     */
+    @PatchMapping("/{nestId}/expenses/{expenseId}/settle")
+    @Operation(summary = "Settle expense split",
+            description = "Marks the current user's share of an expense as settled (settle up).")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Split settled successfully"),
+            @ApiResponse(responseCode = "404", description = "Expense or split not found")
+    })
+    public ResponseEntity<ExpenseResponse> settleExpense(
+            @PathVariable("nestId") final Long nestId,
+            @PathVariable("expenseId") final Long expenseId,
+            @AuthenticationPrincipal final AuthenticatedUser principal) {
+
+        log.debug("PATCH /api/nests/{}/expenses/{}/settle - settling split", nestId, expenseId);
+        return ResponseEntity.ok(expenseService.settleSplit(nestId, expenseId, resolveProfileId(principal)));
     }
 
     /**
@@ -237,14 +325,18 @@ public class NestController {
      */
     @GetMapping("/{nestId}/vibe-check/status")
     @Operation(summary = "Get vibe check status",
-            description = "Returns the aggregated vibe check scores for a Nest.")
+            description = "Returns the aggregated vibe check scores for a Nest. Only members can view.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Status retrieved successfully"),
+            @ApiResponse(responseCode = "403", description = "Not a member of the Nest"),
             @ApiResponse(responseCode = "404", description = "Nest not found")
     })
-    public ResponseEntity<VibeCheckStatusResponse> getVibeCheckStatus(@PathVariable("nestId") final Long nestId) {
+    public ResponseEntity<VibeCheckStatusResponse> getVibeCheckStatus(
+            @PathVariable("nestId") final Long nestId,
+            @AuthenticationPrincipal final AuthenticatedUser principal) {
+
         log.debug("GET /api/nests/{}/vibe-check/status - fetching status", nestId);
-        return ResponseEntity.ok(vibeCheckService.getStatus(nestId));
+        return ResponseEntity.ok(vibeCheckService.getStatus(nestId, resolveProfileId(principal)));
     }
 
     /**
@@ -283,6 +375,55 @@ public class NestController {
     public ResponseEntity<NestResponse> disband(@PathVariable("nestId") final Long nestId) {
         log.debug("POST /api/nests/{}/disband - disbanding nest", nestId);
         return ResponseEntity.ok(nestService.disband(nestId));
+    }
+
+    /**
+     * Leaves a Nest.
+     *
+     * @param nestId    the nest ID
+     * @param principal the authenticated user from the JWT
+     * @return the updated Nest
+     */
+    @PostMapping("/{nestId}/leave")
+    @Operation(summary = "Leave Nest",
+            description = "Marks the current user as having left the Nest.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Left the Nest successfully"),
+            @ApiResponse(responseCode = "403", description = "Not an active member"),
+            @ApiResponse(responseCode = "404", description = "Nest not found"),
+            @ApiResponse(responseCode = "409", description = "Nest has already ended")
+    })
+    public ResponseEntity<NestResponse> leave(
+            @PathVariable("nestId") final Long nestId,
+            @AuthenticationPrincipal final AuthenticatedUser principal) {
+
+        log.debug("POST /api/nests/{}/leave - leaving nest", nestId);
+        return ResponseEntity.ok(nestService.leave(nestId, resolveProfileId(principal)));
+    }
+
+    /**
+     * Removes a member from a Nest (anchor-only).
+     *
+     * @param nestId    the nest ID
+     * @param userId    the user profile ID of the member to remove
+     * @param principal the authenticated user from the JWT (must be an anchor)
+     * @return the updated Nest
+     */
+    @DeleteMapping("/{nestId}/members/{userId}")
+    @Operation(summary = "Remove member",
+            description = "Removes a member from the Nest. Only anchors can remove members.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Member removed successfully"),
+            @ApiResponse(responseCode = "403", description = "Not an anchor, or targeting yourself"),
+            @ApiResponse(responseCode = "404", description = "Nest or member not found")
+    })
+    public ResponseEntity<NestResponse> removeMember(
+            @PathVariable("nestId") final Long nestId,
+            @PathVariable("userId") final Long userId,
+            @AuthenticationPrincipal final AuthenticatedUser principal) {
+
+        log.debug("DELETE /api/nests/{}/members/{} - removing member", nestId, userId);
+        return ResponseEntity.ok(nestService.removeMember(nestId, resolveProfileId(principal), userId));
     }
 
     /**
