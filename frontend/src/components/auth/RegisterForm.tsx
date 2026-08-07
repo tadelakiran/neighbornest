@@ -76,7 +76,7 @@ export function RegisterForm() {
         autoComplete="name"
         icon={<UserIcon className="h-4 w-4" aria-hidden="true" />}
         error={errors.fullName?.message}
-        className="h-12 rounded-2xl border-slate-200 bg-slate-50/90 text-slate-900 shadow-sm transition-all duration-200 focus-within:border-accent-400 focus-within:ring-4 focus-within:ring-accent-100"
+        className="h-12 rounded-2xl border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--text-primary)] shadow-sm transition-all duration-200 focus-within:border-accent-400 focus-within:ring-4 focus-within:ring-accent-400/20"
         {...register('fullName')}
       />
 
@@ -88,7 +88,7 @@ export function RegisterForm() {
         autoComplete="email"
         icon={<Mail className="h-4 w-4" aria-hidden="true" />}
         error={errors.email?.message}
-        className="h-12 rounded-2xl border-slate-200 bg-slate-50/90 text-slate-900 shadow-sm transition-all duration-200 focus-within:border-accent-400 focus-within:ring-4 focus-within:ring-accent-100"
+        className="h-12 rounded-2xl border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--text-primary)] shadow-sm transition-all duration-200 focus-within:border-accent-400 focus-within:ring-4 focus-within:ring-accent-400/20"
         {...register('email')}
       />
 
@@ -101,12 +101,12 @@ export function RegisterForm() {
           autoComplete="new-password"
           icon={<Lock className="h-4 w-4" aria-hidden="true" />}
           error={errors.password?.message}
-          className="h-12 rounded-2xl border-slate-200 bg-slate-50/90 text-slate-900 shadow-sm transition-all duration-200 focus-within:border-accent-400 focus-within:ring-4 focus-within:ring-accent-100"
+          className="h-12 rounded-2xl border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--text-primary)] shadow-sm transition-all duration-200 focus-within:border-accent-400 focus-within:ring-4 focus-within:ring-accent-400/20"
           trailing={
             <button
               type="button"
               onClick={() => setShowPassword((v) => !v)}
-              className="rounded-full p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
+              className="rounded-full p-1.5 text-muted transition-colors hover:bg-white/[0.06] hover:text-primary"
               aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
               {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -115,9 +115,9 @@ export function RegisterForm() {
           {...register('password')}
         />
 
-        <div className="rounded-2xl border border-slate-100 bg-slate-50/80 px-3 py-2.5">
+        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] px-3 py-2.5">
           <div className="mb-2 flex items-center justify-between text-[11px] font-medium">
-            <span className="text-slate-500">Password strength</span>
+            <span className="text-muted">Password strength</span>
             <span className={cn('uppercase tracking-[0.18em]', strengthTextColor)}>
               {strengthLabel}
             </span>
@@ -129,7 +129,7 @@ export function RegisterForm() {
                 key={i}
                 className={cn(
                   'h-1.5 flex-1 rounded-full transition-all duration-300',
-                  i < strength ? strengthColor : 'bg-slate-200'
+                  i < strength ? strengthColor : 'bg-white/10'
                 )}
               />
             ))}
@@ -145,7 +145,7 @@ export function RegisterForm() {
         autoComplete="new-password"
         icon={<Lock className="h-4 w-4" aria-hidden="true" />}
         error={errors.confirmPassword?.message}
-        className="h-12 rounded-2xl border-slate-200 bg-slate-50/90 text-slate-900 shadow-sm transition-all duration-200 focus-within:border-accent-400 focus-within:ring-4 focus-within:ring-accent-100"
+        className="h-12 rounded-2xl border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--text-primary)] shadow-sm transition-all duration-200 focus-within:border-accent-400 focus-within:ring-4 focus-within:ring-accent-400/20"
         {...register('confirmPassword')}
       />
 
@@ -155,7 +155,7 @@ export function RegisterForm() {
         size="lg"
         fullWidth
         isLoading={isSubmitting}
-        className="h-12 rounded-2xl bg-gradient-to-r from-accent-500 to-accent-600 text-sm font-semibold shadow-lg shadow-accent-500/25 transition-all hover:-translate-y-0.5 hover:shadow-accent-500/35"
+        className="h-12 rounded-2xl shadow-glow"
         rightIcon={<ArrowRight className="h-4 w-4" aria-hidden="true" />}
       >
         {isSubmitting ? 'Creating account…' : 'Create account'}
@@ -165,7 +165,7 @@ export function RegisterForm() {
         Already have an account?{' '}
         <Link
           to={ROUTES.LOGIN}
-          className="group relative font-semibold text-accent-600 transition-colors hover:text-accent-700"
+          className="group relative font-semibold text-accent-400 transition-colors hover:text-accent-300"
         >
           Sign in
           <span

@@ -4,8 +4,8 @@ import com.neighbornest.nest.dto.request.VibeCheckRequest;
 import com.neighbornest.nest.dto.response.VibeCheckResponse;
 import com.neighbornest.nest.dto.response.VibeCheckStatusResponse;
 import com.neighbornest.nest.entity.VibeCheck;
+import com.neighbornest.nest.exception.InvalidOperationException;
 import com.neighbornest.nest.exception.ResourceNotFoundException;
-import com.neighbornest.nest.repository.NestRepository;
 import com.neighbornest.nest.repository.VibeCheckRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +32,7 @@ import java.util.List;
 public class VibeCheckService {
 
     private final VibeCheckRepository vibeCheckRepository;
-    private final NestRepository nestRepository;
+    private final NestService nestService;
 
     /**
      * Submits a vibe check for the authenticated user.
@@ -44,7 +44,11 @@ public class VibeCheckService {
      */
     @Transactional
     public VibeCheckResponse submit(final Long nestId, final Long userId, final VibeCheckRequest request) {
-        ensureNestExists(nestId);
+        nestService.requireMember(nestId, userId);
+
+        if (vibeCheckRepository.findByNestIdAndUserId(nestId, userId).isPresent()) {
+            throw new InvalidOperationException("You have already submitted a vibe check for this nest");
+        }
 
         final VibeCheck check = VibeCheck.builder()
                 .nestId(nestId)
@@ -67,8 +71,8 @@ public class VibeCheckService {
      * @return the aggregated status
      */
     @Transactional(readOnly = true)
-    public VibeCheckStatusResponse getStatus(final Long nestId) {
-        ensureNestExists(nestId);
+    public VibeCheckStatusResponse getStatus(final Long nestId, final Long userId) {
+        nestService.requireMember(nestId, userId);
 
         final List<VibeCheck> checks = vibeCheckRepository.findByNestId(nestId);
 
@@ -92,17 +96,6 @@ public class VibeCheckService {
                 .submissionCount(checks.size())
                 .submissions(checks.stream().map(this::toResponse).toList())
                 .build();
-    }
-
-    /**
-     * Verifies the nest exists.
-     *
-     * @param nestId the nest ID
-     */
-    private void ensureNestExists(final Long nestId) {
-        if (!nestRepository.existsById(nestId)) {
-            throw new ResourceNotFoundException("Nest not found with id: " + nestId);
-        }
     }
 
     /**

@@ -266,14 +266,19 @@ All domain-service endpoints require a `Bearer` token (see the auth flow below).
 | POST   | `/api/nests`                      | Create Nest (called by matching-service) |
 | GET    | `/api/nests/{nestId}`             | Nest details with members                |
 | GET    | `/api/nests/my-nests`             | My active/graduated Nests                |
-| POST   | `/api/nests/{id}/meetings`        | Schedule meeting                         |
-| GET    | `/api/nests/{id}/meetings`        | List meetings                            |
+| POST   | `/api/nests/{id}/meetings`        | Schedule meeting (members only)          |
+| GET    | `/api/nests/{id}/meetings`        | List meetings (members only)             |
+| POST   | `/api/nests/{id}/meetings/{meetingId}/complete` | Mark meeting completed (members only) |
+| POST   | `/api/nests/{id}/meetings/{meetingId}/cancel`  | Cancel meeting (members only)      |
 | POST   | `/api/nests/{id}/expenses`        | Create expense (EQUAL/CUSTOM splits)     |
-| GET    | `/api/nests/{id}/expenses`        | List expenses                            |
-| POST   | `/api/nests/{id}/vibe-check`      | Submit vibe check                        |
-| GET    | `/api/nests/{id}/vibe-check/status` | Aggregated scores (admin view)         |
+| GET    | `/api/nests/{id}/expenses`        | List expenses (members only)             |
+| PATCH  | `/api/nests/{id}/expenses/{expenseId}/settle` | Settle my split on an expense   |
+| POST   | `/api/nests/{id}/vibe-check`      | Submit vibe check (members only)         |
+| GET    | `/api/nests/{id}/vibe-check/status` | Aggregated scores (members only)       |
 | POST   | `/api/nests/{id}/graduate`        | Mark graduated (publishes event)         |
 | POST   | `/api/nests/{id}/disband`         | Disband                                  |
+| POST   | `/api/nests/{id}/leave`           | Leave the Nest                           |
+| DELETE | `/api/nests/{id}/members/{userId}`| Remove a member (anchors only)           |
 
 ### Testing via Swagger
 

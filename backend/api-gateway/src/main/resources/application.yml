@@ -40,15 +40,32 @@ spring:
                 name: matchingServiceCircuitBreaker
                 fallbackUri: forward:/fallback/matching
 
-        - id: nest-service
-          uri: lb://NEST-SERVICE
+        - id: chat-service
+          uri: lb://CHAT-SERVICE
           predicates:
-            - Path=/api/nests/**
+            - Path=/api/chat/**
           filters:
             - name: CircuitBreaker
               args:
-                name: nestServiceCircuitBreaker
-                fallbackUri: forward:/fallback/nest
+                name: chatServiceCircuitBreaker
+                fallbackUri: forward:/fallback/chat
+
+        # WebSocket route for the STOMP/SockJS chat endpoint. Spring Cloud
+        # Gateway upgrades the connection to ws and load-balances via Eureka.
+        - id: chat-websocket
+          uri: lb:ws://CHAT-SERVICE
+          predicates:
+            - Path=/ws/chat/**
+
+        - id: notification-service
+          uri: lb://NOTIFICATION-SERVICE
+          predicates:
+            - Path=/api/notifications/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: notificationServiceCircuitBreaker
+                fallbackUri: forward:/fallback/notification
 
       default-filters:
         - DedupeResponseHeader=Access-Control-Allow-Origin
@@ -76,6 +93,12 @@ resilience4j:
         timeout-duration: 15s
         cancel-running-future: true
       nestServiceCircuitBreaker:
+        timeout-duration: 15s
+        cancel-running-future: true
+      chatServiceCircuitBreaker:
+        timeout-duration: 15s
+        cancel-running-future: true
+      notificationServiceCircuitBreaker:
         timeout-duration: 15s
         cancel-running-future: true
   circuitbreaker:
@@ -113,6 +136,24 @@ resilience4j:
         slow-call-duration-threshold: 14s
         slow-call-rate-threshold: 90
       nestServiceCircuitBreaker:
+        sliding-window-size: 30
+        sliding-window-type: COUNT_BASED
+        minimum-number-of-calls: 15
+        failure-rate-threshold: 70
+        wait-duration-in-open-state: 30s
+        permitted-number-of-calls-in-half-open-state: 5
+        slow-call-duration-threshold: 14s
+        slow-call-rate-threshold: 90
+      chatServiceCircuitBreaker:
+        sliding-window-size: 30
+        sliding-window-type: COUNT_BASED
+        minimum-number-of-calls: 15
+        failure-rate-threshold: 70
+        wait-duration-in-open-state: 30s
+        permitted-number-of-calls-in-half-open-state: 5
+        slow-call-duration-threshold: 14s
+        slow-call-rate-threshold: 90
+      notificationServiceCircuitBreaker:
         sliding-window-size: 30
         sliding-window-type: COUNT_BASED
         minimum-number-of-calls: 15

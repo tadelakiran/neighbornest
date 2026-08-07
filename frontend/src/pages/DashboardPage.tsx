@@ -1,189 +1,352 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, BellRing, Compass, Home, Pencil, Sparkles, UserRound } from 'lucide-react';
-import { ActivityTimeline } from '@/components/dashboard/ActivityTimeline';
-import { FeatureGallery } from '@/components/dashboard/FeatureGallery';
-import { ReadinessCharts } from '@/components/dashboard/ReadinessCharts';
-import { StatCards, computeReadiness } from '@/components/dashboard/StatCards';
-import { Avatar } from '@/components/ui/Avatar';
-import { Badge } from '@/components/ui/Badge';
+import { motion } from 'framer-motion';
+import { ArrowRight, Compass, Home, Inbox, MapPin, Sparkles, Users } from 'lucide-react';
+import { BentoGrid } from '@/components/dashboard/BentoGrid';
+import { BentoCard } from '@/components/dashboard/BentoCard';
+import { StatCard } from '@/components/dashboard/StatCard';
+import { MeetingPreview, type MeetingPreviewData } from '@/components/dashboard/MeetingPreview';
+import { ActivityTimeline, type TimelineEvent } from '@/components/matching/ActivityTimeline';
+import { CircularScore } from '@/components/matching/CircularScore';
+import { MemberAvatarStack } from '@/components/matching/MemberAvatarStack';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
 import { LazyImage } from '@/components/ui/LazyImage';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useAuth } from '@/hooks/useAuth';
-import { useProfile } from '@/hooks/useProfile';
+import { useTypewriter } from '@/hooks/useTypewriter';
+import { useToast } from '@/hooks/useToast';
+import { cardStagger, cardRise } from '@/lib/motion';
 import { IMAGES } from '@/lib/images';
 import { ROUTES } from '@/lib/constants';
+import { calculateCompatibility, getCompatibles, getPendingProposals } from '@/services/matchingService';
+import { getMyNests } from '@/services/nestService';
+import type { CompatibleUserResponse, MatchProposalResponse } from '@/types/matching.types';
+import type { NestSummaryResponse } from '@/types/nest.types';
 
+/** Time-of-day greeting for the welcome header. */
+function greetingFor(hour: number): string {
+  if (hour < 5) return 'Good night';
+  if (hour < 12) return 'Good morning';
+  if (hour < 17) return 'Good afternoon';
+  return 'Good evening';
+}
+
+/**
+ * The dashboard renders the bento grid immediately — the header and hero card
+ * need no data, and each remaining cell shows its own shimmer skeleton until
+ * its specific API call resolves. Nothing waits for the slowest request.
+ */
 export function DashboardPage() {
-  const navigate  = useNavigate();
-  const { user }  = useAuth();
-  const { profile, isLoading } = useProfile();
-  const readiness = useMemo(() => computeReadiness(profile), [profile]);
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const toast = useToast();
+
+  const userId = user?.authUserId ?? user?.id;
   const firstName = user?.fullName?.split(' ')[0] ?? 'there';
 
-  const quickActions = [
-    {
-      label:   profile?.isOnboarded ? 'Edit profile' : 'Complete onboarding',
-      icon:    profile?.isOnboarded ? Pencil : Sparkles,
-      onClick: () => navigate(profile?.isOnboarded ? ROUTES.PROFILE : ROUTES.ONBOARDING),
-    },
-    { label: 'Become an Anchor', icon: Home,    onClick: () => navigate(ROUTES.ANCHOR_APPLY) },
-    { label: 'My Nest',          icon: Compass, onClick: () => navigate(ROUTES.MY_NEST)      },
-  ];
+  // ── Data (all calls tolerate a missing backend and degrade to empty states) ──
+  const [compatibles, setCompatibles] = useState<CompatibleUserResponse[] | null>(null);
+  const [proposals, setProposals] = useState<MatchProposalResponse[] | null>(null);
+  const [nests, setNests] = useState<NestSummaryResponse[] | null>(null);
+  const [calculating, setCalculating] = useState(false);
+
+  useEffect(() => {
+    if (!userId) {
+      setCompatibles([]);
+      setProposals([]);
+      setNests([]);
+      return;
+    }
+    let active = true;
+    getCompatibles(userId)
+      .then((d) => active && setCompatibles(d))
+      .catch(() => active && setCompatibles([]));
+    getPendingProposals(userId)
+      .then((d) => active && setProposals(d))
+      .catch(() => active && setProposals([]));
+    getMyNests()
+      .then((d) => active && setNests(d))
+      .catch(() => active && setNests([]));
+    return () => {
+      active = false;
+    };
+  }, [userId]);
+
+  const typedGreeting = useTypewriter(`${greetingFor(new Date().getHours())}, ${firstName}`);
+
+  // ── Derived data for the bento cells ──
+  const bestMatch = useMemo(() => {
+    if (!compatibles || compatibles.length === 0) return null;
+    return [...compatibles].sort((a, b) => b.overallScore - a.overallScore)[0];
+  }, [compatibles]);
+
+  const proposalMembers = useMemo(
+    () => proposals?.flatMap((p) => p.members).slice(0, 5) ?? [],
+    [proposals]
+  );
+
+  const meetings: MeetingPreviewData[] = useMemo(
+    () =>
+      (nests ?? [])
+        .filter((n) => n.nextMeetingDate)
+        .slice(0, 3)
+        .map((n) => ({
+          id: `meeting-${n.id}`,
+          title: `${n.name} meetup`,
+          date: n.nextMeetingDate as string,
+          venue: n.city,
+        })),
+    [nests]
+  );
+
+  const citiesExplored = useMemo(() => {
+    const cities = new Set<string>();
+    if (user?.city) cities.add(user.city);
+    compatibles?.forEach((c) => c.city && cities.add(c.city));
+    return cities.size;
+  }, [compatibles, user?.city]);
+
+  const activity: TimelineEvent[] = useMemo(() => {
+    const events: TimelineEvent[] = [];
+    if (nests && nests.length > 0) {
+      events.push({
+        id: 'a-nest',
+        title: `Joined ${nests[0].name}`,
+        description: `You're now part of a Nest in ${nests[0].city}.`,
+        time: 'Today',
+        category: 'nest',
+      });
+    }
+    if (proposals && proposals.length > 0) {
+      events.push({
+        id: 'a-proposal',
+        title: 'Received a Nest invitation',
+        description: `${proposals[0].members.length} people want you to join their group.`,
+        time: 'Today',
+        category: 'proposal',
+      });
+    }
+    if (compatibles && compatibles.length > 0) {
+      events.push({
+        id: 'a-match',
+        title: 'Matches calculated',
+        description: `We found ${compatibles.length} compatible neighbor${compatibles.length === 1 ? '' : 's'} for you.`,
+        time: 'Today',
+        category: 'system',
+      });
+    }
+    if (events.length === 0) {
+      events.push({
+        id: 'a-start',
+        title: 'Welcome to NeighborNest',
+        description: 'Start matching to find your people and join your first Nest.',
+        time: 'Now',
+        category: 'system',
+      });
+    }
+    return events;
+  }, [compatibles, nests, proposals]);
+
+  // ── Actions ──
+  const handleStartMatching = async () => {
+    if (!userId || calculating) return;
+    setCalculating(true);
+    try {
+      await calculateCompatibility(userId);
+      toast.success('Compatibility calculated — here are your matches!');
+      navigate(ROUTES.DISCOVER);
+    } catch {
+      toast.error('Could not calculate matches right now. Please try again.');
+      setCalculating(false);
+    }
+  };
 
   return (
-    <div className="space-y-8">
+    <motion.div variants={cardStagger} initial="hidden" animate="show" className="space-y-6">
+      {/* ── Welcome header ── */}
+      <motion.div variants={cardRise}>
+        <h1 className="font-display text-3xl font-bold tracking-tight text-primary md:text-4xl">
+          {typedGreeting}
+          <span className="text-accent-400">.</span>
+        </h1>
+        <p className="mt-1 text-secondary">Let's find your people.</p>
+      </motion.div>
 
-      {/* ── Hero banner ── */}
-      <div className="relative overflow-hidden rounded-xl border border-[var(--color-border)] shadow-card">
-        <div className="absolute inset-0">
-          <LazyImage
-            src={IMAGES.friends}
-            alt="Neighbors spending time together in their community"
-            aspectRatio="16/7"
-            placeholder="blur"
-            wrapperClassName="absolute inset-0"
-            className="object-cover"
-            loading="eager"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-accent-900/92 via-accent-800/65 to-accent-700/20" />
-        </div>
-
-        <div className="relative flex flex-col gap-6 p-6 sm:p-10 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex items-center gap-4">
-            <span className="rounded-full p-0.5 ring-2 ring-white/50 shadow-lg">
-              <Avatar name={user?.fullName ?? 'Guest'} src={user?.profilePhotoUrl} size="xl" />
-            </span>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-blue-200">
-                {new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}
-              </p>
-              <h1 className="mt-1 font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">
-                Welcome back, {firstName} 👋
-              </h1>
-              <div className="mt-2 flex flex-wrap items-center gap-2">
-                <Badge variant={profile?.isOnboarded ?? user?.isOnboarded ? 'success' : 'warning'}>
-                  {profile?.isOnboarded ?? user?.isOnboarded ? 'Onboarded' : 'Onboarding pending'}
-                </Badge>
-                <Badge variant="info" className="capitalize">
-                  {(profile?.role ?? user?.role ?? 'NEWCOMER').toLowerCase()}
-                </Badge>
-                {profile?.city && <Badge variant="neutral">{profile.city}</Badge>}
-              </div>
-            </div>
+      <BentoGrid>
+        {/* ── Find Your Nest (2x1) ── */}
+        <BentoCard size="2x1">
+          <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+            <LazyImage
+              src={IMAGES.city}
+              alt=""
+              placeholder="shimmer"
+              wrapperClassName="absolute inset-0"
+              className="h-full w-full object-cover opacity-30"
+              loading="lazy"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-void via-void/85 to-void/40" />
           </div>
-
-          <div className="flex flex-wrap items-center gap-3">
-            {quickActions.map(({ label, icon: Icon, onClick }) => (
-              <Button
-                key={label}
-                variant="secondary"
-                size="sm"
-                leftIcon={<Icon className="h-4 w-4" aria-hidden="true" />}
-                onClick={onClick}
-                className="border-white/25 bg-white/10 text-white backdrop-blur-sm hover:bg-white/20"
+          <div className="relative flex flex-1 flex-col justify-between gap-4 sm:flex-row sm:items-center">
+            <div className="flex items-center gap-4">
+              <motion.span
+                animate={{ rotate: [0, 12, -12, 0] }}
+                transition={{ repeat: Infinity, duration: 5, ease: 'easeInOut' }}
+                className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-accent-gradient shadow-glow"
               >
-                {label}
-              </Button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* ── Onboarding CTA ── */}
-      {!profile?.isOnboarded && !isLoading && (
-        <Card className="border-accent-200 bg-gradient-to-r from-accent-50 to-white">
-          <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-            <div className="flex items-start gap-4">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-accent-100">
-                <Sparkles className="h-5 w-5 text-accent-600" aria-hidden="true" />
-              </span>
+                <Compass className="h-7 w-7 text-white" aria-hidden="true" />
+              </motion.span>
               <div>
-                <h2 className="font-display text-lg font-semibold text-[var(--text-primary)]">
-                  Finish your onboarding
-                </h2>
-                <p className="mt-1 text-sm text-[var(--text-muted)]">
-                  {profile
-                    ? 'Tell us a bit more so we can match you perfectly.'
-                    : 'Set up your profile to unlock matching and Nests.'}
+                <h2 className="font-display text-xl font-bold text-primary">Find Your Nest</h2>
+                <p className="mt-1 max-w-md text-sm text-secondary">
+                  We match you with compatible neighbors, then place you in a small curated Nest with a local Anchor.
                 </p>
               </div>
             </div>
-            <Button onClick={() => navigate(ROUTES.ONBOARDING)} rightIcon={<ArrowRight className="h-4 w-4" />}>
-              {profile ? 'Continue onboarding' : 'Get started'}
+            <Button
+              variant="primary"
+              size="lg"
+              isLoading={calculating}
+              rightIcon={!calculating ? <ArrowRight className="h-4 w-4" aria-hidden="true" /> : undefined}
+              onClick={() => void handleStartMatching()}
+              className="shrink-0 shadow-glow"
+            >
+              {calculating ? 'Calculating…' : 'Start Matching'}
             </Button>
           </div>
-        </Card>
-      )}
-
-      {/* ── Stats ── */}
-      {isLoading && !profile ? (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-28 rounded-xl" />
-          ))}
-        </div>
-      ) : profile ? (
-        <>
-          <StatCards profile={profile} readiness={readiness} />
-
-          <div className="grid gap-4 lg:grid-cols-3">
-            <div className="lg:col-span-2">
-              <ReadinessCharts profile={profile} readiness={readiness} />
+          {calculating && (
+            <div className="relative mt-4 overflow-hidden rounded-xl border border-white/[0.06] bg-white/[0.02]">
+              <div className="h-2 w-full animate-pulse bg-accent-400/20" />
             </div>
-            <ActivityTimeline profile={profile} />
-          </div>
+          )}
+        </BentoCard>
 
-          {/* Notifications */}
-          <Card>
-            <div className="mb-4 flex items-center gap-2.5">
-              <BellRing className="h-4 w-4 text-accent-500" aria-hidden="true" />
-              <h3 className="text-xs font-medium uppercase tracking-widest text-[var(--text-muted)]">
-                Notifications
-              </h3>
-              <Badge variant="success" className="ml-auto">3 new</Badge>
+        {/* ── Compatibility Score (1x1) ── */}
+        <BentoCard size="1x1">
+          {compatibles === null ? (
+            <CardSkeleton />
+          ) : (
+            <div className="flex flex-1 flex-col items-center justify-center gap-3">
+              <CircularScore value={bestMatch?.overallScore ?? 0} size={128} label="match" />
+              <div className="text-center">
+                <p className="text-sm font-semibold text-primary">
+                  {bestMatch ? `Top match: ${bestMatch.fullName.split(' ')[0]}` : 'No matches yet'}
+                </p>
+                <p className="mt-0.5 text-xs text-muted">
+                  {bestMatch ? `${bestMatch.city} · ${Math.round(bestMatch.overallScore)}% compatible` : 'Run a calculation to see your score'}
+                </p>
+              </div>
             </div>
-            <ul className="divide-y divide-[var(--color-border)]">
-              {[
-                { icon: Sparkles,  text: 'Nest matching is coming to your city soon.',                                                 time: 'This week'   },
-                { icon: UserRound, text: readiness >= 100 ? "You're ready for matching!" : 'Complete your profile for better matches.', time: 'Tip'         },
-                { icon: Home,      text: 'Anchors make every Nest feel like home.',                                                    time: 'Did you know?' },
-              ].map(({ icon: Icon, text, time }) => (
-                <li key={text} className="flex items-start gap-3 py-3">
-                  <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-[var(--color-surface)]">
-                    <Icon className="h-4 w-4 text-accent-500" aria-hidden="true" />
-                  </span>
-                  <div className="min-w-0">
-                    <p className="text-sm text-[var(--text-primary)]">{text}</p>
-                    <p className="text-xs text-[var(--text-muted)]">{time}</p>
-                  </div>
-                </li>
+          )}
+        </BentoCard>
+
+        {/* ── Active Proposals (1x1) ── */}
+        <BentoCard size="1x1">
+          {proposals === null ? (
+            <CardSkeleton />
+          ) : (
+            <button
+              onClick={() => navigate(ROUTES.PROPOSALS)}
+              className="flex h-full w-full flex-col items-start justify-center gap-3 text-left"
+              aria-label="View your nest invitations"
+            >
+              <div className="flex items-center justify-between self-stretch">
+                <span className="flex items-center gap-2 text-sm font-semibold text-primary">
+                  <Inbox className="h-4 w-4 text-accent-400" aria-hidden="true" />
+                  Active Proposals
+                </span>
+                {proposals.length > 0 && (
+                  <span className="glow-dot h-2.5 w-2.5" aria-hidden="true" />
+                )}
+              </div>
+              {proposals.length > 0 ? (
+                <>
+                  <MemberAvatarStack members={proposalMembers} size="sm" />
+                  <p className="text-xs text-muted">
+                    {proposals.length} invitation{proposals.length === 1 ? '' : 's'} waiting for your reply
+                  </p>
+                </>
+              ) : (
+                <p className="text-sm text-muted">No pending invitations. Keep your profile fresh for better invites.</p>
+              )}
+              <span className="mt-auto inline-flex items-center gap-1 text-xs font-semibold text-accent-300 transition-colors hover:text-accent-400">
+                View invitations <ArrowRight className="h-3 w-3" aria-hidden="true" />
+              </span>
+            </button>
+          )}
+        </BentoCard>
+
+        {/* ── Recent Activity (2x1) ── */}
+        <BentoCard size="2x1">
+          <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-muted">
+            <Sparkles className="h-4 w-4 text-accent-400" aria-hidden="true" />
+            Recent Activity
+          </h2>
+          {compatibles === null || proposals === null || nests === null ? (
+            <div className="space-y-3">
+              <Skeleton className="h-12 rounded-xl" />
+              <Skeleton className="h-12 rounded-xl" />
+              <Skeleton className="h-12 rounded-xl" />
+            </div>
+          ) : (
+            <ActivityTimeline events={activity} />
+          )}
+        </BentoCard>
+
+        {/* ── Quick Stats (1x1) ── */}
+        <BentoCard size="1x1">
+          <h2 className="mb-4 text-sm font-semibold uppercase tracking-widest text-muted">Quick Stats</h2>
+          {nests === null || compatibles === null ? (
+            <div className="flex flex-1 flex-col justify-center gap-4">
+              <Skeleton className="h-10 rounded-xl" />
+              <Skeleton className="h-10 rounded-xl" />
+              <Skeleton className="h-10 rounded-xl" />
+            </div>
+          ) : (
+            <div className="flex flex-1 flex-col justify-center gap-4">
+              <StatCard label="Nests joined" value={nests?.length ?? 0} icon={Home} delay={100} />
+              <StatCard label="Friends made" value={compatibles?.length ?? 0} icon={Users} delay={200} />
+              <StatCard label="Cities explored" value={citiesExplored} icon={MapPin} delay={300} />
+            </div>
+          )}
+        </BentoCard>
+
+        {/* ── Upcoming Meetings (1x2) ── */}
+        <BentoCard size="1x2">
+          <h2 className="mb-4 text-sm font-semibold uppercase tracking-widest text-muted">Upcoming Meetings</h2>
+          {nests === null ? (
+            <div className="flex flex-1 flex-col justify-center gap-3">
+              <Skeleton className="h-14 rounded-xl" />
+              <Skeleton className="h-14 rounded-xl" />
+              <Skeleton className="h-14 rounded-xl" />
+            </div>
+          ) : meetings.length > 0 ? (
+            <div className="flex flex-1 flex-col gap-3">
+              {meetings.map((meeting) => (
+                <MeetingPreview key={meeting.id} meeting={meeting} />
               ))}
-            </ul>
-          </Card>
-        </>
-      ) : (
-        <Card>
-          <div className="flex flex-col items-center gap-3 py-6 text-center">
-            <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent-gradient shadow-glow">
-              <Sparkles className="h-6 w-6 text-white" aria-hidden="true" />
-            </span>
-            <h2 className="font-display text-lg font-semibold text-[var(--text-primary)]">
-              Your Nest is on the way
-            </h2>
-            <p className="max-w-md text-sm text-[var(--text-muted)]">
-              Complete your profile and onboarding so we can match you with compatible neighbors.
-            </p>
-            <Button onClick={() => navigate(ROUTES.ONBOARDING)} rightIcon={<ArrowRight className="h-4 w-4" />}>
-              Complete onboarding
-            </Button>
-          </div>
-        </Card>
-      )}
+            </div>
+          ) : (
+            <div className="flex flex-1 flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-white/10 p-4 text-center">
+              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/[0.04]">
+                <Compass className="h-5 w-5 text-accent-400" aria-hidden="true" />
+              </span>
+              <p className="text-sm text-secondary">No meetings scheduled yet</p>
+              <p className="text-xs text-muted">Meetings appear here once your Nest schedules its first one.</p>
+            </div>
+          )}
+        </BentoCard>
+      </BentoGrid>
+    </motion.div>
+  );
+}
 
-      <FeatureGallery />
+/** Compact shimmer placeholder for a data-dependent bento cell. */
+function CardSkeleton() {
+  return (
+    <div className="flex flex-1 flex-col justify-center gap-3">
+      <Skeleton className="h-16 w-16 rounded-full" />
+      <Skeleton className="h-4 w-2/3 rounded-lg" />
+      <Skeleton className="h-3 w-1/2 rounded-lg" />
     </div>
   );
 }

@@ -69,12 +69,55 @@ services:
       timeout: 5s
       retries: 10
 
+  mysql-chat:
+    image: mysql:8
+    container_name: neighbornest-mysql-chat
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: chat_db
+    ports:
+      # Host port 3311 — 3310 is already occupied by mysql-auth, so chat gets
+      # the next free host port. The chat-service still reaches this DB
+      # internally via mysql-chat:3306.
+      - "3311:3306"
+    volumes:
+      - mysql-chat-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  mysql-notification:
+    image: mysql:8
+    container_name: neighbornest-mysql-notification
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: notification_db
+    ports:
+      # Host port 3312 — 3310 (auth), 3307 (user), 3308 (matching), 3309
+      # (nest) and 3311 (chat) are already taken. The notification-service
+      # still reaches this DB internally via mysql-notification:3306.
+      - "3312:3306"
+    volumes:
+      - mysql-notification-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
   rabbitmq:
     image: rabbitmq:3-management
     container_name: neighbornest-rabbitmq
     ports:
       - "5672:5672"
       - "15672:15672"
+      # STOMP plugin port used by the chat-service STOMP broker relay.
+      - "61613:61613"
+    # Enable the STOMP plugin at startup (it is not enabled by default on the
+    # management image). --offline avoids needing a running broker.
+    command: ["sh", "-c", "rabbitmq-plugins enable --offline rabbitmq_stomp && rabbitmq-server"]
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-neighbornest}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-neighbornest}
@@ -197,6 +240,69 @@ services:
       eureka-service:
         condition: service_started
 
+  chat-service:
+    build:
+      context: .
+      dockerfile: chat-service/Dockerfile
+    container_name: neighbornest-chat
+    ports:
+      - "8085:8085"
+    environment:
+      MYSQL_HOST: mysql-chat
+      MYSQL_PORT: 3306
+      MYSQL_USER: ${MYSQL_USER:-root}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-${MYSQL_ROOT_PASSWORD:-root}}
+      DB_NAME: chat_db
+      JWT_SECRET: ${JWT_SECRET:-VGhpcyBpcyBhIHNlY3JldCBrZXkgZm9yIE5laWdoYm9yTmVzdCBKV1QgdG9rZW4gc2lnbmluZyAtIGRldmVsb3BtZW50IG9ubHk=}
+      EUREKA_SERVER_URL: http://eureka-service:8761/eureka/
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: ${RABBITMQ_USER:-neighbornest}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-neighbornest}
+      # STOMP relay points at the same RabbitMQ (STOMP plugin on 61613).
+      STOMP_RELAY_HOST: rabbitmq
+      STOMP_RELAY_PORT: 61613
+    depends_on:
+      mysql-chat:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      eureka-service:
+        condition: service_started
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: notification-service/Dockerfile
+    container_name: neighbornest-notification
+    ports:
+      - "8086:8086"
+    environment:
+      MYSQL_HOST: mysql-notification
+      MYSQL_PORT: 3306
+      MYSQL_USER: ${MYSQL_USER:-root}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-${MYSQL_ROOT_PASSWORD:-root}}
+      DB_NAME: notification_db
+      JWT_SECRET: ${JWT_SECRET:-VGhpcyBpcyBhIHNlY3JldCBrZXkgZm9yIE5laWdoYm9yTmVzdCBKV1QgdG9rZW4gc2lnbmluZyAtIGRldmVsb3BtZW50IG9ubHk=}
+      EUREKA_SERVER_URL: http://eureka-service:8761/eureka/
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: ${RABBITMQ_USER:-neighbornest}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-neighbornest}
+      # Mailtrap in development; swap the credentials for a production
+      # provider (Gmail/SendGrid) via the backend/.env file.
+      MAIL_HOST: ${MAIL_HOST:-smtp.mailtrap.io}
+      MAIL_PORT: ${MAIL_PORT:-2525}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+    depends_on:
+      mysql-notification:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      eureka-service:
+        condition: service_started
+
   api-gateway:
     build:
       context: .
@@ -219,9 +325,15 @@ services:
         condition: service_started
       nest-service:
         condition: service_started
+      chat-service:
+        condition: service_started
+      notification-service:
+        condition: service_started
 
 volumes:
   mysql-auth-data:
   mysql-user-data:
   mysql-matching-data:
   mysql-nest-data:
+  mysql-chat-data:
+  mysql-notification-data:

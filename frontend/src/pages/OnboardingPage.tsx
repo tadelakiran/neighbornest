@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard';
 import { GradientBackground } from '@/components/ui/GradientBackground';
 import { Spinner } from '@/components/ui/Spinner';
-import { BrandLogo } from '@/components/layout/Navbar';
+import { BrandLogo } from '@/components/ui/BrandLogo';
 import { DarkModeToggle } from '@/components/ui/DarkModeToggle';
 import { ROUTES } from '@/lib/constants';
 import { userService } from '@/services/userService';

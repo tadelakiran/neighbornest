@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Spring Data JPA repository for {@link Meeting} entities.
@@ -22,4 +23,13 @@ public interface MeetingRepository extends JpaRepository<Meeting, Long> {
      * @return the list of meetings
      */
     List<Meeting> findByNestIdOrderByScheduledAtDesc(Long nestId);
+
+    /**
+     * Finds a meeting within a nest.
+     *
+     * @param id      the meeting ID
+     * @param nestId  the nest ID
+     * @return the meeting, if present
+     */
+    Optional<Meeting> findByIdAndNestId(Long id, Long nestId);
 }

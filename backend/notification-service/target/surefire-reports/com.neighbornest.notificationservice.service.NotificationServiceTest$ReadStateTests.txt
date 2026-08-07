@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.neighbornest.notificationservice.service.NotificationServiceTest$ReadStateTests
+-------------------------------------------------------------------------------
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.034 s -- in com.neighbornest.notificationservice.service.NotificationServiceTest$ReadStateTests

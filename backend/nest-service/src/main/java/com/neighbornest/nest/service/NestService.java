@@ -14,6 +14,7 @@ import com.neighbornest.nest.event.NestCreatedEvent;
 import com.neighbornest.nest.event.NestEventPublisher;
 import com.neighbornest.nest.event.NestGraduatedEvent;
 import com.neighbornest.nest.exception.BadRequestException;
+import com.neighbornest.nest.exception.ForbiddenException;
 import com.neighbornest.nest.exception.InvalidOperationException;
 import com.neighbornest.nest.exception.ResourceNotFoundException;
 import com.neighbornest.nest.repository.NestMemberRepository;
@@ -187,6 +188,102 @@ public class NestService {
     }
 
     /**
+     * Marks the current user as having left a Nest.
+     * <p>
+     * The membership transitions to {@code LEFT} (rather than being deleted)
+     * so audit history and expense splits remain intact; the member is
+     * automatically excluded from future EQUAL splits (which only consider
+     * ACCEPTED members) and from {@code my-nests}.
+     * </p>
+     *
+     * @param nestId the nest ID
+     * @param userId the user profile ID leaving the Nest
+     * @return the updated Nest
+     * @throws ResourceNotFoundException if the Nest or the membership does not exist
+     * @throws InvalidOperationException if the Nest has already ended
+     */
+    @Transactional
+    public NestResponse leave(final Long nestId, final Long userId) {
+        final Nest nest = findNest(nestId);
+
+        if (nest.getStatus() == NestStatus.GRADUATED || nest.getStatus() == NestStatus.DISBANDED) {
+            throw new InvalidOperationException("Nest has already ended");
+        }
+
+        final NestMember member = findActiveMember(nestId, userId);
+        member.setStatus(NestMemberStatus.LEFT);
+        nestMemberRepository.save(member);
+
+        log.info("User {} left nest {}", userId, nestId);
+
+        return toResponse(nest, nestMemberRepository.findByNestId(nestId));
+    }
+
+    /**
+     * Removes a member from a Nest (anchor-only).
+     * <p>
+     * The membership transitions to {@code REMOVED}. Anchors cannot remove
+     * themselves — they must use {@link #leave}.
+     * </p>
+     *
+     * @param nestId   the nest ID
+     * @param actorId  the profile ID of the acting user (must be an anchor)
+     * @param targetId the profile ID of the member to remove
+     * @return the updated Nest
+     * @throws ResourceNotFoundException if the Nest or the target membership does not exist
+     * @throws ForbiddenException        if the actor is not an anchor, or targets themselves
+     */
+    @Transactional
+    public NestResponse removeMember(final Long nestId, final Long actorId, final Long targetId) {
+        requireAnchor(nestId, actorId);
+
+        if (actorId.equals(targetId)) {
+            throw new ForbiddenException("You cannot remove yourself from the nest — use leave instead");
+        }
+
+        final NestMember member = findActiveMember(nestId, targetId);
+        member.setStatus(NestMemberStatus.REMOVED);
+        nestMemberRepository.save(member);
+
+        log.info("Anchor {} removed user {} from nest {}", actorId, targetId, nestId);
+
+        return toResponse(findNest(nestId), nestMemberRepository.findByNestId(nestId));
+    }
+
+    /**
+     * Verifies the user is an active member of the Nest.
+     * <p>
+     * Shared access-control gate for member-scoped operations (meetings,
+     * expenses, vibe checks).
+     * </p>
+     *
+     * @param nestId the nest ID
+     * @param userId the user profile ID
+     * @throws ResourceNotFoundException if the Nest does not exist
+     * @throws ForbiddenException        if the user is not an active member
+     */
+    public void requireMember(final Long nestId, final Long userId) {
+        findNest(nestId);
+        findActiveMember(nestId, userId);
+    }
+
+    /**
+     * Verifies the user is an active <em>anchor</em> of the Nest.
+     *
+     * @param nestId the nest ID
+     * @param userId the user profile ID
+     * @throws ResourceNotFoundException if the Nest or the membership does not exist
+     * @throws ForbiddenException        if the user is not an anchor
+     */
+    public void requireAnchor(final Long nestId, final Long userId) {
+        requireMember(nestId, userId);
+        final NestMember member = nestMemberRepository.findByNestIdAndUserId(nestId, userId).orElseThrow();
+        if (member.getRoleInNest() != NestRole.ANCHOR) {
+            throw new ForbiddenException("Only anchors can perform this action");
+        }
+    }
+
+    /**
      * Returns a nest entity or throws.
      *
      * @param nestId the nest ID
@@ -195,6 +292,19 @@ public class NestService {
     private Nest findNest(final Long nestId) {
         return nestRepository.findById(nestId)
                 .orElseThrow(() -> new ResourceNotFoundException("Nest not found with id: " + nestId));
+    }
+
+    /**
+     * Returns the active membership of a user in a nest or throws.
+     *
+     * @param nestId the nest ID
+     * @param userId the user profile ID
+     * @return the membership entity
+     */
+    private NestMember findActiveMember(final Long nestId, final Long userId) {
+        return nestMemberRepository.findByNestIdAndUserId(nestId, userId)
+                .filter(member -> member.getStatus() == NestMemberStatus.ACCEPTED)
+                .orElseThrow(() -> new ForbiddenException("You are not an active member of this nest"));
     }
 
     /**

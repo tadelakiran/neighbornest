@@ -1,0 +1,98 @@
+server:
+  port: 8086
+
+spring:
+  application:
+    name: notification-service
+  datasource:
+    # Local/dev defaults only — the docker-compose service overrides MYSQL_HOST
+    # with the mysql-notification container name. Port 3312 avoids the host
+    # ports already taken by the other databases (3310 auth, 3307 user,
+    # 3308 matching, 3309 nest, 3311 chat).
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3312}/${DB_NAME:notification_db}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: ${MYSQL_USER:root}
+    # Local/dev default only — always override with MYSQL_PASSWORD (or backend/.env).
+    password: ${MYSQL_PASSWORD:root}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 30000
+      max-lifetime: 1800000
+      connection-timeout: 30000
+      connection-test-query: SELECT 1
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: false
+    open-in-view: false
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+  mail:
+    # Mailtrap for development; swap to Gmail/SendGrid for production.
+    host: ${MAIL_HOST:smtp.mailtrap.io}
+    port: ${MAIL_PORT:2525}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    protocol: smtp
+    default-encoding: UTF-8
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  thymeleaf:
+    cache: false
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka/}
+    fetch-registry: true
+    register-with-eureka: true
+    registry-fetch-interval-seconds: 10
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30
+
+# Application-specific configuration
+app:
+  jwt:
+    secret: ${JWT_SECRET:VGhpcyBpcyBhIHNlY3JldCBrZXkgZm9yIE5laWdoYm9yTmVzdCBKV1QgdG9rZW4gc2lnbmluZyAtIGRldmVsb3BtZW50IG9ubHk=}
+  notification:
+    # Base URL used to build deep links in emails (the API gateway in prod).
+    base-url: ${NOTIFICATION_BASE_URL:http://localhost:8080}
+    events:
+      # Nest lifecycle events published on the nest.events topic exchange by the
+      # nest-service. The chat queue is wired for future chat offline-push
+      # events (chat-service does not publish them yet).
+      exchange: nest.events
+      created-queue: notification.nest.created
+      graduated-queue: notification.nest.graduated
+      disbanded-queue: notification.nest.disbanded
+      chat-queue: notification.chat.message
+      created-routing-key: nest.created
+      graduated-routing-key: nest.graduated
+      disbanded-routing-key: nest.disbanded
+      chat-routing-key: chat.message.sent
+
+logging:
+  level:
+    com.neighbornest.notificationservice: INFO
+    org.springframework.security: WARN
+    org.springframework.web: WARN
+    org.springframework.amqp: WARN
+    org.hibernate.SQL: WARN

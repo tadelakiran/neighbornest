@@ -26,6 +26,8 @@
         <module>user-service</module>
         <module>matching-service</module>
         <module>nest-service</module>
+        <module>chat-service</module>
+        <module>notification-service</module>
     </modules>
 
     <properties>
