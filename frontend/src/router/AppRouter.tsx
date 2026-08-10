@@ -21,8 +21,8 @@ const ComingSoonPage = lazy(() =>
 const DashboardPage = lazy(() => import('@/pages/DashboardPage').then((m) => ({ default: m.DashboardPage })));
 const DiscoverPage = lazy(() => import('@/pages/DiscoverPage').then((m) => ({ default: m.DiscoverPage })));
 const LoginPage = lazy(() => import('@/pages/LoginPage').then((m) => ({ default: m.LoginPage })));
-const MyNestsPage = lazy(() => import('@/pages/MyNestsPage').then((m) => ({ default: m.MyNestsPage })));
-const NestDetailPage = lazy(() => import('@/pages/NestDetailPage').then((m) => ({ default: m.NestDetailPage })));
+const NestsPage = lazy(() => import('@/pages/NestsPage').then((m) => ({ default: m.NestsPage })));
+const NestHubPage = lazy(() => import('@/pages/NestHubPage').then((m) => ({ default: m.NestHubPage })));
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })));
 const OnboardingPage = lazy(() => import('@/pages/OnboardingPage').then((m) => ({ default: m.OnboardingPage })));
 const ProfilePage = lazy(() => import('@/pages/ProfilePage').then((m) => ({ default: m.ProfilePage })));
@@ -70,8 +70,8 @@ export function AppRouter() {
             <Route path={ROUTES.DASHBOARD} element={<DashboardPage />} />
             <Route path={ROUTES.DISCOVER} element={<DiscoverPage />} />
             <Route path={ROUTES.PROPOSALS} element={<ProposalsPage />} />
-            <Route path={ROUTES.MY_NEST} element={<MyNestsPage />} />
-            <Route path={ROUTES.NEST_DETAIL} element={<NestDetailPage />} />
+            <Route path={ROUTES.MY_NEST} element={<NestsPage />} />
+            <Route path={ROUTES.NEST_DETAIL} element={<NestHubPage />} />
             <Route path={ROUTES.PROFILE} element={<ProfilePage />} />
             <Route path={ROUTES.ANCHOR_APPLY} element={<AnchorApplyRoute />} />
             <Route

@@ -18,6 +18,8 @@ interface SelectProps {
   error?: string;
   id?: string;
   disabled?: boolean;
+  /** Accessible name when no visible label is rendered. */
+  ariaLabel?: string;
 }
 
 /**
@@ -34,6 +36,7 @@ export function Select({
   error,
   id,
   disabled,
+  ariaLabel,
 }: SelectProps) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -70,6 +73,7 @@ export function Select({
         type="button"
         id={id}
         disabled={disabled}
+        aria-label={ariaLabel}
         aria-haspopup="listbox"
         aria-expanded={open}
         onClick={() => setOpen((wasOpen) => !wasOpen)}

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, Compass, Home, Inbox, MapPin, Sparkles, Users } from 'lucide-react';
+import { ArrowRight, CalendarDays, Compass, Home, Inbox, MapPin, Sparkles, Users } from 'lucide-react';
 import { BentoGrid } from '@/components/dashboard/BentoGrid';
 import { BentoCard } from '@/components/dashboard/BentoCard';
 import { StatCard } from '@/components/dashboard/StatCard';
@@ -21,7 +21,7 @@ import { ROUTES } from '@/lib/constants';
 import { calculateCompatibility, getCompatibles, getPendingProposals } from '@/services/matchingService';
 import { getMyNests } from '@/services/nestService';
 import type { CompatibleUserResponse, MatchProposalResponse } from '@/types/matching.types';
-import type { NestSummaryResponse } from '@/types/nest.types';
+import type { NestResponse } from '@/types/nest.types';
 
 /** Time-of-day greeting for the welcome header. */
 function greetingFor(hour: number): string {
@@ -47,7 +47,7 @@ export function DashboardPage() {
   // ── Data (all calls tolerate a missing backend and degrade to empty states) ──
   const [compatibles, setCompatibles] = useState<CompatibleUserResponse[] | null>(null);
   const [proposals, setProposals] = useState<MatchProposalResponse[] | null>(null);
-  const [nests, setNests] = useState<NestSummaryResponse[] | null>(null);
+  const [nests, setNests] = useState<NestResponse[] | null>(null);
   const [calculating, setCalculating] = useState(false);
 
   useEffect(() => {
@@ -85,19 +85,9 @@ export function DashboardPage() {
     [proposals]
   );
 
-  const meetings: MeetingPreviewData[] = useMemo(
-    () =>
-      (nests ?? [])
-        .filter((n) => n.nextMeetingDate)
-        .slice(0, 3)
-        .map((n) => ({
-          id: `meeting-${n.id}`,
-          title: `${n.name} meetup`,
-          date: n.nextMeetingDate as string,
-          venue: n.city,
-        })),
-    [nests]
-  );
+  // The nest endpoint does not expose a next-meeting date, so the preview
+  // stays empty until the Nest Hub ships meeting data of its own.
+  const meetings: MeetingPreviewData[] = useMemo(() => [], []);
 
   const citiesExplored = useMemo(() => {
     const cities = new Set<string>();
@@ -326,13 +316,19 @@ export function DashboardPage() {
               ))}
             </div>
           ) : (
-            <div className="flex flex-1 flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-white/10 p-4 text-center">
+            <button
+              onClick={() => navigate(ROUTES.MY_NEST)}
+              className="flex flex-1 flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-white/10 p-4 text-center transition-colors hover:border-accent-400/30 hover:bg-accent-400/[0.03]"
+            >
               <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/[0.04]">
-                <Compass className="h-5 w-5 text-accent-400" aria-hidden="true" />
+                <CalendarDays className="h-5 w-5 text-accent-400" aria-hidden="true" />
               </span>
-              <p className="text-sm text-secondary">No meetings scheduled yet</p>
-              <p className="text-xs text-muted">Meetings appear here once your Nest schedules its first one.</p>
-            </div>
+              <p className="text-sm font-medium text-primary">No meetings scheduled yet</p>
+              <p className="text-xs text-muted">Open your Nest to plan the first meetup.</p>
+              <span className="inline-flex items-center gap-1 text-xs font-semibold text-accent-300">
+                Open Nest <ArrowRight className="h-3 w-3" aria-hidden="true" />
+              </span>
+            </button>
           )}
         </BentoCard>
       </BentoGrid>

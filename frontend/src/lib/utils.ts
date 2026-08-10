@@ -62,6 +62,23 @@ export function formatDate(iso?: string | null): string {
 }
 
 /**
+ * Formats a number as a USD currency string (e.g. 12.5 -> "$12.50").
+ *
+ * @param value - the amount to format (NaN/infinity become $0.00)
+ * @returns a compact currency string without cents when whole
+ */
+export function formatCurrency(value: number): string {
+  const amount = Number.isFinite(value) ? value : 0;
+  const whole = Math.abs(amount % 1) < 0.005;
+  return amount.toLocaleString(undefined, {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: whole ? 0 : 2,
+    maximumFractionDigits: 2,
+  });
+}
+
+/**
  * Derives up to two initials from a person's full name for avatar fallbacks.
  *
  * @param name - the person's full name (may be null/undefined)
