@@ -1,7 +1,7 @@
 import { fileURLToPath, URL } from 'node:url';
 
 import react from '@vitejs/plugin-react';
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 
 /**
  * Vite configuration for the NeighborNest frontend.
@@ -44,6 +44,13 @@ export default defineConfig({
       'zod',
       '@hookform/resolvers',
     ],
+  },
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: './src/test/setup.ts',
+    include: ['src/**/*.test.{ts,tsx}'],
+    css: false,
   },
   build: {
     target: 'es2020',

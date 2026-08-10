@@ -21,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -114,9 +115,11 @@ class NotificationSchedulerTest {
         @DisplayName("Should skip meetings not scheduled for tomorrow")
         void shouldSkipTodayMeeting() {
             when(nestServiceClient.listActiveNests()).thenReturn(List.of(nestWithMember(member(7L, "ACCEPTED"))));
+            // Fixed noon-today timestamp: `plusHours(2)` rolled over to tomorrow
+            // when the suite ran near midnight, making this test time-dependent.
             final MeetingResponse meeting = MeetingResponse.builder()
                     .id(5L)
-                    .scheduledAt(LocalDateTime.now().plusHours(2))
+                    .scheduledAt(LocalDate.now().atTime(12, 0))
                     .status(AppConstants.MEETING_STATUS_SCHEDULED)
                     .build();
             when(nestServiceClient.getMeetings(NEST_ID)).thenReturn(List.of(meeting));

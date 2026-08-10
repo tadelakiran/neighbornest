@@ -199,6 +199,52 @@
     box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.5);
     animation: pulseGlow 2s ease-in-out infinite;
   }
+
+  /* ── Custom 1-10 range slider (Blue Dynasty) ──
+     The fill gradient is drawn inline by the component; these rules style the
+     track and the glowing blue thumb (webkit + moz). */
+  .range-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 8px;
+    border-radius: 9999px;
+    background: #162044; /* track base — fill is layered inline */
+    outline: none;
+    cursor: pointer;
+  }
+  .range-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 9999px;
+    background: radial-gradient(circle at 35% 30%, #7dd3fc, #0ea5e9 60%, #0284c7);
+    border: 2px solid #38bdf8;
+    box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.16), 0 0 18px rgba(14, 165, 233, 0.55);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+    cursor: grab;
+  }
+  .range-slider::-webkit-slider-thumb:hover {
+    box-shadow: 0 0 0 6px rgba(14, 165, 233, 0.22), 0 0 24px rgba(14, 165, 233, 0.8);
+    transform: scale(1.06);
+  }
+  .range-slider:active::-webkit-slider-thumb {
+    cursor: grabbing;
+    transform: scale(1.14);
+  }
+  .range-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 9999px;
+    background: radial-gradient(circle at 35% 30%, #7dd3fc, #0ea5e9 60%, #0284c7);
+    border: 2px solid #38bdf8;
+    box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.16), 0 0 18px rgba(14, 165, 233, 0.55);
+    cursor: grab;
+  }
+  .range-slider::-moz-range-track {
+    background: transparent;
+  }
 }
 
 /* ============================================================
