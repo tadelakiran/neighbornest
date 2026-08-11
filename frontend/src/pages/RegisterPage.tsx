@@ -34,6 +34,8 @@ export function RegisterPage() {
           />
           <div className="absolute inset-0 bg-gradient-to-r from-accent-900/90 via-accent-800/70 to-accent-700/30" />
           <div className="absolute inset-0 bg-gradient-to-t from-accent-950/60 via-transparent to-transparent" />
+          {/* Warm glow — community-first energy */}
+          <div className="absolute inset-0 bg-gradient-to-t from-gold-500/15 via-transparent to-transparent" />
         </div>
 
         <div className="relative flex items-center justify-between p-10">

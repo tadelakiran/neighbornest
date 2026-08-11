@@ -7,6 +7,8 @@ export const APP_NAME = 'NeighborNest';
 
 /** Centralized route paths — import these instead of hardcoding strings. */
 export const ROUTES = {
+  /** Public marketing landing page. */
+  LANDING: '/',
   LOGIN: '/login',
   REGISTER: '/register',
   DASHBOARD: '/dashboard',

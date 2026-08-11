@@ -48,6 +48,10 @@ export function AppLayout() {
         className="pointer-events-none absolute right-1/4 top-1/3 h-[420px] w-[420px] rounded-full bg-accent-400/[0.05] blur-3xl"
         aria-hidden="true"
       />
+      <div
+        className="pointer-events-none absolute bottom-0 right-[12%] h-[320px] w-[320px] rounded-full bg-gold-400/[0.04] blur-3xl"
+        aria-hidden="true"
+      />
 
       <Navbar onMenuClick={() => setSidebarOpen(true)} />
 

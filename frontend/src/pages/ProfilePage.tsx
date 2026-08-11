@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { AlertTriangle, ArrowRight, Home } from 'lucide-react';
+import { AlertTriangle, ArrowRight, BadgeCheck, Clock3, Home, XCircle } from 'lucide-react';
 import { EditProfilePanel } from '@/components/profile/EditProfilePanel';
 import { MyNestsPlaceholder } from '@/components/profile/MyNestsPlaceholder';
 import { ProfileHeader } from '@/components/profile/ProfileHeader';
@@ -14,6 +14,8 @@ import { useProfile } from '@/hooks/useProfile';
 import { useToast } from '@/hooks/useToast';
 import { ROUTES } from '@/lib/constants';
 import { getErrorMessage } from '@/lib/utils';
+import { userService } from '@/services/userService';
+import type { AnchorApplicationResponse } from '@/types/user.types';
 
 /** Reads the initial tab from `?tab=` (e.g. the navbar Settings shortcut). */
 function initialTab(): ProfileTab {
@@ -33,6 +35,26 @@ export function ProfilePage() {
   const [editOpen, setEditOpen] = useState(false);
   const [, setSearchParams] = useSearchParams();
   const toast = useToast();
+
+  // Anchor application status — shown instead of the "Become an Anchor" CTA
+  // once a newcomer has applied (PENDING / APPROVED / REJECTED).
+  const [anchorApp, setAnchorApp] = useState<AnchorApplicationResponse | null>(null);
+  const [anchorChecked, setAnchorChecked] = useState(false);
+
+  useEffect(() => {
+    const role = profile?.role;
+    // Newcomers and Anchors can have an application record; admins skip.
+    if (!role || role === 'ADMIN' || anchorChecked) return;
+    let active = true;
+    userService
+      .getAnchorApplication()
+      .then((app) => active && setAnchorApp(app))
+      .catch(() => active && setAnchorApp(null))
+      .finally(() => active && setAnchorChecked(true));
+    return () => {
+      active = false;
+    };
+  }, [profile?.role, anchorChecked]);
 
   const selectTab = (next: ProfileTab) => {
     setTab(next);
@@ -89,25 +111,29 @@ export function ProfilePage() {
 
   return (
     <div className="space-y-6">
-      {/* Become-an-Anchor CTA (newcomers only) */}
-      {profile.role === 'NEWCOMER' && (
-        <Card className="flex flex-col gap-4 border-accent-400/25 bg-gradient-to-r from-accent-600/20 to-transparent p-5 sm:flex-row sm:items-center">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-accent-400/15">
-            <Home className="h-5 w-5 text-accent-300" aria-hidden="true" />
-          </span>
-          <div className="flex-1">
-            <p className="text-sm font-semibold text-primary">Help others feel at home</p>
-            <p className="text-xs text-muted">
-              Become a local Anchor and host newcomers in your city.
-            </p>
-          </div>
-          <Link to={ROUTES.ANCHOR_APPLY} className="shrink-0">
-            <Button variant="secondary" size="sm" rightIcon={<ArrowRight className="h-4 w-4" aria-hidden="true" />}>
-              Become an Anchor
-            </Button>
-          </Link>
-        </Card>
-      )}
+      {/* Anchor application status — takes priority over the "Become an
+          Anchor" CTA once an application exists (it stays visible even after
+          the role flips to ANCHOR on approval). */}
+      {anchorApp ? (
+        <AnchorStatusBanner application={anchorApp} />
+      ) : profile.role === 'NEWCOMER' ? (
+        <Card className="flex flex-col gap-4 border-gold-500/25 bg-gradient-to-r from-gold-600/15 to-transparent p-5 sm:flex-row sm:items-center">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-gold-400/15">
+              <Home className="h-5 w-5 text-gold-300" aria-hidden="true" />
+            </span>
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-primary">Help others feel at home</p>
+              <p className="text-xs text-muted">
+                Become a local Anchor and host newcomers in your city.
+              </p>
+            </div>
+            <Link to={ROUTES.ANCHOR_APPLY} className="shrink-0">
+              <Button variant="secondary" size="sm" rightIcon={<ArrowRight className="h-4 w-4" aria-hidden="true" />}>
+                Become an Anchor
+              </Button>
+            </Link>
+          </Card>
+        ) : null}
 
       {/* Bento grid */}
       <div className="grid gap-6 lg:grid-cols-3">
@@ -142,5 +168,71 @@ export function ProfilePage() {
         }}
       />
     </div>
+  );
+}
+
+/**
+ * Status banner for a submitted Anchor application — makes the review process
+ * visible: an admin reviews the application and approves or rejects it; when
+ * approved, the user's role is upgraded to ANCHOR.
+ */
+function AnchorStatusBanner({ application }: { application: AnchorApplicationResponse }) {
+  if (application.status === 'APPROVED') {
+    return (
+      <Card className="flex flex-col gap-4 border-emerald-500/30 bg-gradient-to-r from-emerald-500/15 to-transparent p-5 sm:flex-row sm:items-center">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-emerald-400/15">
+          <BadgeCheck className="h-5 w-5 text-emerald-400" aria-hidden="true" />
+        </span>
+        <div className="flex-1">
+          <p className="text-sm font-semibold text-primary">Welcome, Anchor! 🎉</p>
+          <p className="text-xs text-muted">
+            Your application was approved and your role was upgraded. You can now
+            host newcomers and guide your own Nest.
+          </p>
+        </div>
+      </Card>
+    );
+  }
+
+  if (application.status === 'REJECTED') {
+    return (
+      <Card className="flex flex-col gap-4 border-rose-500/30 bg-gradient-to-r from-rose-500/15 to-transparent p-5 sm:flex-row sm:items-center">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-rose-400/15">
+          <XCircle className="h-5 w-5 text-rose-400" aria-hidden="true" />
+        </span>
+        <div className="flex-1">
+          <p className="text-sm font-semibold text-primary">Application not approved</p>
+          <p className="text-xs text-muted">
+            Our team couldn&apos;t approve this application this time. You can
+            re-apply anytime once you&apos;ve built up more local experience.
+          </p>
+        </div>
+        <Link to={ROUTES.ANCHOR_APPLY} className="shrink-0">
+          <Button variant="secondary" size="sm">
+            Re-apply
+          </Button>
+        </Link>
+      </Card>
+    );
+  }
+
+  // PENDING
+  return (
+    <Card className="flex flex-col gap-4 border-amber-500/30 bg-gradient-to-r from-amber-500/15 to-transparent p-5 sm:flex-row sm:items-center">
+      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-amber-400/15">
+        <Clock3 className="h-5 w-5 text-amber-400" aria-hidden="true" />
+      </span>
+      <div className="flex-1">
+        <p className="text-sm font-semibold text-primary">Application under review</p>
+        <p className="text-xs text-muted">
+          Our admin team reviews every Anchor application. You&apos;ll see the
+          verdict here once they decide — usually within a few days.
+        </p>
+      </div>
+      <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-medium text-amber-400">
+        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-400" aria-hidden="true" />
+        Pending review
+      </span>
+    </Card>
   );
 }

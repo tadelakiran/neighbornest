@@ -187,7 +187,7 @@ export function NestHubPage() {
   // ── Not found / no nest ──
   if (notFound || !nest) {
     return (
-      <div className="flex flex-col items-center rounded-3xl border border-white/[0.08] bg-deep/60 px-8 py-16 text-center">
+      <div className="flex flex-col items-center rounded-3xl border border-[var(--color-border)] bg-deep/60 px-8 py-16 text-center">
         <span className="flex h-16 w-16 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04]">
           <Construction className="h-8 w-8 text-muted" aria-hidden="true" />
         </span>

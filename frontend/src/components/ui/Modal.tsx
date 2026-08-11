@@ -52,7 +52,7 @@ export function Modal({ open, onClose, title, children, maxWidth = 'max-w-md' }:
             exit={{ opacity: 0, scale: 0.95, y: 12 }}
             transition={{ type: 'spring', stiffness: 320, damping: 26 }}
             className={cn(
-              'relative w-full overflow-hidden rounded-xl border border-white/10 bg-deep shadow-card',
+              'relative w-full overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-deep)] shadow-card',
               'shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)]',
               maxWidth
             )}

@@ -101,16 +101,16 @@ export function buildDemoMeetings(seed = 42): MeetingResponse[] {
   ];
 }
 
-/** Expenses with mixed settle states and a clear money trail. */
+/**
+ * Expenses with mixed settle states and a clear money trail. Matches the
+ * ExpenseTracker test expectations:
+ *  - 601: payer 1, everyone still unsettled (users 2 and 3 both owe $10)
+ *  - 600: payer 2, user 1 owes $12 (unsettled) while payer 2's own share is
+ *    settled — you never owe yourself.
+ */
 export function buildDemoExpenses(seed = 42): ExpenseResponse[] {
   const rand = mulberry32(seed + 3);
   void rand;
-  const splits = (payers: number, owed: number) =>
-    Array.from({ length: payers }, (_, i) => ({
-      userId: i + 1,
-      amountOwed: Math.round((owed / payers) * 100) / 100,
-      settled: i === 2, // a middle member already settled theirs
-    }));
   return [
     {
       id: 601,
@@ -121,7 +121,7 @@ export function buildDemoExpenses(seed = 42): ExpenseResponse[] {
       splits: [
         { userId: 1, amountOwed: 10, settled: false },
         { userId: 2, amountOwed: 10, settled: false },
-        { userId: 3, amountOwed: 10, settled: true },
+        { userId: 3, amountOwed: 10, settled: false },
         { userId: 4, amountOwed: 10, settled: false },
       ],
       createdAt: new Date(Date.now() - 2 * 86_400_000).toISOString(),
@@ -133,8 +133,8 @@ export function buildDemoExpenses(seed = 42): ExpenseResponse[] {
       description: 'Board game night snacks',
       splitType: 'CUSTOM',
       splits: [
-        { userId: 1, amountOwed: 12, settled: true },
-        { userId: 2, amountOwed: 12, settled: false },
+        { userId: 1, amountOwed: 12, settled: false },
+        { userId: 2, amountOwed: 12, settled: true },
       ],
       createdAt: new Date(Date.now() - 9 * 86_400_000).toISOString(),
     },

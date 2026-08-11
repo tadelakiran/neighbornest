@@ -76,7 +76,7 @@ docker compose up --build
 This starts:
 - 4 MySQL instances (auth `3310`, user `3307`, matching `3308`, nest `3309` — auth uses `3310` on the host because `3306` is usually reserved for a local MySQL)
 - RabbitMQ management (`5672` AMQP, `15672` console — user/pass `neighbornest`/`neighbornest` by default)
-- All 6 services (Eureka `8761`, Gateway `8080`, auth `8081`, user `8082`, matching `8083`, nest `8084`)
+- All 8 services (Eureka `8761`, Gateway `8080`, auth `8081`, user `8082`, matching `8083`, nest `8084`, chat `8085`, notification `8086`)
 
 Customize credentials with environment variables, e.g.:
 
@@ -304,16 +304,46 @@ All domain-service endpoints require a `Bearer` token (see the auth flow below).
 
 ## 🐳 Docker
 
-Each service has its own `Dockerfile`. Build individual images:
+Each service has its own multi-stage `Dockerfile` that compiles the jar inside
+the image — no local `mvn package` is required. **The build context must be the
+`backend/` root** (the Dockerfiles copy the parent POM and sibling module POMs,
+so building from a service folder will not work):
 
 ```bash
-docker build -t neighbornest/eureka-service ./eureka-service
-docker build -t neighbornest/api-gateway ./api-gateway
-docker build -t neighbornest/auth-service ./auth-service
-docker build -t neighbornest/user-service ./user-service
-docker build -t neighbornest/matching-service ./matching-service
-docker build -t neighbornest/nest-service ./nest-service
+# From backend/
+docker compose build                 # all 8 images
+docker compose build chat-service    # just one service
 ```
+
+Or with plain `docker build`:
+
+```bash
+# From backend/
+docker build -f eureka-service/Dockerfile -t backend-eureka-service .
+docker build -f api-gateway/Dockerfile -t backend-api-gateway .
+docker build -f auth-service/Dockerfile -t backend-auth-service .
+docker build -f user-service/Dockerfile -t backend-user-service .
+docker build -f matching-service/Dockerfile -t backend-matching-service .
+docker build -f nest-service/Dockerfile -t backend-nest-service .
+docker build -f chat-service/Dockerfile -t backend-chat-service .
+docker build -f notification-service/Dockerfile -t backend-notification-service .
+```
+
+Build notes:
+
+- **First build is slow.** Every service compiles with Maven inside Docker and
+  downloads its dependencies from Maven Central on the first run.
+- **Shared dependency cache.** All Dockerfiles mount one BuildKit cache at
+  `/root/.m2`, so dependencies are downloaded once and reused across all
+  services and rebuilds.
+- **Flaky-network handling.** Maven steps retry automatically (5 attempts for
+  dependency resolution, 3 for packaging), so an interrupted download from
+  Maven Central does not fail the build.
+- **Prefer sequential builds on slow connections.** `docker compose build`
+  builds services in parallel; if downloads keep failing, build services one
+  at a time (`docker compose build <service>`).
+- The `maven:3.9` builder image is pinned intentionally (`dependency:go-offline`
+  is deprecated in Maven 3.9 and removed in Maven 4).
 
 ---
 

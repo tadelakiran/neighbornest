@@ -60,7 +60,7 @@ export function Sidebar({ isOpen, onClose, className = '' }: SidebarProps) {
       <aside
         className={cn(
           'fixed inset-y-0 left-0 z-50 flex w-72 flex-col',
-          'border-r border-white/[0.06] bg-deep/90 backdrop-blur-2xl',
+          'border-r border-[var(--color-border)] bg-deep/90 backdrop-blur-2xl',
           'transition-transform duration-300 ease-in-out',
           'lg:static lg:translate-x-0',
           isOpen ? 'translate-x-0' : '-translate-x-full',
@@ -103,7 +103,7 @@ export function Sidebar({ isOpen, onClose, className = '' }: SidebarProps) {
                   'group relative flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200',
                   isActive
                     ? 'bg-accent-gradient text-white shadow-glow'
-                    : 'text-secondary hover:bg-white/[0.04] hover:text-primary'
+                    : 'text-secondary hover:bg-[var(--color-raised)] hover:text-primary'
                 )
               }
             >
@@ -128,9 +128,9 @@ export function Sidebar({ isOpen, onClose, className = '' }: SidebarProps) {
         </nav>
 
         {/* User footer */}
-        <div className="border-t border-white/[0.06] p-4">
+        <div className="border-t border-[var(--color-border)] p-4">
           {user ? (
-            <div className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.03] p-3">
+            <div className="flex items-center gap-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-2)] p-3">
               <Avatar name={user.fullName} src={user.profilePhotoUrl} size="md" />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold text-primary">{user.fullName}</p>

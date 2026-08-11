@@ -53,7 +53,7 @@ export function SettingsTab() {
           <BellRing className="h-4 w-4 text-accent-300" aria-hidden="true" />
           <h4 className="text-xs font-medium uppercase tracking-widest text-muted">Notifications</h4>
         </div>
-        <div className="mt-1 divide-y divide-white/5">
+        <div className="mt-1 divide-y divide-[var(--color-border)]">
           {PREF_LABELS.map(({ key, label, description }) => (
             <Toggle
               key={key}

@@ -39,6 +39,8 @@ export function LoginPage() {
           {/* Overlay: left-heavy gradient for readability */}
           <div className="absolute inset-0 bg-gradient-to-r from-accent-900/90 via-accent-800/70 to-accent-700/30" />
           <div className="absolute inset-0 bg-gradient-to-t from-accent-950/60 via-transparent to-transparent" />
+          {/* Warm glow — community-first energy */}
+          <div className="absolute inset-0 bg-gradient-to-t from-gold-500/15 via-transparent to-transparent" />
         </div>
 
         {/* Content */}
@@ -104,7 +106,7 @@ export function LoginPage() {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] p-8 shadow-xl theme-transition"
+            className="relative rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] p-8 shadow-xl theme-transition"
           >
             {/* Card hairline */}
             <div className="absolute inset-x-0 top-0 h-0.5 rounded-t-xl bg-accent-gradient opacity-100" aria-hidden="true" />

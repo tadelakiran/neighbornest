@@ -7,10 +7,12 @@ import { ArrowLeft, BadgeCheck, CalendarDays, Home, Sparkles } from 'lucide-reac
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
+import { LazyImage } from '@/components/ui/LazyImage';
 import { Modal } from '@/components/ui/Modal';
 import { Textarea } from '@/components/ui/Textarea';
 import { TagInput } from '@/components/profile/TagInput';
 import { useToast } from '@/hooks/useToast';
+import { IMAGES } from '@/lib/images';
 import { ROUTES } from '@/lib/constants';
 import { getErrorMessage } from '@/lib/utils';
 import { userService } from '@/services/userService';
@@ -73,12 +75,21 @@ export function AnchorApplicationForm() {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       {/* Banner */}
-      <Card className="relative overflow-hidden border-accent-400/30 bg-gradient-to-br from-accent-600/20 via-deep to-deep p-6">
+      <Card className="relative overflow-hidden border-gold-500/30 bg-gradient-to-br from-gold-600/15 via-deep to-deep p-6">
         <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+          <LazyImage
+            src={IMAGES.home}
+            alt=""
+            placeholder="shimmer"
+            wrapperClassName="absolute inset-0"
+            className="h-full w-full object-cover opacity-15"
+            loading="lazy"
+          />
+          <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-deep)]/85 via-[var(--color-deep)]/75 to-[var(--color-deep)]/90" />
           <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-accent-400/15 blur-3xl" />
         </div>
         <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center">
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-gradient-to-br from-accent-500 to-accent-400 shadow-glow">
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-gold-gradient shadow-glow">
             <Home className="h-6 w-6 text-white" aria-hidden="true" />
           </span>
           <div className="flex-1">
@@ -88,7 +99,7 @@ export function AnchorApplicationForm() {
               their first months in the city.
             </p>
           </div>
-          <Sparkles className="hidden h-6 w-6 text-accent-300/60 sm:block" aria-hidden="true" />
+          <Sparkles className="hidden h-6 w-6 text-gold-300/60 sm:block" aria-hidden="true" />
         </div>
       </Card>
 
@@ -164,10 +175,30 @@ export function AnchorApplicationForm() {
             <p className="text-sm font-semibold text-primary">You&apos;re in the running!</p>
             <p className="text-sm leading-relaxed text-muted">
               Our team will review your application. You&apos;ll see the status
-              here once it&apos;s approved.
+              on your profile once a decision is made.
             </p>
           </div>
           <PendingBadge />
+
+          {/* Transparent review process */}
+          <div className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] p-4 text-left">
+            <p className="text-xs font-semibold uppercase tracking-widest text-muted">What happens next</p>
+            <ol className="mt-2 space-y-2">
+              <li className="flex items-start gap-2.5 text-xs leading-relaxed text-secondary">
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent-400/15 text-[10px] font-bold text-accent-300">1</span>
+                An admin reviews your application and local experience
+              </li>
+              <li className="flex items-start gap-2.5 text-xs leading-relaxed text-secondary">
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent-400/15 text-[10px] font-bold text-accent-300">2</span>
+                Approved? Your role upgrades to Anchor automatically
+              </li>
+              <li className="flex items-start gap-2.5 text-xs leading-relaxed text-secondary">
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent-400/15 text-[10px] font-bold text-accent-300">3</span>
+                Track the status on your profile at any time
+              </li>
+            </ol>
+          </div>
+
           <Button fullWidth onClick={() => navigate(ROUTES.PROFILE)}>
             Back to profile
           </Button>

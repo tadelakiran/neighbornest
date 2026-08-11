@@ -12,9 +12,7 @@
     </parent>
 
     <artifactId>chat-service</artifactId>
-    <!-- 0.0.1-SNAPSHOT keeps the produced jar named chat-service-0.0.1-SNAPSHOT.jar,
-         which is the exact artifact the chat-service/Dockerfile copies. -->
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0</version>
     <name>Chat Service</name>
     <description>Real-time messaging (group chat, DMs, typing) via STOMP over WebSocket for NeighborNest</description>
 
@@ -27,6 +25,14 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-websocket</artifactId>
+        </dependency>
+        <!-- Reactor Netty: the STOMP broker relay's TCP client requires
+             reactor.netty.tcp.TcpClient to relay frames to RabbitMQ's STOMP
+             plugin; without it the app fails to start with
+             "No compatible version of Reactor Netty". -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-reactor-netty</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -123,6 +129,9 @@
     </dependencies>
 
     <build>
+        <!-- finalName keeps the produced jar named chat-service.jar, which is
+             the exact artifact the chat-service/Dockerfile copies. -->
+        <finalName>chat-service</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

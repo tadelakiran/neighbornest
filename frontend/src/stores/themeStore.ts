@@ -20,6 +20,9 @@ function applyTheme(theme: 'light' | 'dark'): void {
     html.classList.remove('dark');
   }
   html.setAttribute('data-theme', theme);
+  // Keep the browser chrome (mobile address bar) in sync with the theme.
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', theme === 'light' ? '#f5f7fb' : '#070b14');
 }
 
 /**

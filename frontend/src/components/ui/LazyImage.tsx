@@ -56,6 +56,14 @@ export function LazyImage({
     const el = imgRef.current;
     if (!el) return;
 
+    // jsdom (tests) and very old browsers have no IntersectionObserver —
+    // fall back to loading the image immediately.
+    if (typeof IntersectionObserver === 'undefined') {
+      setRealSrc(src);
+      setStatus('loading');
+      return;
+    }
+
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {

@@ -97,4 +97,19 @@ export const userService = {
     });
     return data;
   },
+
+  /**
+   * GET /api/users/anchor-application — returns the current user's most recent
+   * anchor application, or null when they have never applied (backend 404).
+   */
+  async getAnchorApplication(): Promise<AnchorApplicationResponse | null> {
+    try {
+      const { data } = await api.get<AnchorApplicationResponse>('/api/users/anchor-application');
+      return data;
+    } catch (error) {
+      const status = (error as { response?: { status?: number } }).response?.status;
+      if (status === 404) return null;
+      throw error;
+    }
+  },
 };

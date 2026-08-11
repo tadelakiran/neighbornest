@@ -11,10 +11,14 @@ export default {
       },
       colors: {
         // ── Blue Dynasty surfaces ──
-        void:    '#0a0f1c', // page background
-        deep:    '#0f172e', // panels / wells
-        surface: '#162044', // cards
-        raised:  '#1e2d5f', // hovers / tags / inputs
+        // Theme-aware: these resolve to CSS variables that flip with the
+        // active theme (see index.css). Making them variables is what makes
+        // the dark/light toggle actually restyle every component that uses
+        // these tokens (text-primary, bg-void, …) without per-file work.
+        void:    'var(--color-bg)',
+        deep:    'var(--color-deep)',
+        surface: 'var(--color-surface)',
+        raised:  'var(--color-raised)',
 
         // ── Blue Dynasty accent (sky-based, accent-400 is the primary) ──
         accent: {
@@ -31,10 +35,24 @@ export default {
           950: '#062441',
         },
 
-        // ── Text hierarchy ──
-        primary:   '#f8fafc',
-        secondary: '#94a3b8',
-        muted:     '#64748b',
+        // ── Warm gold (anchors, graduations, milestones) ──
+        gold: {
+          50:  '#fffbeb',
+          100: '#fef3c7',
+          200: '#fde68a',
+          300: '#fcd34d',
+          400: '#fbbf24',
+          500: '#f59e0b',
+          600: '#d97706',
+          700: '#b45309',
+          800: '#92400e',
+          900: '#78350f',
+        },
+
+        // ── Text hierarchy (theme-aware via CSS variables) ──
+        primary:   'var(--text-primary)',
+        secondary: 'var(--text-secondary)',
+        muted:     'var(--text-muted)',
 
         // ── Legacy palettes kept for compatibility with existing components ──
         blue: {
@@ -81,8 +99,9 @@ export default {
       },
       backgroundImage: {
         'accent-gradient': 'linear-gradient(135deg, #0284c7 0%, #0ea5e9 50%, #38bdf8 100%)',
+        'gold-gradient':   'linear-gradient(135deg, #d97706 0%, #f59e0b 50%, #fbbf24 100%)',
         'hero-gradient':   'linear-gradient(135deg, #082f49 0%, #0c4a6e 40%, #0ea5e9 100%)',
-        'card-gradient':   'linear-gradient(145deg, #162044 0%, #0f172e 100%)',
+        'card-gradient':   'linear-gradient(145deg, var(--color-surface) 0%, var(--color-deep) 100%)',
         'button-gradient': 'linear-gradient(135deg, #0284c7 0%, #0ea5e9 50%, #38bdf8 100%)',
         'glow-gradient':   'radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(14,165,233,0.12), transparent 40%)',
       },

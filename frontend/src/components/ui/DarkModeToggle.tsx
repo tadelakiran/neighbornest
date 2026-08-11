@@ -81,7 +81,7 @@ export function DarkModeToggle({ variant = 'icon', className }: DarkModeTogglePr
         'relative flex h-9 w-9 items-center justify-center rounded-md transition-colors duration-200',
         'border border-[var(--color-border)] bg-[var(--color-surface)]',
         'hover:border-accent-300 hover:bg-accent-50',
-        '[data-theme="dark"] hover:bg-accent-900/40',
+        'dark:hover:bg-accent-900/40',
         'focus-visible:ring-2 focus-visible:ring-accent-400/50',
         className
       )}

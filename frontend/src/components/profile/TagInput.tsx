@@ -58,7 +58,7 @@ export function TagInput({
       <div
         onClick={() => inputRef.current?.focus()}
         className={cn(
-          'flex flex-wrap items-center gap-2 rounded-md border border-white/10 bg-surface px-3 py-2.5 transition-colors duration-200',
+          'flex flex-wrap items-center gap-2 rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2.5 transition-colors duration-200',
           error
             ? 'border-rose-500/50'
             : 'focus-within:border-accent-400 focus-within:ring-2 focus-within:ring-accent-400/20'

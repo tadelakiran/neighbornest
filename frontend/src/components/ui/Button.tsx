@@ -31,19 +31,19 @@ const VARIANTS: Record<ButtonVariant, string> = {
     'bg-[var(--color-surface)] text-[var(--text-primary)] ' +
     'border border-[var(--color-border)] ' +
     'hover:border-accent-300 hover:bg-accent-50 hover:text-accent-700 ' +
-    '[data-theme="dark"]:hover:bg-accent-900/30 [data-theme="dark"]:hover:text-accent-300',
+    'dark:hover:bg-accent-900/30 dark:hover:text-accent-300',
   outline:
     'bg-transparent border border-accent-500 text-accent-600 ' +
     'hover:bg-accent-50 hover:border-accent-600 ' +
-    '[data-theme="dark"]:text-accent-400 [data-theme="dark"]:hover:bg-accent-900/30',
+    'dark:text-accent-400 dark:hover:bg-accent-900/30',
   ghost:
     'bg-transparent text-accent-600 ' +
     'hover:bg-accent-50 hover:text-accent-700 ' +
-    '[data-theme="dark"]:text-accent-400 [data-theme="dark"]:hover:bg-accent-900/30',
+    'dark:text-accent-400 dark:hover:bg-accent-900/30',
   danger:
     'border border-rose-200 bg-rose-50 text-rose-600 ' +
     'hover:bg-rose-100 hover:border-rose-300 ' +
-    '[data-theme="dark"]:border-rose-500/20 [data-theme="dark"]:bg-rose-500/10 [data-theme="dark"]:text-rose-400',
+    'dark:border-rose-500/20 dark:bg-rose-500/10 dark:text-rose-400',
 };
 
 const SIZES: Record<ButtonSize, string> = {

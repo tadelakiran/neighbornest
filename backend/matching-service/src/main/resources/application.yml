@@ -48,6 +48,27 @@ eureka:
     lease-renewal-interval-in-seconds: 10
     lease-expiration-duration-in-seconds: 30
 
+# Feign calls to sibling services (e.g. user-service) run under a Resilience4j
+# TimeLimiter. The default is 1s — far too tight for a cold JVM/DB call. Generous
+# timeouts keep the circuit-breaker benefit without failing healthy requests.
+resilience4j:
+  timelimiter:
+    configs:
+      default:
+        timeout-duration: 15s
+        cancel-running-future: true
+  circuitbreaker:
+    configs:
+      default:
+        sliding-window-size: 30
+        sliding-window-type: COUNT_BASED
+        minimum-number-of-calls: 10
+        failure-rate-threshold: 70
+        wait-duration-in-open-state: 30s
+        permitted-number-of-calls-in-half-open-state: 5
+        slow-call-duration-threshold: 14s
+        slow-call-rate-threshold: 90
+
 # Application-specific configuration
 app:
   jwt:

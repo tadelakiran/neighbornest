@@ -9,10 +9,10 @@ interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
 
 const VARIANTS: Record<BadgeVariant, string> = {
   primary: 'bg-accent-600 text-white border-accent-600',
-  success: 'bg-accent-100 text-accent-700 border-accent-200 [data-theme="dark"]:bg-accent-900/30 [data-theme="dark"]:text-accent-300 [data-theme="dark"]:border-accent-700/40',
-  info:    'bg-accent-50 text-accent-600 border-accent-200 [data-theme="dark"]:bg-accent-900/20 [data-theme="dark"]:text-accent-400 [data-theme="dark"]:border-accent-700/30',
-  warning: 'bg-amber-50 text-amber-700 border-amber-200 [data-theme="dark"]:bg-amber-900/20 [data-theme="dark"]:text-amber-400 [data-theme="dark"]:border-amber-700/30',
-  danger:  'bg-rose-50 text-rose-600 border-rose-200 [data-theme="dark"]:bg-rose-900/20 [data-theme="dark"]:text-rose-400 [data-theme="dark"]:border-rose-700/30',
+  success: 'bg-accent-100 text-accent-700 border-accent-200 dark:bg-accent-900/30 dark:text-accent-300 dark:border-accent-700/40',
+  info:    'bg-accent-50 text-accent-600 border-accent-200 dark:bg-accent-900/20 dark:text-accent-400 dark:border-accent-700/30',
+  warning: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-700/30',
+  danger:  'bg-rose-50 text-rose-600 border-rose-200 dark:bg-rose-900/20 dark:text-rose-400 dark:border-rose-700/30',
   neutral: 'bg-[var(--color-surface)] text-[var(--text-secondary)] border-[var(--color-border)]',
 };
 
