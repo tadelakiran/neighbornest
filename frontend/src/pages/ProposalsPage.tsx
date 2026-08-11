@@ -5,7 +5,9 @@ import { Inbox, PartyPopper } from 'lucide-react';
 import { ProposalCard } from '@/components/matching/ProposalCard';
 import { ConfettiBurst } from '@/components/matching/ConfettiBurst';
 import { Button } from '@/components/ui/Button';
+import { LazyImage } from '@/components/ui/LazyImage';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { IMAGES } from '@/lib/images';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { cardStagger, cardRise } from '@/lib/motion';
@@ -124,16 +126,28 @@ export function ProposalsPage() {
       {proposals !== null && count === 0 && (
         <motion.div
           variants={cardRise}
-          className="flex flex-col items-center rounded-3xl border border-white/[0.08] bg-deep/60 px-8 py-16 text-center"
+          className="group relative flex flex-col items-center overflow-hidden rounded-3xl border border-[var(--color-border)] bg-deep/60 px-8 py-16 text-center"
         >
-          <span className="flex h-16 w-16 items-center justify-center rounded-2xl border border-accent-400/25 bg-accent-400/10">
+          {/* Premium photography backdrop */}
+          <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+            <LazyImage
+              src={IMAGES.dinner}
+              alt=""
+              placeholder="shimmer"
+              wrapperClassName="absolute inset-0"
+              className="h-full w-full object-cover opacity-20 transition-transform duration-700 group-hover:scale-105"
+              loading="lazy"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-deep)]/90 via-[var(--color-deep)]/60 to-[var(--color-deep)]/95" />
+          </div>
+          <span className="relative flex h-16 w-16 items-center justify-center rounded-2xl border border-accent-400/25 bg-accent-400/10">
             <Inbox className="h-8 w-8 text-accent-300" aria-hidden="true" />
           </span>
-          <h2 className="mt-6 font-display text-xl font-bold text-primary">Your inbox is clear</h2>
-          <p className="mt-2 max-w-sm text-sm text-secondary">
+          <h2 className="relative mt-6 font-display text-xl font-bold text-primary">Your inbox is clear</h2>
+          <p className="relative mt-2 max-w-sm text-sm text-secondary">
             When a Nest invites you, the invitation will appear here with a compatibility score and expiry timer.
           </p>
-          <Button variant="outline" className="mt-6" onClick={() => navigate(ROUTES.DISCOVER)}>
+          <Button variant="outline" className="relative mt-6" onClick={() => navigate(ROUTES.DISCOVER)}>
             Explore matches
           </Button>
         </motion.div>

@@ -5,7 +5,7 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="NeighborNest — find your people in a new city. Small curated groups (Nests) with local Anchors." />
-    <meta name="theme-color" content="#0a0f1c" />
+    <meta name="theme-color" content="#070b14" />
 
     <!-- Social / share preview -->
     <meta property="og:type" content="website" />
@@ -15,16 +15,34 @@
     <meta name="twitter:title" content="NeighborNest" />
     <meta name="twitter:description" content="Find your people in a new city — matched into small curated Nests with local Anchors." />
 
-    <!-- Boot dark-first before first paint (avoids white flash / FOUC) -->
+    <!-- Boot the persisted theme before first paint (avoids white flash / FOUC).
+         Dark is the default; a stored 'light' preference from the theme store
+         (zustand persist format: { state: { theme } }) is applied synchronously. -->
     <script>
-      document.documentElement.classList.add('dark');
-      document.documentElement.setAttribute('data-theme', 'dark');
+      (function () {
+        var theme = 'dark';
+        try {
+          var raw = localStorage.getItem('neighbornest.theme.v2');
+          if (raw) {
+            var parsed = JSON.parse(raw);
+            if (parsed && parsed.state && parsed.state.theme === 'light') theme = 'light';
+          }
+        } catch (e) { /* ignore corrupt storage */ }
+        var el = document.documentElement;
+        if (theme === 'light') { el.classList.remove('dark'); } else { el.classList.add('dark'); }
+        el.setAttribute('data-theme', theme);
+        var meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.setAttribute('content', theme === 'light' ? '#f5f7fb' : '#070b14');
+      })();
     </script>
 
     <!-- Fonts: loaded non-blocking (media=print swap trick) so the app shell
          paints immediately even if Google Fonts is slow or unreachable. -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Photography (Unsplash CDN): open a warm connection early so hero/empty-state
+         images fetch faster once the app renders. -->
+    <link rel="preconnect" href="https://images.unsplash.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"
       rel="stylesheet"
@@ -49,7 +67,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: #0a0f1c;
+        background: #070b14;
         transition: opacity 0.45s ease, visibility 0.45s ease;
       }
       #app-splash.is-done { opacity: 0; visibility: hidden; pointer-events: none; }

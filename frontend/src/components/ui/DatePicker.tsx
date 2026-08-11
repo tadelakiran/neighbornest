@@ -64,7 +64,7 @@ export function DatePicker({ value, onChange, label, minDate = new Date(), class
         </span>
       )}
 
-      <div className="rounded-xl border border-white/10 bg-surface p-3">
+      <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-3">
         {/* Month header */}
         <div className="mb-2 flex items-center justify-between">
           <button
@@ -72,7 +72,7 @@ export function DatePicker({ value, onChange, label, minDate = new Date(), class
             aria-label="Previous month"
             disabled={!canGoBack}
             onClick={() => setView(new Date(view.getFullYear(), view.getMonth() - 1, 1))}
-            className="flex h-7 w-7 items-center justify-center rounded-lg text-secondary transition-colors hover:bg-white/5 hover:text-primary disabled:cursor-not-allowed disabled:opacity-30"
+            className="flex h-7 w-7 items-center justify-center rounded-lg text-secondary transition-colors hover:bg-[var(--color-raised)] hover:text-primary disabled:cursor-not-allowed disabled:opacity-30"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
@@ -83,7 +83,7 @@ export function DatePicker({ value, onChange, label, minDate = new Date(), class
             type="button"
             aria-label="Next month"
             onClick={() => setView(new Date(view.getFullYear(), view.getMonth() + 1, 1))}
-            className="flex h-7 w-7 items-center justify-center rounded-lg text-secondary transition-colors hover:bg-white/5 hover:text-primary"
+            className="flex h-7 w-7 items-center justify-center rounded-lg text-secondary transition-colors hover:bg-[var(--color-raised)] hover:text-primary"
           >
             <ChevronRight className="h-4 w-4" />
           </button>
@@ -117,7 +117,7 @@ export function DatePicker({ value, onChange, label, minDate = new Date(), class
                 className={cn(
                   'flex h-9 items-center justify-center rounded-lg text-sm transition-all duration-150',
                   isPast && 'cursor-not-allowed text-muted/40',
-                  !isPast && !isSelected && 'text-secondary hover:bg-white/5 hover:text-primary',
+                  !isPast && !isSelected && 'text-secondary hover:bg-[var(--color-raised)] hover:text-primary',
                   isSelected && 'bg-accent-500 font-semibold text-white shadow-glow-sm',
                   isToday && !isSelected && 'ring-1 ring-inset ring-accent-400/60'
                 )}

@@ -72,7 +72,7 @@ export function NestsPage() {
         variants={cardRise}
         whileHover={{ y: -5 }}
         onClick={() => navigate(nestDetailPath(nest.id))}
-        className="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-card-gradient p-6 text-left backdrop-blur-xl transition-shadow duration-300 hover:shadow-card-hover"
+        className="group relative overflow-hidden rounded-2xl border border-[var(--color-border)] bg-card-gradient p-6 text-left backdrop-blur-xl transition-shadow duration-300 hover:shadow-card-hover"
       >
         <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-accent-400/50 to-transparent" aria-hidden="true" />
         <div className="flex items-start justify-between gap-3">
@@ -88,7 +88,7 @@ export function NestsPage() {
           <NestStatusBadge status={nest.status} />
         </div>
 
-        <div className="mt-5 flex items-center justify-between border-t border-white/[0.06] pt-4">
+        <div className="mt-5 flex items-center justify-between border-t border-[var(--color-border)] pt-4">
           <span className="inline-flex items-center gap-1.5 text-xs text-secondary">
             <Users className="h-3.5 w-3.5 text-accent-400" aria-hidden="true" />
             {memberCount} member{memberCount === 1 ? '' : 's'}

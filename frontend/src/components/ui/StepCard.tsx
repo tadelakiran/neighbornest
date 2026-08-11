@@ -39,7 +39,7 @@ export function StepCard({
       className={cn(
         'relative flex w-full flex-col items-center gap-3 rounded-lg border p-5 text-center transition-all duration-300',
         selected
-          ? 'border-accent-500 bg-accent-50 shadow-glow-sm [data-theme="dark"]:bg-accent-900/20'
+          ? 'border-accent-500 bg-accent-50 shadow-glow-sm dark:bg-accent-900/20'
           : 'border-[var(--color-border)] bg-[var(--color-surface)] hover:border-accent-300 hover:shadow-md',
         disabled && 'cursor-not-allowed opacity-60',
         className

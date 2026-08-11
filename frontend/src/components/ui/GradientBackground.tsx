@@ -22,7 +22,7 @@ export const GradientBackground = memo(function GradientBackground() {
       <div className="mesh-blob mesh-blob-d absolute bottom-[15%] right-[15%] h-[35vw] w-[35vw] max-h-[400px] max-w-[400px]" />
 
       {/* Top glow */}
-      <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-accent-100/40 to-transparent [data-theme='dark']:from-accent-900/20" />
+      <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-accent-100/40 to-transparent dark:from-accent-900/20" />
     </div>
   );
 });

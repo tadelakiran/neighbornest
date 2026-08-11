@@ -12,10 +12,7 @@
     </parent>
 
     <artifactId>notification-service</artifactId>
-    <!-- 0.0.1-SNAPSHOT keeps the produced jar named
-         notification-service-0.0.1-SNAPSHOT.jar, which is the exact artifact
-         the notification-service/Dockerfile copies. -->
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0</version>
     <name>Notification Service</name>
     <description>Event-driven notifications (email/SMS/in-app) for NeighborNest</description>
 
@@ -123,6 +120,10 @@
     </dependencies>
 
     <build>
+        <!-- finalName keeps the produced jar named notification-service.jar,
+             which is the exact artifact the notification-service/Dockerfile
+             copies. -->
+        <finalName>notification-service</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

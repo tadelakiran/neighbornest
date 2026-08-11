@@ -47,7 +47,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
             An unexpected error occurred while rendering this page. Reload to continue.
           </p>
           {this.state.error && (
-            <p className="mt-4 break-words rounded-md border border-white/10 bg-deep px-4 py-3 font-mono text-xs text-muted">
+            <p className="mt-4 break-words rounded-md border border-[var(--color-border)] bg-[var(--color-deep)] px-4 py-3 font-mono text-xs text-muted">
               {this.state.error.message}
             </p>
           )}

@@ -3,7 +3,9 @@ import { motion } from 'framer-motion';
 import { RefreshCw, Sparkles } from 'lucide-react';
 import { CompatibilityCard } from '@/components/matching/CompatibilityCard';
 import { Button } from '@/components/ui/Button';
+import { LazyImage } from '@/components/ui/LazyImage';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { IMAGES } from '@/lib/images';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { cardStagger, cardRise } from '@/lib/motion';
@@ -81,7 +83,19 @@ export function DiscoverPage() {
     return (
       <div className="space-y-6">
         <PageHeader />
-        <div className="relative mx-auto flex max-w-xl flex-col items-center overflow-hidden rounded-3xl border border-white/[0.08] bg-deep/60 px-8 py-16 text-center">
+        <div className="relative mx-auto flex max-w-xl flex-col items-center overflow-hidden rounded-3xl border border-[var(--color-border)] bg-deep/60 px-8 py-16 text-center">
+          {/* Premium photography backdrop */}
+          <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+            <LazyImage
+              src={IMAGES.coffee}
+              alt=""
+              placeholder="shimmer"
+              wrapperClassName="absolute inset-0"
+              className="h-full w-full object-cover opacity-20"
+              loading="lazy"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-deep)]/90 via-[var(--color-deep)]/60 to-[var(--color-deep)]/95" />
+          </div>
           {FLOATERS.map((f, i) => (
             <motion.span
               key={i}
@@ -94,17 +108,17 @@ export function DiscoverPage() {
           <motion.span
             animate={{ scale: [1, 1.08, 1] }}
             transition={{ repeat: Infinity, duration: 2.4, ease: 'easeInOut' }}
-            className="flex h-16 w-16 items-center justify-center rounded-2xl bg-accent-gradient shadow-glow"
+            className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-accent-gradient shadow-glow"
           >
             <Sparkles className="h-8 w-8 text-white" aria-hidden="true" />
           </motion.span>
-          <h2 className="mt-6 font-display text-2xl font-bold text-primary">We're calculating your matches…</h2>
-          <p className="mt-2 max-w-sm text-sm leading-relaxed text-secondary">
+          <h2 className="relative mt-6 font-display text-2xl font-bold text-primary">We're calculating your matches…</h2>
+          <p className="relative mt-2 max-w-sm text-sm leading-relaxed text-secondary">
             Check back soon! Once the calculation finishes, your top compatible neighbors will appear here.
           </p>
           <Button
             variant="primary"
-            className="mt-6 shadow-glow"
+            className="relative mt-6 shadow-glow"
             isLoading={calculating}
             leftIcon={!calculating ? <RefreshCw className="h-4 w-4" aria-hidden="true" /> : undefined}
             onClick={() => void handleRecalculate()}

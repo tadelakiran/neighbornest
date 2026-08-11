@@ -23,6 +23,8 @@ describe('ExpenseTracker', () => {
 
   it('shows "You owe" when the balance is negative', () => {
     // User 3: owes $10 (601, unsettled), no money owed to them → net -$10.
+    // The running-balance banner and the expense row both correctly say
+    // "You owe $10", so match all occurrences.
     render(
       <ExpenseTracker
         expenses={buildDemoExpenses()}
@@ -33,7 +35,7 @@ describe('ExpenseTracker', () => {
       />
     );
 
-    expect(screen.getByText('You owe $10')).toBeInTheDocument();
+    expect(screen.getAllByText('You owe $10').length).toBeGreaterThan(0);
   });
 
   it('groups expenses by month with sticky headers', () => {

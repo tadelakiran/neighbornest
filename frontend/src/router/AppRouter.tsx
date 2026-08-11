@@ -20,6 +20,7 @@ const ComingSoonPage = lazy(() =>
 );
 const DashboardPage = lazy(() => import('@/pages/DashboardPage').then((m) => ({ default: m.DashboardPage })));
 const DiscoverPage = lazy(() => import('@/pages/DiscoverPage').then((m) => ({ default: m.DiscoverPage })));
+const LandingPage = lazy(() => import('@/pages/LandingPage').then((m) => ({ default: m.LandingPage })));
 const LoginPage = lazy(() => import('@/pages/LoginPage').then((m) => ({ default: m.LoginPage })));
 const NestsPage = lazy(() => import('@/pages/NestsPage').then((m) => ({ default: m.NestsPage })));
 const NestHubPage = lazy(() => import('@/pages/NestHubPage').then((m) => ({ default: m.NestHubPage })));
@@ -57,6 +58,7 @@ export function AppRouter() {
       <Routes>
         {/* Public */}
         <Route element={<PublicLayout />}>
+          <Route path={ROUTES.LANDING} element={<LandingPage />} />
           <Route path={ROUTES.LOGIN} element={<LoginPage />} />
           <Route path={ROUTES.REGISTER} element={<RegisterPage />} />
         </Route>
@@ -86,8 +88,7 @@ export function AppRouter() {
           </Route>
         </Route>
 
-        {/* Root + fallback */}
-        <Route path="/" element={<Navigate to={ROUTES.DASHBOARD} replace />} />
+        {/* Fallback */}
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Suspense>

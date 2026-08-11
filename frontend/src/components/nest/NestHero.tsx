@@ -8,7 +8,7 @@ import type { NestResponse, NestStatus } from '@/types/nest.types';
 const BADGE_STYLES: Record<NestStatus, { chip: string; dot: string; ping: boolean; slow: boolean }> = {
   ACTIVE: { chip: 'border-emerald-500/30 bg-emerald-500/20 text-emerald-300', dot: 'bg-emerald-400', ping: true, slow: false },
   VIBE_CHECK: { chip: 'border-amber-500/30 bg-amber-500/20 text-amber-300', dot: 'bg-amber-400', ping: false, slow: true },
-  GRADUATED: { chip: 'border-accent-500/30 bg-accent-500/20 text-accent-300 shadow-glow', dot: 'bg-accent-300', ping: false, slow: false },
+  GRADUATED: { chip: 'border-gold-500/40 bg-gold-500/20 text-gold-300 shadow-glow', dot: 'bg-gold-400', ping: false, slow: false },
   FORMING: { chip: 'border-white/10 bg-white/[0.05] text-secondary', dot: 'bg-slate-400', ping: false, slow: false },
   RE_MATCHING: { chip: 'border-fuchsia-500/30 bg-fuchsia-500/20 text-fuchsia-300', dot: 'bg-fuchsia-400', ping: false, slow: true },
   DISBANDED: { chip: 'border-rose-500/30 bg-rose-500/20 text-rose-300', dot: 'bg-rose-400', ping: false, slow: false },
@@ -118,10 +118,10 @@ export function NestHero({ nest }: { nest: NestResponse }) {
         >
           {graduated ? (
             <>
-              <span className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-accent-gradient shadow-glow">
+              <span className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-gold-gradient shadow-glow">
                 <Trophy className="h-5 w-5 text-white" aria-hidden="true" />
               </span>
-              <p className="mt-2 font-display text-lg font-bold text-accent-300">Graduated!</p>
+              <p className="mt-2 font-display text-lg font-bold text-gold-300">Graduated!</p>
               <p className="text-xs text-muted">Your Nest journey is complete</p>
             </>
           ) : (

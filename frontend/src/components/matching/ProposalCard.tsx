@@ -78,7 +78,7 @@ export function ProposalCard({ proposal, onAccept, onDecline, busy = false, clas
         {anchor && (
           <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/25 bg-amber-400/10 px-3 py-1.5 text-xs font-medium text-amber-300">
             <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" aria-hidden="true" />
-            Guided by {anchor.fullName}
+            Guided by {anchor.fullName || 'your Anchor'}
           </span>
         )}
       </div>

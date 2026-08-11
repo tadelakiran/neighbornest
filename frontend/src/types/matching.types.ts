@@ -15,6 +15,7 @@ export interface CompatibleUserResponse {
   lifestyleScore: number;
   interestScore: number;
   profilePhotoUrl?: string;
+  /** The matching-service does not send interests; defaults to [] on the client. */
   interests: string[];
 }
 
@@ -24,7 +25,8 @@ export type ProposalStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'EXPIRED';
 /** A member inside a Nest proposal (already part of the proposing group). */
 export interface ProposalMemberResponse {
   userId: number;
-  fullName: string;
+  /** The matching-service currently sends no names for proposal members. */
+  fullName?: string;
   roleInNest: 'MEMBER' | 'ANCHOR';
   response: 'PENDING' | 'ACCEPTED' | 'DECLINED';
   profilePhotoUrl?: string;
@@ -36,6 +38,8 @@ export interface MatchProposalResponse {
   status: ProposalStatus;
   proposedAt: string;
   expiresAt: string;
+  acceptedAt?: string;
+  nestId?: number;
   members: ProposalMemberResponse[];
   /** City of the inviting Nest — may be absent depending on backend version. */
   city?: string;

@@ -78,11 +78,11 @@ export function Select({
         aria-expanded={open}
         onClick={() => setOpen((wasOpen) => !wasOpen)}
         className={cn(
-          'flex h-11 w-full items-center justify-between gap-2 rounded-md border border-white/10 bg-surface px-4 text-sm outline-none transition-all duration-200',
+          'flex h-11 w-full items-center justify-between gap-2 rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-4 text-sm outline-none transition-all duration-200',
           'disabled:cursor-not-allowed disabled:opacity-60',
           open
             ? 'border-accent-400 ring-2 ring-accent-400/20'
-            : 'hover:border-white/20',
+            : 'hover:border-[var(--color-border-2)]',
           error && 'border-rose-500/50'
         )}
       >
@@ -103,7 +103,7 @@ export function Select({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -6, scale: 0.98 }}
             transition={{ duration: 0.15 }}
-            className="absolute z-30 mt-2 max-h-60 w-full overflow-auto rounded-md border border-white/10 bg-deep p-1 shadow-card"
+            className="absolute z-30 mt-2 max-h-60 w-full overflow-auto rounded-md border border-[var(--color-border)] bg-[var(--color-deep)] p-1 shadow-card"
           >
             {options.map((option) => {
               const isSelected = option.value === value;

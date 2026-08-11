@@ -40,6 +40,16 @@ spring:
                 name: matchingServiceCircuitBreaker
                 fallbackUri: forward:/fallback/matching
 
+        - id: nest-service
+          uri: lb://NEST-SERVICE
+          predicates:
+            - Path=/api/nests/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: nestServiceCircuitBreaker
+                fallbackUri: forward:/fallback/nest
+
         - id: chat-service
           uri: lb://CHAT-SERVICE
           predicates:

@@ -35,7 +35,8 @@ describe('VibeCheckCard', () => {
       />
     );
 
-    expect(screen.getByText("How's your Nest feeling?")).toBeInTheDocument();
+    // The component uses a typographic right single quote (U+2019).
+    expect(screen.getByText('How’s your Nest feeling?')).toBeInTheDocument();
     expect(screen.getByText('Connection Level')).toBeInTheDocument();
     expect(screen.getByText('Comfort Level')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Submit Check-in' })).toBeInTheDocument();

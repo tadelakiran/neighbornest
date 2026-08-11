@@ -24,7 +24,7 @@ export function Navbar({ onMenuClick, className = '' }: NavbarProps) {
 
   return (
     <header
-      className={`sticky top-0 z-40 w-full border-b border-white/[0.06] bg-void/70 backdrop-blur-xl ${className}`}
+      className={`sticky top-0 z-40 w-full border-b border-[var(--color-border)] bg-void/70 backdrop-blur-xl ${className}`}
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 md:px-8">
         {/* Left: hamburger + brand */}
@@ -32,7 +32,7 @@ export function Navbar({ onMenuClick, className = '' }: NavbarProps) {
           {onMenuClick && (
             <button
               onClick={onMenuClick}
-              className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.03] text-secondary transition-colors hover:text-primary lg:hidden"
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-2)] text-secondary transition-colors hover:text-primary lg:hidden"
               aria-label="Open navigation menu"
             >
               <Menu className="h-5 w-5" />
@@ -56,7 +56,7 @@ export function Navbar({ onMenuClick, className = '' }: NavbarProps) {
         {/* Right: actions */}
         <div className="flex items-center gap-2">
           <button
-            className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.03] text-secondary transition-colors hover:text-primary"
+            className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-2)] text-secondary transition-colors hover:text-primary"
             aria-label="Notifications"
           >
             <Bell className="h-[18px] w-[18px]" />
@@ -69,7 +69,7 @@ export function Navbar({ onMenuClick, className = '' }: NavbarProps) {
             <div className="flex items-center gap-2 pl-2">
               <button
                 onClick={() => navigate(ROUTES.PROFILE)}
-                className="flex items-center gap-2.5 rounded-xl border border-white/[0.08] bg-white/[0.03] py-1 pl-1 pr-3 transition-colors hover:border-accent-400/30"
+                className="flex items-center gap-2.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-2)] py-1 pl-1 pr-3 transition-colors hover:border-accent-400/30"
                 aria-label={`Open profile of ${user.fullName}`}
               >
                 <Avatar name={user.fullName} src={user.profilePhotoUrl} size="sm" />
@@ -83,7 +83,7 @@ export function Navbar({ onMenuClick, className = '' }: NavbarProps) {
 
               <button
                 onClick={() => void logout()}
-                className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.03] text-secondary transition-colors hover:border-rose-400/30 hover:text-rose-400"
+                className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-2)] text-secondary transition-colors hover:border-rose-400/30 hover:text-rose-400"
                 aria-label="Log out"
                 title="Log out"
               >
@@ -91,7 +91,7 @@ export function Navbar({ onMenuClick, className = '' }: NavbarProps) {
               </button>
             </div>
           ) : (
-            <span className="rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-secondary">
+            <span className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-2)] px-3 py-1.5 text-xs font-medium text-secondary">
               Guest
             </span>
           )}

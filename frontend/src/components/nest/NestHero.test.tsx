@@ -15,11 +15,13 @@ describe('NestHero', () => {
   });
 
   it('renders the nest name, status and city', () => {
-    render(<NestHero nest={buildDemoNest()} />);
+    const nest = buildDemoNest();
+    render(<NestHero nest={nest} />);
 
     expect(screen.getByRole('heading', { name: 'The Mission Crew' })).toBeInTheDocument();
     expect(screen.getByText('ACTIVE')).toBeInTheDocument();
-    expect(screen.getByText('San Francisco')).toBeInTheDocument();
+    // The city renders inline with the member count, so match it as a substring.
+    expect(screen.getByText(new RegExp(nest.city))).toBeInTheDocument();
   });
 
   it('computes Week 4 of 6 and the days-left countdown from the fixed date', () => {

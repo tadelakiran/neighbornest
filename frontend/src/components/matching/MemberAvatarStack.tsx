@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils';
 
 interface StackMember {
   userId: number;
-  fullName: string;
+  fullName?: string;
   profilePhotoUrl?: string;
 }
 
@@ -35,7 +35,7 @@ export function MemberAvatarStack({ members, max = 4, size = 'md', className }: 
         {visible.map((member) => (
           <Avatar
             key={member.userId}
-            name={member.fullName}
+            name={member.fullName || 'Neighbor'}
             src={member.profilePhotoUrl}
             size={size === 'sm' ? 'sm' : 'md'}
             className="ring-2 ring-[var(--color-deep)] transition-transform duration-200 hover:-translate-y-1"

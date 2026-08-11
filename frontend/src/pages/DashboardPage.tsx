@@ -204,7 +204,7 @@ export function DashboardPage() {
             </Button>
           </div>
           {calculating && (
-            <div className="relative mt-4 overflow-hidden rounded-xl border border-white/[0.06] bg-white/[0.02]">
+            <div className="relative mt-4 overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-2)]/60">
               <div className="h-2 w-full animate-pulse bg-accent-400/20" />
             </div>
           )}
@@ -318,9 +318,9 @@ export function DashboardPage() {
           ) : (
             <button
               onClick={() => navigate(ROUTES.MY_NEST)}
-              className="flex flex-1 flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-white/10 p-4 text-center transition-colors hover:border-accent-400/30 hover:bg-accent-400/[0.03]"
+              className="flex flex-1 flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-[var(--color-border-2)] p-4 text-center transition-colors hover:border-accent-400/40 hover:bg-accent-400/[0.04]"
             >
-              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/[0.04]">
+              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--color-surface-2)]">
                 <CalendarDays className="h-5 w-5 text-accent-400" aria-hidden="true" />
               </span>
               <p className="text-sm font-medium text-primary">No meetings scheduled yet</p>

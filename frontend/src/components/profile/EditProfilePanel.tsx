@@ -133,9 +133,9 @@ export function EditProfilePanel({ profile, open, onClose, onSave }: EditProfile
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', stiffness: 300, damping: 32 }}
-            className="absolute inset-y-0 right-0 flex w-full flex-col border-l border-white/10 bg-deep shadow-card sm:w-[480px]"
+            className="absolute inset-y-0 right-0 flex w-full flex-col border-l border-[var(--color-border)] bg-[var(--color-deep)] shadow-card sm:w-[480px]"
           >
-            <div className="flex items-center justify-between border-b border-white/5 px-6 py-4">
+            <div className="flex items-center justify-between border-b border-[var(--color-border)] px-6 py-4">
               <h2 className="font-display text-lg font-bold text-primary">Edit profile</h2>
               <button
                 type="button"
@@ -192,7 +192,7 @@ export function EditProfilePanel({ profile, open, onClose, onSave }: EditProfile
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-3 border-t border-white/5 px-6 py-4">
+              <div className="flex items-center justify-end gap-3 border-t border-[var(--color-border)] px-6 py-4">
                 <Button variant="ghost" onClick={onClose}>
                   Cancel
                 </Button>

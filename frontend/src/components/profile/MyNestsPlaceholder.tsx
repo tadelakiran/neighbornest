@@ -11,12 +11,12 @@ export function MyNestsPlaceholder() {
   const navigate = useNavigate();
 
   return (
-    <div className="flex flex-col items-center gap-5 rounded-lg border border-dashed border-white/15 bg-deep/40 px-6 py-16 text-center">
+    <div className="flex flex-col items-center gap-5 rounded-lg border border-dashed border-[var(--color-border-2)] bg-deep/40 px-6 py-16 text-center">
       <div className="relative">
         <span className="flex h-20 w-20 items-center justify-center rounded-full border border-accent-400/20 bg-accent-400/5 shadow-glow-sm">
           <Users className="h-9 w-9 text-accent-300/80" aria-hidden="true" />
         </span>
-        <span className="absolute -bottom-1 -right-1 flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-deep">
+        <span className="absolute -bottom-1 -right-1 flex h-9 w-9 items-center justify-center rounded-full border border-[var(--color-border)] bg-[var(--color-deep)]">
           <MapPin className="h-4 w-4 text-secondary" aria-hidden="true" />
         </span>
       </div>

@@ -13,21 +13,21 @@ const TOAST_STYLES: Record<ToastType, {
 }> = {
   success: {
     icon:      CheckCircle2,
-    iconClass: 'text-accent-500',
+    iconClass: 'text-accent-600 dark:text-accent-300',
     barClass:  'bg-accent-500',
-    bgClass:   'border-accent-200 bg-white [data-theme="dark"]:bg-[var(--color-surface)] [data-theme="dark"]:border-accent-700/40',
+    bgClass:   'border-accent-200 bg-white dark:border-accent-700/50 dark:bg-[var(--color-surface)]',
   },
   error: {
     icon:      AlertCircle,
-    iconClass: 'text-rose-500',
+    iconClass: 'text-rose-600 dark:text-rose-400',
     barClass:  'bg-rose-500',
-    bgClass:   'border-rose-200 bg-white [data-theme="dark"]:bg-[var(--color-surface)] [data-theme="dark"]:border-rose-700/40',
+    bgClass:   'border-rose-200 bg-white dark:border-rose-700/50 dark:bg-[var(--color-surface)]',
   },
   info: {
     icon:      Info,
-    iconClass: 'text-accent-400',
+    iconClass: 'text-accent-500 dark:text-accent-400',
     barClass:  'bg-accent-400',
-    bgClass:   'border-accent-200 bg-white [data-theme="dark"]:bg-[var(--color-surface)] [data-theme="dark"]:border-accent-700/30',
+    bgClass:   'border-accent-200 bg-white dark:border-accent-700/40 dark:bg-[var(--color-surface)]',
   },
 };
 
