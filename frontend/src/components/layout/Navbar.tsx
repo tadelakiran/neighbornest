@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
-import { Bell, Compass, LogOut, Menu } from 'lucide-react';
+import { Compass, LogOut, Menu } from 'lucide-react';
 import { Avatar } from '@/components/ui/Avatar';
+import { NotificationPanel } from '@/components/layout/NotificationPanel';
 import { DarkModeToggle } from '@/components/ui/DarkModeToggle';
 import { useAuth } from '@/hooks/useAuth';
 import { useAuthStore } from '@/stores/authStore';
@@ -55,14 +56,7 @@ export function Navbar({ onMenuClick, className = '' }: NavbarProps) {
 
         {/* Right: actions */}
         <div className="flex items-center gap-2">
-          <button
-            className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-2)] text-secondary transition-colors hover:text-primary"
-            aria-label="Notifications"
-          >
-            <Bell className="h-[18px] w-[18px]" />
-            <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-accent-400 shadow-[0_0_8px_rgba(14,165,233,0.8)]" aria-hidden="true" />
-          </button>
-
+          {user ? <NotificationPanel /> : null}
           <DarkModeToggle />
 
           {user ? (

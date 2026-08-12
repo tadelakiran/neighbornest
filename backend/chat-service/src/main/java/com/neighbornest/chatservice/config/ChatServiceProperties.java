@@ -68,5 +68,8 @@ public class ChatServiceProperties {
 
         /** Durable queue bound for Nest-graduated events. */
         private String graduatedQueue;
+
+        /** Routing key for chat message notification events. */
+        private String chatRoutingKey;
     }
 }

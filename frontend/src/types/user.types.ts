@@ -81,7 +81,8 @@ export interface ProfileResponse {
 export interface ProfileCreateRequest {
   fullName: string;
   profilePhotoUrl?: string;
-  city: string;
+  /** Optional at creation — onboarding fills it in later. */
+  city?: string;
   neighborhood?: string;
   yearsInCity?: number;
   occupation?: string;

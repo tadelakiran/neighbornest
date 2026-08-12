@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, CalendarDays, Compass, Home, Inbox, MapPin, Sparkles, Users } from 'lucide-react';
+import { ArrowRight, CalendarDays, Compass, Home, Inbox, MapPin, Sparkles, Sprout, Users } from 'lucide-react';
 import { BentoGrid } from '@/components/dashboard/BentoGrid';
 import { BentoCard } from '@/components/dashboard/BentoCard';
 import { StatCard } from '@/components/dashboard/StatCard';
@@ -17,7 +17,7 @@ import { useTypewriter } from '@/hooks/useTypewriter';
 import { useToast } from '@/hooks/useToast';
 import { cardStagger, cardRise } from '@/lib/motion';
 import { IMAGES } from '@/lib/images';
-import { ROUTES } from '@/lib/constants';
+import { ROUTES, nestDetailPath } from '@/lib/constants';
 import { calculateCompatibility, getCompatibles, getPendingProposals } from '@/services/matchingService';
 import { getMyNests } from '@/services/nestService';
 import type { CompatibleUserResponse, MatchProposalResponse } from '@/types/matching.types';
@@ -29,6 +29,19 @@ function greetingFor(hour: number): string {
   if (hour < 12) return 'Good morning';
   if (hour < 17) return 'Good afternoon';
   return 'Good evening';
+}
+
+/**
+ * Computes which week (1-6) of the guided journey we're in for a Nest's
+ * lifecycle. Falls back to null when the dates are missing or invalid.
+ */
+function journeyWeek(startDate?: string, endDate?: string): number | null {
+  if (!startDate) return null;
+  const start = new Date(startDate).getTime();
+  if (Number.isNaN(start)) return null;
+  if (endDate && new Date(endDate).getTime() < Date.now()) return 6;
+  const elapsedWeeks = Math.floor((Date.now() - start) / (7 * 24 * 60 * 60 * 1000));
+  return Math.min(6, Math.max(1, elapsedWeeks + 1));
 }
 
 /**
@@ -96,6 +109,16 @@ export function DashboardPage() {
     return cities.size;
   }, [compatibles, user?.city]);
 
+  /** First active Nest drives the journey card; falls back to any nest. */
+  const activeNest = useMemo(
+    () => nests?.find((n) => n.status === 'ACTIVE') ?? nests?.[0] ?? null,
+    [nests]
+  );
+  const week = useMemo(
+    () => (activeNest ? journeyWeek(activeNest.startDate, activeNest.endDate) : null),
+    [activeNest]
+  );
+
   const activity: TimelineEvent[] = useMemo(() => {
     const events: TimelineEvent[] = [];
     if (nests && nests.length > 0) {
@@ -154,12 +177,33 @@ export function DashboardPage() {
   return (
     <motion.div variants={cardStagger} initial="hidden" animate="show" className="space-y-6">
       {/* ── Welcome header ── */}
-      <motion.div variants={cardRise}>
-        <h1 className="font-display text-3xl font-bold tracking-tight text-primary md:text-4xl">
-          {typedGreeting}
-          <span className="text-accent-400">.</span>
-        </h1>
-        <p className="mt-1 text-secondary">Let's find your people.</p>
+      <motion.div
+        variants={cardRise}
+        className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3"
+      >
+        <div>
+          <h1 className="font-display text-3xl font-bold tracking-tight text-primary md:text-4xl">
+            {typedGreeting}
+            <span className="text-accent-400">.</span>
+          </h1>
+          <p className="mt-1 text-secondary">Let&apos;s find your people.</p>
+        </div>
+
+        {/* Context chips — city + role, aligned to the baseline of the heading */}
+        <div className="flex flex-wrap items-center gap-2">
+          {user?.city && (
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-1.5 text-xs font-medium text-secondary">
+              <MapPin className="h-3.5 w-3.5 text-accent-400" aria-hidden="true" />
+              {user.city}
+            </span>
+          )}
+          {user?.role && (
+            <span className="inline-flex items-center rounded-full border border-gold-500/30 bg-gold-500/10 px-3 py-1.5 text-xs font-semibold capitalize text-gold-300">
+              <Sprout className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
+              {user.role.toLowerCase()}
+            </span>
+          )}
+        </div>
       </motion.div>
 
       <BentoGrid>
@@ -229,6 +273,23 @@ export function DashboardPage() {
           )}
         </BentoCard>
 
+        {/* ── Recent Activity (2x1) ── */}
+        <BentoCard size="2x1">
+          <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-muted">
+            <Sparkles className="h-4 w-4 text-accent-400" aria-hidden="true" />
+            Recent Activity
+          </h2>
+          {compatibles === null || proposals === null || nests === null ? (
+            <div className="space-y-3">
+              <Skeleton className="h-12 rounded-xl" />
+              <Skeleton className="h-12 rounded-xl" />
+              <Skeleton className="h-12 rounded-xl" />
+            </div>
+          ) : (
+            <ActivityTimeline events={activity} />
+          )}
+        </BentoCard>
+
         {/* ── Active Proposals (1x1) ── */}
         <BentoCard size="1x1">
           {proposals === null ? (
@@ -265,23 +326,6 @@ export function DashboardPage() {
           )}
         </BentoCard>
 
-        {/* ── Recent Activity (2x1) ── */}
-        <BentoCard size="2x1">
-          <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-muted">
-            <Sparkles className="h-4 w-4 text-accent-400" aria-hidden="true" />
-            Recent Activity
-          </h2>
-          {compatibles === null || proposals === null || nests === null ? (
-            <div className="space-y-3">
-              <Skeleton className="h-12 rounded-xl" />
-              <Skeleton className="h-12 rounded-xl" />
-              <Skeleton className="h-12 rounded-xl" />
-            </div>
-          ) : (
-            <ActivityTimeline events={activity} />
-          )}
-        </BentoCard>
-
         {/* ── Quick Stats (1x1) ── */}
         <BentoCard size="1x1">
           <h2 className="mb-4 text-sm font-semibold uppercase tracking-widest text-muted">Quick Stats</h2>
@@ -300,18 +344,17 @@ export function DashboardPage() {
           )}
         </BentoCard>
 
-        {/* ── Upcoming Meetings (1x2) ── */}
-        <BentoCard size="1x2">
+        {/* ── Upcoming Meetings (1x1) ── */}
+        <BentoCard size="1x1">
           <h2 className="mb-4 text-sm font-semibold uppercase tracking-widest text-muted">Upcoming Meetings</h2>
           {nests === null ? (
             <div className="flex flex-1 flex-col justify-center gap-3">
               <Skeleton className="h-14 rounded-xl" />
               <Skeleton className="h-14 rounded-xl" />
-              <Skeleton className="h-14 rounded-xl" />
             </div>
           ) : meetings.length > 0 ? (
             <div className="flex flex-1 flex-col gap-3">
-              {meetings.map((meeting) => (
+              {meetings.slice(0, 2).map((meeting) => (
                 <MeetingPreview key={meeting.id} meeting={meeting} />
               ))}
             </div>
@@ -327,6 +370,70 @@ export function DashboardPage() {
               <p className="text-xs text-muted">Open your Nest to plan the first meetup.</p>
               <span className="inline-flex items-center gap-1 text-xs font-semibold text-accent-300">
                 Open Nest <ArrowRight className="h-3 w-3" aria-hidden="true" />
+              </span>
+            </button>
+          )}
+        </BentoCard>
+
+        {/* ── 6-Week Journey (1x1 desktop / 2x1 tablet) ── */}
+        <BentoCard size="1x1" className="md:col-span-2 lg:col-span-1">
+          <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-muted">
+            <Sprout className="h-4 w-4 text-gold-400" aria-hidden="true" />
+            Your 6-Week Journey
+          </h2>
+          {nests === null ? (
+            <div className="flex flex-1 flex-col justify-center gap-3">
+              <Skeleton className="h-12 rounded-xl" />
+              <Skeleton className="h-4 w-2/3 rounded-lg" />
+            </div>
+          ) : activeNest && week ? (
+            <div className="flex flex-1 flex-col justify-center gap-3">
+              <div className="flex items-center justify-between gap-3">
+                <p className="font-display text-2xl font-bold text-primary">
+                  Week <span className="text-gradient-gold">{week}</span> of 6
+                </p>
+                <span className="rounded-full border border-gold-500/30 bg-gold-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-gold-300">
+                  {Math.round((week / 6) * 100)}% there
+                </span>
+              </div>
+              <div
+                className="h-2 w-full overflow-hidden rounded-full bg-[var(--color-surface-2)]"
+                role="progressbar"
+                aria-valuenow={week}
+                aria-valuemin={1}
+                aria-valuemax={6}
+                aria-label="Journey progress"
+              >
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${(week / 6) * 100}%` }}
+                  transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                  className="h-full rounded-full bg-gold-gradient"
+                />
+              </div>
+              <p className="truncate text-xs text-secondary">
+                <span className="font-semibold text-primary">{activeNest.name}</span>
+                {activeNest.city ? ` · ${activeNest.city}` : ''}
+              </p>
+              <button
+                onClick={() => navigate(nestDetailPath(activeNest.id))}
+                className="mt-auto inline-flex items-center gap-1 text-xs font-semibold text-gold-300 transition-colors hover:text-gold-200"
+              >
+                Open Nest <ArrowRight className="h-3 w-3" aria-hidden="true" />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => navigate(ROUTES.DISCOVER)}
+              className="flex flex-1 flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-[var(--color-border-2)] p-4 text-center transition-colors hover:border-gold-400/40 hover:bg-gold-400/[0.04]"
+            >
+              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--color-surface-2)]">
+                <Sprout className="h-5 w-5 text-gold-400" aria-hidden="true" />
+              </span>
+              <p className="text-sm font-medium text-primary">Not in a Nest yet</p>
+              <p className="text-xs text-muted">Run a match and your 6-week journey begins.</p>
+              <span className="inline-flex items-center gap-1 text-xs font-semibold text-accent-300">
+                Discover matches <ArrowRight className="h-3 w-3" aria-hidden="true" />
               </span>
             </button>
           )}

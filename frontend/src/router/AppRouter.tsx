@@ -15,13 +15,11 @@ import { useAuthStore } from '@/stores/authStore';
 const AnchorApplicationForm = lazy(() =>
   import('@/components/profile/AnchorApplicationForm').then((m) => ({ default: m.AnchorApplicationForm }))
 );
-const ComingSoonPage = lazy(() =>
-  import('@/pages/ComingSoonPage').then((m) => ({ default: m.ComingSoonPage }))
-);
 const DashboardPage = lazy(() => import('@/pages/DashboardPage').then((m) => ({ default: m.DashboardPage })));
 const DiscoverPage = lazy(() => import('@/pages/DiscoverPage').then((m) => ({ default: m.DiscoverPage })));
 const LandingPage = lazy(() => import('@/pages/LandingPage').then((m) => ({ default: m.LandingPage })));
 const LoginPage = lazy(() => import('@/pages/LoginPage').then((m) => ({ default: m.LoginPage })));
+const MessagesPage = lazy(() => import('@/pages/MessagesPage').then((m) => ({ default: m.MessagesPage })));
 const NestsPage = lazy(() => import('@/pages/NestsPage').then((m) => ({ default: m.NestsPage })));
 const NestHubPage = lazy(() => import('@/pages/NestHubPage').then((m) => ({ default: m.NestHubPage })));
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })));
@@ -48,7 +46,6 @@ function AnchorApplyRoute() {
  * - Public routes render inside PublicLayout (no shell).
  * - Private routes are wrapped in ProtectedRoute; `/onboarding` is standalone
  *   (full-screen) while everything else renders inside AppLayout.
- * - `/messages` resolves to a ComingSoon placeholder until that module lands.
  * - Every page is lazy-loaded; Suspense shows a branded loader while a chunk
  *   downloads (only happens once per route, after the initial load).
  */
@@ -76,15 +73,7 @@ export function AppRouter() {
             <Route path={ROUTES.NEST_DETAIL} element={<NestHubPage />} />
             <Route path={ROUTES.PROFILE} element={<ProfilePage />} />
             <Route path={ROUTES.ANCHOR_APPLY} element={<AnchorApplyRoute />} />
-            <Route
-              path={ROUTES.MESSAGES}
-              element={
-                <ComingSoonPage
-                  title="Messages"
-                  description="Chat with your Nest members and Anchor right here once messaging goes live."
-                />
-              }
-            />
+            <Route path={ROUTES.MESSAGES} element={<MessagesPage />} />
           </Route>
         </Route>
 

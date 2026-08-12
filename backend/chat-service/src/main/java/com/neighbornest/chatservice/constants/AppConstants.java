@@ -28,32 +28,47 @@ public final class AppConstants {
     /** Client-to-server destination prefix for {@code @MessageMapping} handlers. */
     public static final String APP_DESTINATION_PREFIX = "/app";
 
-    /** Server-to-client broadcast prefix for group (Nest) rooms. */
-    public static final String TOPIC_NEST_PREFIX = "/topic/nest/";
+    /**
+     * Server-to-client broadcast prefix for group (Nest) rooms.
+     * <p>
+     * Dot-separated on purpose: the RabbitMQ STOMP plugin maps the remainder of
+     * a {@code /topic/...} destination onto an AMQP topic routing key, and
+     * routing keys are dot-delimited — slashes are rejected with "is not a
+     * valid topic destination". So a Nest room is {@code /topic/nest.1.messages}.
+     * </p>
+     */
+    public static final String TOPIC_NEST_PREFIX = "/topic/nest.";
 
     /** Typing broadcasts share the same topic prefix as group messages. */
-    public static final String TOPIC_TYPING_PREFIX = "/topic/nest/";
+    public static final String TOPIC_TYPING_PREFIX = "/topic/nest.";
 
-    /** Server-to-client private queue prefix (DMs, notifications). */
-    public static final String QUEUE_USER_PREFIX = "/queue/user/";
+    /**
+     * Server-to-client private queue prefix (DMs, notifications).
+     * <p>
+     * Dot-separated for the same reason as topics: the RabbitMQ STOMP plugin
+     * rejects slashes in destinations, so a user's DM queue is
+     * {@code /queue/user.4.dm}.
+     * </p>
+     */
+    public static final String QUEUE_USER_PREFIX = "/queue/user.";
 
     /** Suffix for the group message broadcast destination. */
-    public static final String TOPIC_NEST_MESSAGES_SUFFIX = "/messages";
+    public static final String TOPIC_NEST_MESSAGES_SUFFIX = ".messages";
 
     /** Suffix for the group typing broadcast destination. */
-    public static final String TOPIC_TYPING_SUFFIX = "/typing";
+    public static final String TOPIC_TYPING_SUFFIX = ".typing";
 
     /** Suffix for the group read-status broadcast destination. */
-    public static final String TOPIC_READ_SUFFIX = "/read";
+    public static final String TOPIC_READ_SUFFIX = ".read";
 
     /** Suffix for the private direct-message queue. */
-    public static final String DM_SUFFIX = "/dm";
+    public static final String DM_SUFFIX = ".dm";
 
     /** Suffix for the private typing-indicator queue. */
-    public static final String TYPING_SUFFIX = "/typing";
+    public static final String TYPING_SUFFIX = ".typing";
 
     /** Suffix for the private read-status queue. */
-    public static final String READ_SUFFIX = "/read";
+    public static final String READ_SUFFIX = ".read";
 
     /** Sender id used for auto-generated SYSTEM messages (no real user). */
     public static final long SYSTEM_SENDER_ID = 0L;

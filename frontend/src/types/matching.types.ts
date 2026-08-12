@@ -47,11 +47,24 @@ export interface MatchProposalResponse {
 
 /** Body for `POST /api/matching/proposals/{proposalId}/respond`. */
 export interface RespondProposalRequest {
-  response: 'ACCEPTED' | 'DECLINED';
+  accept: boolean;
 }
 
-/** Server acknowledgement for a proposal response. */
+/** Body for `POST /api/matching/propose`. */
+export interface CreateProposalRequest {
+  /** Profile ids of all proposed members (5–8), INCLUDING the caller. */
+  userIds: number[];
+  /** Profile ids of the 1–2 anchors (subset of userIds). */
+  anchorIds: number[];
+}
+
+/** Server acknowledgement for a proposal response (the full updated proposal). */
 export interface RespondProposalResponse {
-  proposalId: number;
+  id: number;
   status: ProposalStatus;
+  proposedAt?: string;
+  expiresAt?: string;
+  acceptedAt?: string;
+  nestId?: number;
+  members: ProposalMemberResponse[];
 }

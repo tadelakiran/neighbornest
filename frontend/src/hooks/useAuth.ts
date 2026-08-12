@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { authService } from '@/services/authService';
+import { userService } from '@/services/userService';
 import { getStoredRefreshToken } from '@/stores/authStore';
 import { useAuthStore } from '@/stores/authStore';
 import { useToast } from '@/hooks/useToast';
@@ -72,6 +73,10 @@ export function useAuth() {
    * first and then logged in with the same credentials — one seamless flow
    * that lands the user on the dashboard instead of a second login screen.
    *
+   * A minimal user-service profile is provisioned right after login so the
+   * new person is immediately visible in the profiles database and on
+   * Discover; the onboarding wizard later fills in city, neighborhood, etc.
+   *
    * @param payload - full name, email, and password
    * @returns the action result (success or error message)
    */
@@ -93,6 +98,14 @@ export function useAuth() {
           password: payload.password,
         });
         setAuth(authResponse);
+        // Step 3: provision the user-service profile (best-effort).
+        // 409 = profile already exists; any other 4xx just means the onboarding
+        // wizard will create it later. Never block the session on this call.
+        try {
+          await userService.createProfile({ fullName: payload.fullName });
+        } catch {
+          // Best-effort — see above.
+        }
         void fetchUser();
         toast.success('Welcome to NeighborNest! Your account is ready.');
         navigate(ROUTES.DASHBOARD, { replace: true });

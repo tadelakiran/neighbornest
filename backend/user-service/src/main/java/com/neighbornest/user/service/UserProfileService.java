@@ -81,7 +81,7 @@ public class UserProfileService {
                 .authUserId(authUserId)
                 .fullName(request.getFullName().trim())
                 .profilePhotoUrl(request.getProfilePhotoUrl())
-                .city(request.getCity().trim())
+                .city(request.getCity() != null ? request.getCity().trim() : null)
                 .neighborhood(request.getNeighborhood())
                 .yearsInCity(request.getYearsInCity())
                 .occupation(request.getOccupation())

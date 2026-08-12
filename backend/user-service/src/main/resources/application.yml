@@ -56,6 +56,14 @@ app:
   upload:
     photo-dir: ${PHOTO_DIR:./uploads/photos}
 
+# Generous Feign timeouts (default 1s TimeLimiter kills cold-start calls).
+resilience4j:
+  timelimiter:
+    configs:
+      default:
+        timeout-duration: 15s
+        cancel-running-future: true
+
 logging:
   level:
     com.neighbornest.user: INFO

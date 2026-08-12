@@ -9,38 +9,40 @@ This repository contains the backend microservices for the NeighborNest platform
 ## 🧱 Architecture
 
 ```
-┌───────────────────────────────────────────────┐
-│               API Gateway                     │  (Spring Cloud Gateway — port 8080)
-└───┬──────────┬──────────┬──────────┬──────────┘
-    │          │          │          │
-    ▼          ▼          ▼          ▼
-┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐
-│  Auth    │ │  User    │ │ Matching │ │   Nest   │
-│ Service  │ │ Service  │ │ Service  │ │ Service  │
-│ (8081)   │ │ (8082)   │ │ (8083)   │ │ (8084)   │
-└──────────┘ └──────────┘ └──────────┘ └──────────┘
-     │             │  ▲         │  ▲         │
-     └─────────────┴──┴─────────┴──┴─────────┘
-              Feign (service-to-service)
+┌──────────────────────────────────────────────────────┐
+│                  API Gateway                         │  (Spring Cloud Gateway — port 8080)
+└───┬──────────┬──────────┬──────────┬──────────┬──────┘
+    │          │          │          │          │
+    ▼          ▼          ▼          ▼          ▼
+┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────────┐
+│  Auth    │ │  User    │ │ Matching │ │   Nest   │ │  Chat + Notif │
+│ Service  │ │ Service  │ │ Service  │ │ Service  │ │ (8085 / 8086) │
+│ (8081)   │ │ (8082)   │ │ (8083)   │ │ (8084)   │ │  (WebSocket)  │
+└──────────┘ └──────────┘ └──────────┘ └──────────┘ └──────────────┘
+     │             │  ▲         │  ▲         │  ▲        │
+     └─────────────┴──┴─────────┴──┴─────────┴──┴────────┘
+              Feign (service-to-service) · STOMP over RabbitMQ
                      │
                      ▼
-┌───────────────────────────────────────────────┐
-│            Eureka Service Discovery           │  (port 8761)
-│           RabbitMQ (events, 5672/15672)       │
-│      MySQL: neighbornest_auth · user_db · matching_db · nest_db
-└───────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────┐
+│            Eureka Service Discovery                 │  (port 8761)
+│            RabbitMQ (events + STOMP, 5672/15672/61613) │
+│   MySQL (single local instance on 3306 — see below) │
+└──────────────────────────────────────────────────────┘
 ```
 
 ### Services
 
-| Service           | Port | Description                                       | DB            |
-|-------------------|------|---------------------------------------------------|---------------|
-| **Eureka**        | 8761 | Service Discovery (Netflix Eureka)                | —             |
-| **API Gateway**   | 8080 | Spring Cloud Gateway, routes + circuit breakers   | —             |
-| **Auth Service**  | 8081 | Authentication, JWT, users                        | auth_db       |
-| **User Service**  | 8082 | Profiles, onboarding, anchor applications         | user_db       |
-| **Matching Service** | 8083 | Compatibility engine, Nest proposals           | matching_db   |
-| **Nest Service**  | 8084 | Nest lifecycle, meetings, expenses, vibe checks   | nest_db       |
+| Service           | Port | Description                                       | DB                |
+|-------------------|------|---------------------------------------------------|-------------------|
+| **Eureka**        | 8761 | Service Discovery (Netflix Eureka)                | —                 |
+| **API Gateway**   | 8080 | Spring Cloud Gateway, routes + circuit breakers   | —                 |
+| **Auth Service**  | 8081 | Authentication, JWT, users                        | neighbornest_auth |
+| **User Service**  | 8082 | Profiles, onboarding, anchor applications         | user_db           |
+| **Matching Service** | 8083 | Compatibility engine, Nest proposals           | matching_db       |
+| **Nest Service**  | 8084 | Nest lifecycle, meetings, expenses, vibe checks   | nest_db           |
+| **Chat Service**  | 8085 | Group + DM chat (STOMP WebSocket, RabbitMQ relay) | chat_db           |
+| **Notification Service** | 8086 | Inbox, preferences, emails, event listeners  | notification_db   |
 
 ### Cross-service communication
 
@@ -49,9 +51,18 @@ This repository contains the backend microservices for the NeighborNest platform
   - `matching-service → user-service` (match-ready users + onboarding answers)
   - `matching-service → nest-service` (create Nest after proposal acceptance)
   - `nest-service → user-service` (member profile display names)
-- **RabbitMQ** — asynchronous Nest lifecycle events:
-  - `NestCreatedEvent` published when a Nest moves to ACTIVE
-  - `NestGraduatedEvent` published when a Nest graduates
+  - `chat-service → user-service` + `nest-service` (sender names, membership checks)
+  - `notification-service → user-service` + `nest-service` (recipient resolution)
+- **RabbitMQ** — asynchronous events on the `nest.events` topic exchange:
+  - `nest.created` / `nest.graduated` — Nest lifecycle (chat SYSTEM messages, welcome emails)
+  - `chat.message.sent` — published by chat-service after every message; the
+    notification-service fans out per-recipient in-app notifications (DMs → the
+    other participant; group messages → every other active Nest member)
+- **Chat WebSockets** — SockJS + STOMP via the gateway at `/ws/chat`, relayed to
+  RabbitMQ's STOMP plugin (port 61613). Broker destinations are dot-separated
+  because the RabbitMQ STOMP plugin rejects slashes in routing keys:
+  - group room: `/topic/nest.{nestId}.messages` / `.typing`
+  - private queue: `/queue/user.{profileId}.dm` / `.typing`
 
 ---
 
@@ -67,16 +78,31 @@ This repository contains the backend microservices for the NeighborNest platform
 
 ## 🐳 Quick Start (Docker Compose)
 
-The fastest way to run the entire platform:
+**Databases are NOT dockerized.** All services share a single local MySQL on
+`localhost:3306` so the data is easy to inspect with any SQL client. Containers
+reach it via `host.docker.internal`.
+
+### 1. One-time MySQL setup (run as a MySQL admin)
+
+```bash
+mysqlsh --sql --uri=root@localhost:3306 -f backend/scripts/setup_local_mysql.sql
+# (or run backend/scripts/setup_local_mysql.sql from Workbench / any client)
+```
+
+This creates the six databases (`neighbornest_auth`, `user_db`, `matching_db`,
+`nest_db`, `chat_db`, `notification_db`) and the `neighbornest` user the Docker
+containers authenticate as.
+
+### 2. Bring up the stack
 
 ```bash
 docker compose up --build
 ```
 
-This starts:
-- 4 MySQL instances (auth `3310`, user `3307`, matching `3308`, nest `3309` — auth uses `3310` on the host because `3306` is usually reserved for a local MySQL)
-- RabbitMQ management (`5672` AMQP, `15672` console — user/pass `neighbornest`/`neighbornest` by default)
-- All 8 services (Eureka `8761`, Gateway `8080`, auth `8081`, user `8082`, matching `8083`, nest `8084`, chat `8085`, notification `8086`)
+This starts RabbitMQ (`5672` AMQP, `15672` console, `61613` STOMP — user/pass
+`neighbornest`/`neighbornest` by default) and all 8 services (Eureka `8761`,
+Gateway `8080`, auth `8081`, user `8082`, matching `8083`, nest `8084`,
+chat `8085`, notification `8086`).
 
 Customize credentials with environment variables, e.g.:
 
@@ -99,8 +125,8 @@ RABBITMQ_PASSWORD=neighbornest
 JWT_SECRET=VGhpcyBpcyBhIHNlY3JldCBrZXkgZm9yIE5laWdoYm9yTmVzdCBKV1QgdG9rZW4gc2lnbmluZyAtIGRldmVsb3BtZW50IG9ubHk=
 ```
 
-All four MySQL containers and the Spring services share these values, so keeping
-`MYSQL_ROOT_PASSWORD` and `MYSQL_PASSWORD` in sync is all you need.
+`MYSQL_USER`/`MYSQL_PASSWORD` are the credentials the containers use against the
+local MySQL (default `neighbornest` / the root password from `.env`).
 
 ---
 
@@ -133,26 +159,18 @@ Each service has its own `application.yml`. Key properties to customize:
 ### 1. Infrastructure
 
 ```bash
-# MySQL databases (adapt for your MySQL instance)
-mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS neighbornest_auth; CREATE DATABASE IF NOT EXISTS user_db; CREATE DATABASE IF NOT EXISTS matching_db; CREATE DATABASE IF NOT EXISTS nest_db;"
+# MySQL databases — one shared local instance, six databases
+mysqlsh --sql --uri=root@localhost:3306 -f backend/scripts/setup_local_mysql.sql
 
-# RabbitMQ (via Docker)
-docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3-management
+# RabbitMQ (via Docker) — note the STOMP plugin port
+# The docker-compose `rabbitmq` service already does this; for a standalone broker:
+docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 -p 61613:61613 rabbitmq:3-management
 ```
 
-> **Important — local DB ports.** `auth-service` connects to `localhost:3306`, while
-> `user-service` / `matching-service` / `nest-service` default to **3307 / 3308 / 3309**
-> (these match the Docker Compose host ports). If you run the services locally against a
-> **single** MySQL on the standard port `3306`, point them all at it with the `MYSQL_PORT`
-> env var, e.g. in your IDE run config:
->
-> ```
-> MYSQL_PORT=3306
-> ```
->
-> (Each service still uses its own database: `user_db`, `matching_db`, `nest_db`.)
-> The MySQL username/password come from `MYSQL_USER` / `MYSQL_PASSWORD` — defaults are
-> `root` / your local password, set in `backend/.env` for Docker or as IDE env vars locally.
+> **All six databases live on one MySQL instance.** Every service defaults to
+> `MYSQL_HOST=localhost`, `MYSQL_PORT=3306`, with its own database name
+> (`user_db`, `matching_db`, `nest_db`, `chat_db`, `notification_db`, `neighbornest_auth`).
+> Run them from the IDE with `MYSQL_PORT=3306` and the credentials from `backend/.env`.
 
 ### 2. Services — startup order matters
 
@@ -295,10 +313,19 @@ All domain-service endpoints require a `Bearer` token (see the auth flow below).
 ## 🔍 RabbitMQ
 
 - Management console: http://localhost:15672 (default `neighbornest`/`neighbornest`)
-- Exchange: `nest.events` (topic)
+- AMQP port `5672` · STOMP plugin port `61613`
+- Exchanges (topic):
+  - `nest.events` — Nest lifecycle events
+  - `chat.events` — chat messages (`chat.message.sent`)
 - Routing keys / queues:
-  - `nest.created` → `nest.created.queue`
+  - `nest.created` → `nest.created.queue` (chat SYSTEM messages, welcome emails)
   - `nest.graduated` → `nest.graduated.queue`
+  - `chat.message.sent` → `notification.chat.message` (per-recipient fan-out)
+
+> ⚠️ **STOMP destination format:** the RabbitMQ STOMP plugin rejects slashes in
+> routing keys, so all WebSocket destinations are dot-separated:
+> `/topic/nest.{nestId}.messages`, `/queue/user.{profileId}.dm`, etc. Do not
+> reintroduce slashes (e.g. `/topic/nest/1/messages`) — they will silently fail.
 
 ---
 

@@ -20,7 +20,8 @@ export function ProposalsPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const toast = useToast();
-  const userId = user?.authUserId ?? user?.id;
+  // Pending-proposals are keyed by the PROFILE id (never the auth id).
+  const userId = user?.id;
 
   const [proposals, setProposals] = useState<MatchProposalResponse[] | null>(null);
   const [busyId, setBusyId] = useState<number | null>(null);

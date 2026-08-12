@@ -1,6 +1,7 @@
 com\neighbornest\chatservice\dto\response\ErrorResponse$ErrorResponseBuilder.class
 com\neighbornest\chatservice\event\NestCreatedEvent.class
 com\neighbornest\chatservice\event\NestGraduatedEvent.class
+com\neighbornest\chatservice\service\ChatMessageService$1.class
 com\neighbornest\chatservice\enums\RoomType.class
 com\neighbornest\chatservice\security\JwtService.class
 com\neighbornest\chatservice\client\UserServiceFallbackFactory$1.class
@@ -75,4 +76,5 @@ com\neighbornest\chatservice\exception\GlobalExceptionHandler.class
 com\neighbornest\chatservice\repository\ReadReceiptRepository.class
 com\neighbornest\chatservice\service\RoomRef.class
 com\neighbornest\chatservice\dto\request\StartConversationRequest$StartConversationRequestBuilder.class
+com\neighbornest\chatservice\event\ChatMessageEvent.class
 com\neighbornest\chatservice\dto\request\ChatMessagePayload.class
