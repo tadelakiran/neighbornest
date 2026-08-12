@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.neighbornest.chatservice.controller.ChatRestControllerTest$MarkReadEndpoint
+-------------------------------------------------------------------------------
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 24.34 s -- in com.neighbornest.chatservice.controller.ChatRestControllerTest$MarkReadEndpoint

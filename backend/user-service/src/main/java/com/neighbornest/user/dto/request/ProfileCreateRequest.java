@@ -37,9 +37,10 @@ public class ProfileCreateRequest {
     @Size(max = 500, message = "Profile photo URL must not exceed 500 characters")
     private String profilePhotoUrl;
 
-    @NotBlank(message = "City is required")
+    // Optional on creation so the auth flow can provision a minimal profile at
+    // registration; onboarding later fills city/neighborhood/occupation in.
     @Size(max = 100, message = "City must not exceed 100 characters")
-    @Schema(description = "Current city of the user", example = "San Francisco", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "Current city of the user", example = "San Francisco")
     private String city;
 
     @Size(max = 100, message = "Neighborhood must not exceed 100 characters")

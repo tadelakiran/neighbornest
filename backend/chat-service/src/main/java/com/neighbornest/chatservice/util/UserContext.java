@@ -51,12 +51,27 @@ public class UserContext {
             return headerId.get();
         }
 
-        final UserProfileResponse profile = userServiceClient.getMyProfile();
+        final String authorizationHeader = authorizationHeaderFromRequest();
+        final UserProfileResponse profile = userServiceClient.getMyProfile(authorizationHeader);
         if (profile == null || profile.getId() == null) {
             log.warn("Could not resolve profile id for the current caller");
             throw new BadRequestException("Could not resolve your user profile. Complete your profile first.");
         }
         return profile.getId();
+    }
+
+    /**
+     * Reads the Authorization header from the current HTTP request.
+     *
+     * @return the raw Authorization header value, or {@code null}
+     */
+    private String authorizationHeaderFromRequest() {
+        final ServletRequestAttributes attributes =
+                (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attributes != null) {
+            return attributes.getRequest().getHeader(AppConstants.AUTHORIZATION_HEADER);
+        }
+        return null;
     }
 
     /**

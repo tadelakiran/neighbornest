@@ -5,13 +5,16 @@ import type { NestMemberResponse } from '@/types/nest.types';
 
 interface MemberGalleryProps {
   members: NestMemberResponse[];
+  /** Fired when the user clicks the message shortcut on a member. */
+  onMessage?: (member: NestMemberResponse) => void;
 }
 
 /**
- * Horizontal-scrolling gallery of Nest member cards with a dashed
- * "Invite Member" placeholder (disabled — coming soon).
+ * Horizontal-scrolling gallery of Nest member cards, each with a message
+ * shortcut. The dashed "Invite" tile stays a placeholder until open invitations
+ * to existing Nests land.
  */
-export function MemberGallery({ members }: MemberGalleryProps) {
+export function MemberGallery({ members, onMessage }: MemberGalleryProps) {
   return (
     <section aria-label="Nest members" className="overflow-hidden">
       <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-muted">
@@ -26,7 +29,7 @@ export function MemberGallery({ members }: MemberGalleryProps) {
           className="flex gap-3"
         >
           {members.map((member, i) => (
-            <MemberCard key={member.userId} member={member} index={i} />
+            <MemberCard key={member.userId} member={member} index={i} onMessage={onMessage} />
           ))}
 
           {/* Invite placeholder */}

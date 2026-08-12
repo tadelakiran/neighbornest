@@ -110,9 +110,9 @@ Authorization: Bearer <accessToken>
 | 46 | GET | `/api/chat/dm/{conversationId}/messages` | 🔒 |
 | 47 | POST | `/api/chat/messages/read` | 🔒 |
 | **Chat (WebSocket/STOMP)** | | | |
-| 48 | SEND | `/app/chat/nest/{nestId}/send` → `/topic/nest/{nestId}/messages` | 🔒 |
+| 48 | SEND | `/app/chat/nest/{nestId}/send` → `/topic/nest.{nestId}.messages` | 🔒 |
 | 49 | SEND | `/app/chat/dm/{conversationId}/send` → `/queue/user/{id}/dm` | 🔒 |
-| 50 | SEND | `/app/chat/nest/{nestId}/typing` → `/topic/nest/{nestId}/typing` | 🔒 |
+| 50 | SEND | `/app/chat/nest/{nestId}/typing` → `/topic/nest.{nestId}.typing` | 🔒 |
 | 51 | SEND | `/app/chat/dm/{conversationId}/typing` → `/queue/user/{id}/typing` | 🔒 |
 | 52 | SEND | `/app/chat/read` → read-receipt updates | 🔒 |
 | **Notifications** | | | |
@@ -637,7 +637,7 @@ Returns a paginated history; the fetched page is marked as read.
 
 ### 48. Group message — send + subscribe
 - **Send to:** `/app/chat/nest/{nestId}/send`
-- **Subscribe to:** `/topic/nest/{nestId}/messages` (to receive)
+- **Subscribe to:** `/topic/nest.{nestId}.messages` (to receive)
 - **Payload:**
 ```json
 {
@@ -664,7 +664,7 @@ Returns a paginated history; the fetched page is marked as read.
 
 ### 50. Group typing indicator
 - **Send to:** `/app/chat/nest/{nestId}/typing`
-- **Receive on:** `/topic/nest/{nestId}/typing`
+- **Receive on:** `/topic/nest.{nestId}.typing`
 - **Payload:**
 ```json
 { "roomType": "NEST_GROUP", "nestId": 3, "isTyping": true }

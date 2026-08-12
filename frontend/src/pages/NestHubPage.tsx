@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Construction } from 'lucide-react';
+import { startConversation } from '@/services/chatService';
 import { NestHero } from '@/components/nest/NestHero';
 import { MemberGallery } from '@/components/nest/MemberGallery';
 import { MeetingList } from '@/components/nest/MeetingList';
@@ -166,6 +167,19 @@ export function NestHubPage() {
     }
   }, [nestId, navigate, toast]);
 
+  const handleMessageMember = useCallback(
+    async (member: { userId: number; fullName: string }) => {
+      if (member.userId === currentUserId) return;
+      try {
+        const conversation = await startConversation(member.userId);
+        navigate(`${ROUTES.MESSAGES}?conversation=${conversation.id}`);
+      } catch (error) {
+        toast.error(getErrorMessage(error, 'Could not start a conversation.'));
+      }
+    },
+    [currentUserId, navigate, toast]
+  );
+
   // ── Loading ──
   if (loading) {
     return (
@@ -205,7 +219,7 @@ export function NestHubPage() {
   return (
     <div className="space-y-6">
       <NestHero nest={nest} />
-      <MemberGallery members={activeMembers} />
+      <MemberGallery members={activeMembers} onMessage={(m) => void handleMessageMember(m)} />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">

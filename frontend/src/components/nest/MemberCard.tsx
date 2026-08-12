@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Crown } from 'lucide-react';
+import { Crown, MessageSquare } from 'lucide-react';
 import { Avatar } from '@/components/ui/Avatar';
 import { cn } from '@/lib/utils';
 import type { NestMemberResponse } from '@/types/nest.types';
@@ -9,6 +9,8 @@ interface MemberCardProps {
   member: NestMemberResponse;
   /** Stagger index for the entrance animation. */
   index?: number;
+  /** Fired when the user clicks the message shortcut on this member. */
+  onMessage?: (member: NestMemberResponse) => void;
 }
 
 /**
@@ -26,7 +28,7 @@ function isOnline(userId: number): boolean {
  * A single Nest member: avatar with a role ring (gold + crown for the anchor),
  * name, and a live online-status dot. Lifts and brightens on hover.
  */
-export function MemberCard({ member, index = 0 }: MemberCardProps) {
+export function MemberCard({ member, index = 0, onMessage }: MemberCardProps) {
   const isAnchor = member.roleInNest === 'ANCHOR';
   const online = useMemo(() => isOnline(member.userId), [member.userId]);
 
@@ -78,6 +80,20 @@ export function MemberCard({ member, index = 0 }: MemberCardProps) {
         <span className="rounded-full border border-amber-400/30 bg-amber-400/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-amber-300">
           Anchor
         </span>
+      )}
+
+      {onMessage && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onMessage(member);
+          }}
+          title={`Message ${member.fullName}`}
+          aria-label={`Message ${member.fullName}`}
+          className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.08] bg-surface text-muted transition-all duration-200 hover:border-accent-400/40 hover:bg-accent-400/10 hover:text-accent-300"
+        >
+          <MessageSquare className="h-3.5 w-3.5" aria-hidden="true" />
+        </button>
       )}
     </motion.div>
   );

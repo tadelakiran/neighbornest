@@ -74,6 +74,20 @@ app:
       graduated-routing-key: nest.graduated
       created-queue: chat.nest.created.queue
       graduated-queue: chat.nest.graduated.queue
+      # Published after every persisted message so the notification-service can
+      # create per-recipient in-app notifications (DM + group fan-out).
+      chat-routing-key: chat.message.sent
+
+# Generous Feign timeouts: Spring Cloud OpenFeign's circuit breaker applies a
+# 1s TimeLimiter by default, which kills legitimate cold-start calls (first
+# Hibernate bootstrap, JIT warm-up) to sibling services. Applies to every
+# Feign client instance in this service.
+resilience4j:
+  timelimiter:
+    configs:
+      default:
+        timeout-duration: 20s
+        cancel-running-future: true
 
 logging:
   level:

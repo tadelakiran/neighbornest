@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { MapPin, Sparkles, X } from 'lucide-react';
+import { Check, MapPin, Sparkles, X } from 'lucide-react';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { cardRise } from '@/lib/motion';
@@ -8,10 +8,12 @@ import type { CompatibleUserResponse } from '@/types/matching.types';
 
 interface CompatibilityCardProps {
   user: CompatibleUserResponse;
-  /** Fired when the user invites this match to their Nest. */
+  /** Fired when the user toggles this match in/out of their Nest invite. */
   onInvite?: (user: CompatibleUserResponse) => void;
   /** Fired when the user skips this match. */
   onSkip?: (user: CompatibleUserResponse) => void;
+  /** Whether this match is currently selected for the Nest invite. */
+  invited?: boolean;
   /** Disables the action buttons (e.g. while a request is in flight). */
   busy?: boolean;
   className?: string;
@@ -29,7 +31,7 @@ const BAR_STYLES = [
  * interest pills, and Invite/Skip actions. Enters with a rise from below
  * (staggered by the parent grid).
  */
-export function CompatibilityCard({ user, onInvite, onSkip, busy = false, className }: CompatibilityCardProps) {
+export function CompatibilityCard({ user, onInvite, onSkip, invited = false, busy = false, className }: CompatibilityCardProps) {
   const breakdown = [
     user.valuesScore ?? 0,
     user.lifestyleScore ?? 0,
@@ -110,15 +112,21 @@ export function CompatibilityCard({ user, onInvite, onSkip, busy = false, classN
         {/* Actions */}
         <div className="mt-5 flex items-center gap-2">
           <Button
-            variant="primary"
+            variant={invited ? 'outline' : 'primary'}
             size="sm"
             fullWidth
             disabled={busy}
-            leftIcon={<Sparkles className="h-4 w-4" aria-hidden="true" />}
+            leftIcon={
+              invited ? (
+                <Check className="h-4 w-4" aria-hidden="true" />
+              ) : (
+                <Sparkles className="h-4 w-4" aria-hidden="true" />
+              )
+            }
             onClick={() => onInvite?.(user)}
-            className="shadow-glow"
+            className={invited ? 'border-accent-400/40 text-accent-300' : 'shadow-glow'}
           >
-            Invite to Nest
+            {invited ? 'Selected' : 'Invite to Nest'}
           </Button>
           <Button
             variant="ghost"

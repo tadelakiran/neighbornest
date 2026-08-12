@@ -33,13 +33,13 @@ import urllib.error
 import urllib.request
 
 PASSWORD = "Demo@1234"  # satisfies the auth-service password policy
-FIRST_NAMES = ["Priya", "Marcus", "Aisha", "Diego", "Hana", "Liam", "Sofia", "Kenji", "Zara", "Mateo"]
-LAST_NAMES = ["Sharma", "Lee", "Patel", "Ruiz", "Tanaka", "O'Brien", "Costa", "Nguyen", "Kim", "Silva"]
-CITIES = ["San Francisco", "Austin", "Toronto", "Berlin", "Singapore"]
-NEIGHBORHOODS = ["Mission District", "SoMa", "Riverside", "Old Town", "Harborfront"]
-OCCUPATIONS = ["Software Engineer", "Nurse", "Teacher", "Designer", "Barista", "Graduate Student"]
+FIRST_NAMES = ["Priya", "Arjun", "Aisha", "Rohan", "Sneha", "Liam", "Divya", "Kenji", "Ananya", "Vikram"]
+LAST_NAMES = ["Sharma", "Reddy", "Patel", "Khanna", "Iyer", "Verma", "Costa", "Nair", "Kulkarni", "Rao"]
+CITIES = ["Hyderabad", "Mumbai", "Bengaluru", "Delhi", "Pune", "Chennai"]
+NEIGHBORHOODS = ["Banjara Hills", "Gachibowli", "Indiranagar", "Hauz Khas", "Koregaon Park", "Adyar", "Bandra West", "Madhapur"]
+OCCUPATIONS = ["Software Engineer", "Data Analyst", "Teacher", "Designer", "Consultant", "Graduate Student", "Product Manager"]
 ACTIVITIES = ["Coffee", "Walk", "Trivia", "Dinner", "Board Games", "Hiking"]
-VENUES = ["Brew & Bloom Cafe", "Lakeside Park", "The Trivia Den", "Ramen Street", "Harbor Boardwalk"]
+VENUES = ["Cafe Niloufer", "Lakeside Park", "The Trivia Den", "Marine Drive", "Harbor Boardwalk"]
 QUESTION_KEYS = [
     "values_family", "values_adventure", "values_growth", "values_community",
     "interests_hiking", "interests_board_games", "interests_coffee", "interests_music",

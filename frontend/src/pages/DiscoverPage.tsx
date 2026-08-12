@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { RefreshCw, Sparkles } from 'lucide-react';
+import { RefreshCw, Sparkles, Users } from 'lucide-react';
 import { CompatibilityCard } from '@/components/matching/CompatibilityCard';
+import { NestBuilderModal } from '@/components/matching/NestBuilderModal';
 import { Button } from '@/components/ui/Button';
 import { LazyImage } from '@/components/ui/LazyImage';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -9,7 +10,7 @@ import { IMAGES } from '@/lib/images';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { cardStagger, cardRise } from '@/lib/motion';
-import { calculateCompatibility, getCompatibles } from '@/services/matchingService';
+import { calculateCompatibility, getCompatibles, invalidateProposals } from '@/services/matchingService';
 import type { CompatibleUserResponse } from '@/types/matching.types';
 
 /** Floating geometric shapes for the empty state. */
@@ -23,10 +24,18 @@ const FLOATERS = [
 export function DiscoverPage() {
   const { user } = useAuth();
   const toast = useToast();
-  const userId = user?.authUserId ?? user?.id;
+  // Matching endpoints are keyed by the PROFILE id (never the auth id).
+  const userId = user?.id;
 
   const [compatibles, setCompatibles] = useState<CompatibleUserResponse[] | null>(null);
   const [calculating, setCalculating] = useState(false);
+  const [selected, setSelected] = useState<Set<number>>(new Set());
+  const [showBuilder, setShowBuilder] = useState(false);
+
+  const selectedMatches = useMemo(
+    () => (compatibles ?? []).filter((c) => selected.has(c.userId)),
+    [compatibles, selected]
+  );
 
   const load = useCallback(() => {
     if (!userId) {
@@ -56,9 +65,33 @@ export function DiscoverPage() {
     }
   };
 
-  const handleInvite = () => toast.info('Invitations open once your Nest is formed.');
+  /** Toggles a match in/out of the Nest invitation selection. */
+  const handleInvite = (match: CompatibleUserResponse) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(match.userId)) {
+        next.delete(match.userId);
+        toast.info(`${match.fullName} removed from the invite.`);
+      } else {
+        next.add(match.userId);
+        toast.success(`${match.fullName} added — ${next.size + 1} people so far.`);
+      }
+      return next;
+    });
+  };
+
   const handleSkip = (skipped: CompatibleUserResponse) => {
     setCompatibles((prev) => (prev ?? []).filter((c) => c.userId !== skipped.userId));
+    setSelected((prev) => {
+      const next = new Set(prev);
+      next.delete(skipped.userId);
+      return next;
+    });
+  };
+
+  const handleCreated = () => {
+    setSelected(new Set());
+    if (userId) invalidateProposals(userId);
   };
 
   // ── Skeleton cards while loading ──
@@ -132,8 +165,8 @@ export function DiscoverPage() {
 
   // ── Matches grid ──
   return (
-    <motion.div variants={cardStagger} initial="hidden" animate="show" className="space-y-6">
-      <PageHeader matchCount={compatibles.length} />
+    <motion.div variants={cardStagger} initial="hidden" animate="show" className="space-y-6 pb-24">
+      <PageHeader matchCount={compatibles.length} selectedCount={selected.size} />
       <motion.div
         variants={cardStagger}
         initial="hidden"
@@ -144,16 +177,57 @@ export function DiscoverPage() {
           <CompatibilityCard
             key={compatible.userId}
             user={compatible}
+            invited={selected.has(compatible.userId)}
             onInvite={handleInvite}
             onSkip={handleSkip}
           />
         ))}
       </motion.div>
+
+      {/* Floating Nest-invite bar */}
+      {selected.size > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="fixed inset-x-0 bottom-4 z-40 flex justify-center px-4"
+        >
+          <div className="flex items-center gap-3 rounded-2xl border border-accent-400/25 bg-surface/95 px-4 py-3 shadow-2xl backdrop-blur-xl">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent-400/15">
+              <Users className="h-4 w-4 text-accent-300" aria-hidden="true" />
+            </span>
+            <div className="min-w-0">
+              <p className="text-sm font-bold text-primary">
+                {selected.size + 1} people selected
+              </p>
+              <p className="text-[11px] text-muted">
+                {selected.size + 1 >= 5 ? 'Ready to form your Nest — pick Anchors next.' : `Need ${5 - (selected.size + 1)} more to reach 5.`}
+              </p>
+            </div>
+            <Button
+              variant="primary"
+              size="sm"
+              className="ml-1 shrink-0 shadow-glow"
+              onClick={() => setShowBuilder(true)}
+            >
+              Review & send invites
+            </Button>
+          </div>
+        </motion.div>
+      )}
+
+      <NestBuilderModal
+        open={showBuilder}
+        onClose={() => setShowBuilder(false)}
+        matches={selectedMatches}
+        currentUserId={userId ?? 0}
+        currentUserName={user?.fullName ?? 'You'}
+        onCreated={handleCreated}
+      />
     </motion.div>
   );
 }
 
-function PageHeader({ matchCount }: { matchCount?: number }) {
+function PageHeader({ matchCount, selectedCount }: { matchCount?: number; selectedCount?: number }) {
   return (
     <motion.div variants={cardRise}>
       <div className="flex flex-wrap items-end justify-between gap-3">
@@ -161,11 +235,18 @@ function PageHeader({ matchCount }: { matchCount?: number }) {
           <h1 className="font-display text-3xl font-bold tracking-tight text-primary md:text-4xl">Your Top Matches</h1>
           <p className="mt-1 text-secondary">Based on your vibe, schedule, and values.</p>
         </div>
-        {matchCount !== undefined && (
-          <span className="rounded-full border border-accent-400/25 bg-accent-400/10 px-3 py-1.5 text-xs font-semibold text-accent-300">
-            {matchCount} match{matchCount === 1 ? '' : 'es'}
-          </span>
-        )}
+        <div className="flex items-center gap-2">
+          {selectedCount !== undefined && selectedCount > 0 && (
+            <span className="rounded-full border border-accent-400/30 bg-accent-400/10 px-3 py-1.5 text-xs font-semibold text-accent-300">
+              {selectedCount} invited
+            </span>
+          )}
+          {matchCount !== undefined && (
+            <span className="rounded-full border border-accent-400/25 bg-accent-400/10 px-3 py-1.5 text-xs font-semibold text-accent-300">
+              {matchCount} match{matchCount === 1 ? '' : 'es'}
+            </span>
+          )}
+        </div>
       </div>
     </motion.div>
   );

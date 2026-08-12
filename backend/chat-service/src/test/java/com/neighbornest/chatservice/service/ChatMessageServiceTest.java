@@ -5,6 +5,7 @@ import com.neighbornest.chatservice.client.NestResponse;
 import com.neighbornest.chatservice.client.NestServiceClient;
 import com.neighbornest.chatservice.client.UserProfileResponse;
 import com.neighbornest.chatservice.client.UserServiceClient;
+import com.neighbornest.chatservice.config.ChatServiceProperties;
 import com.neighbornest.chatservice.constants.AppConstants;
 import com.neighbornest.chatservice.dto.request.ChatMessagePayload;
 import com.neighbornest.chatservice.dto.response.MessageResponse;
@@ -28,6 +29,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -71,7 +73,12 @@ class ChatMessageServiceTest {
     @Mock
     private NestServiceClient nestServiceClient;
 
+    @Mock
+    private RabbitTemplate rabbitTemplate;
+
     private ChatMessageService chatMessageService;
+
+    private ChatServiceProperties chatServiceProperties;
 
     private static final Long SENDER_ID = 7L;
     private static final Long OTHER_ID = 12L;
@@ -80,8 +87,14 @@ class ChatMessageServiceTest {
 
     @BeforeEach
     void setUp() {
+        final ChatServiceProperties.Events events = new ChatServiceProperties.Events();
+        events.setExchange("nest.events");
+        events.setChatRoutingKey("chat.message.sent");
+        chatServiceProperties = new ChatServiceProperties();
+        chatServiceProperties.setEvents(events);
         chatMessageService = new ChatMessageService(
-                messageRepository, readReceiptRepository, conversationRepository, userServiceClient, nestServiceClient);
+                messageRepository, readReceiptRepository, conversationRepository, userServiceClient,
+                nestServiceClient, rabbitTemplate, chatServiceProperties);
     }
 
     @Nested
@@ -101,7 +114,7 @@ class ChatMessageServiceTest {
                     .thenReturn(UserProfileResponse.builder().id(SENDER_ID).fullName("Jane Doe").build());
 
             final MessageResponse response = chatMessageService.sendNestMessage(
-                    NEST_ID, SENDER_ID, payload("Hello nest!", MessageType.TEXT));
+                    NEST_ID, SENDER_ID, payload("Hello nest!", MessageType.TEXT), null);
 
             assertThat(response.getId()).isEqualTo(101L);
             assertThat(response.getSenderId()).isEqualTo(SENDER_ID);
@@ -121,7 +134,8 @@ class ChatMessageServiceTest {
         void shouldRejectNonMember() {
             when(nestServiceClient.getNest(NEST_ID)).thenReturn(nestWithMember(99L, "ACCEPTED"));
 
-            assertThatThrownBy(() -> chatMessageService.sendNestMessage(NEST_ID, SENDER_ID, payload("hi", MessageType.TEXT)))
+            assertThatThrownBy(() -> chatMessageService.sendNestMessage(
+                    NEST_ID, SENDER_ID, payload("hi", MessageType.TEXT), null))
                     .isInstanceOf(ForbiddenException.class)
                     .hasMessageContaining("active member");
 
@@ -139,7 +153,7 @@ class ChatMessageServiceTest {
             });
 
             final MessageResponse response = chatMessageService.sendNestMessage(
-                    NEST_ID, SENDER_ID, payload("<script>alert('x')</script>Hello <b>there</b>", MessageType.TEXT));
+                    NEST_ID, SENDER_ID, payload("<script>alert('x')</script>Hello <b>there</b>", MessageType.TEXT), null);
 
             assertThat(response.getContent()).isEqualTo("alert('x')Hello there");
         }
@@ -150,7 +164,7 @@ class ChatMessageServiceTest {
             when(nestServiceClient.getNest(NEST_ID)).thenReturn(nestWithMember(SENDER_ID, "ACCEPTED"));
 
             assertThatThrownBy(() -> chatMessageService.sendNestMessage(
-                    NEST_ID, SENDER_ID, payload("   ", MessageType.TEXT)))
+                    NEST_ID, SENDER_ID, payload("   ", MessageType.TEXT), null))
                     .isInstanceOf(BadRequestException.class)
                     .hasMessageContaining("must not be blank");
         }
@@ -161,7 +175,7 @@ class ChatMessageServiceTest {
             when(nestServiceClient.getNest(NEST_ID)).thenReturn(nestWithMember(SENDER_ID, "ACCEPTED"));
 
             assertThatThrownBy(() -> chatMessageService.sendNestMessage(
-                    NEST_ID, SENDER_ID, payload("<b></b>", MessageType.TEXT)))
+                    NEST_ID, SENDER_ID, payload("<b></b>", MessageType.TEXT), null))
                     .isInstanceOf(BadRequestException.class)
                     .hasMessageContaining("must not be blank");
         }
@@ -173,7 +187,7 @@ class ChatMessageServiceTest {
             final String longContent = "x".repeat(AppConstants.MAX_MESSAGE_LENGTH + 1);
 
             assertThatThrownBy(() -> chatMessageService.sendNestMessage(
-                    NEST_ID, SENDER_ID, payload(longContent, MessageType.TEXT)))
+                    NEST_ID, SENDER_ID, payload(longContent, MessageType.TEXT), null))
                     .isInstanceOf(BadRequestException.class)
                     .hasMessageContaining("must not exceed");
         }
@@ -183,7 +197,8 @@ class ChatMessageServiceTest {
         void shouldFailClosedWhenNestServiceDown() {
             when(nestServiceClient.getNest(NEST_ID)).thenThrow(new ServiceUnavailableException("down"));
 
-            assertThatThrownBy(() -> chatMessageService.sendNestMessage(NEST_ID, SENDER_ID, payload("hi", MessageType.TEXT)))
+            assertThatThrownBy(() -> chatMessageService.sendNestMessage(
+                    NEST_ID, SENDER_ID, payload("hi", MessageType.TEXT), null))
                     .isInstanceOf(ServiceUnavailableException.class);
         }
     }
@@ -206,7 +221,7 @@ class ChatMessageServiceTest {
                     .thenReturn(UserProfileResponse.builder().id(SENDER_ID).fullName("Jane Doe").build());
 
             final MessageResponse response = chatMessageService.sendDirectMessage(
-                    CONVERSATION_ID, SENDER_ID, payload("psst", null));
+                    CONVERSATION_ID, SENDER_ID, payload("psst", null), null);
 
             assertThat(response.getId()).isEqualTo(201L);
             assertThat(response.getSenderName()).isEqualTo("Jane Doe");
@@ -225,7 +240,7 @@ class ChatMessageServiceTest {
                     .thenReturn(Optional.of(conversation(SENDER_ID, OTHER_ID)));
 
             assertThatThrownBy(() -> chatMessageService.sendDirectMessage(
-                    CONVERSATION_ID, 99L, payload("hi", MessageType.TEXT)))
+                    CONVERSATION_ID, 99L, payload("hi", MessageType.TEXT), null))
                     .isInstanceOf(ForbiddenException.class)
                     .hasMessageContaining("not a participant");
         }
@@ -236,7 +251,7 @@ class ChatMessageServiceTest {
             when(conversationRepository.findById(999L)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> chatMessageService.sendDirectMessage(
-                    999L, SENDER_ID, payload("hi", MessageType.TEXT)))
+                    999L, SENDER_ID, payload("hi", MessageType.TEXT), null))
                     .isInstanceOf(ResourceNotFoundException.class)
                     .hasMessageContaining("Conversation not found");
         }

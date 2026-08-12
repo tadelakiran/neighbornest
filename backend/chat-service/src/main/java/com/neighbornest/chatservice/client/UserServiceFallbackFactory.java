@@ -35,7 +35,12 @@ public class UserServiceFallbackFactory implements FallbackFactory<UserServiceCl
             }
 
             @Override
-            public UserProfileResponse getMyProfile() {
+            public UserProfileResponse getProfile(final Long userId, final String authorizationHeader) {
+                return null;
+            }
+
+            @Override
+            public UserProfileResponse getMyProfile(final String authorizationHeader) {
                 return null;
             }
         };

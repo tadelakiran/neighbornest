@@ -7,7 +7,6 @@ import com.neighbornest.chatservice.client.UserServiceClient;
 import com.neighbornest.chatservice.constants.AppConstants;
 import com.neighbornest.chatservice.entity.Conversation;
 import com.neighbornest.chatservice.repository.ConversationRepository;
-import com.neighbornest.chatservice.util.AuthHeaderPropagator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
@@ -21,7 +20,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.util.Map;
-import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -60,9 +58,9 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
     private final ConversationRepository conversationRepository;
 
     private static final Pattern NEST_SUBSCRIBE =
-            Pattern.compile("^/topic/nest/(\\d+)/(messages|typing|read)$");
+            Pattern.compile("^/topic/nest\\.(\\d+)\\.(messages|typing|read)$");
     private static final Pattern USER_QUEUE_SUBSCRIBE =
-            Pattern.compile("^/queue/user/(\\d+)/(dm|typing|read)$");
+            Pattern.compile("^/queue/user\\.(\\d+)\\.(dm|typing|read)$");
     private static final Pattern NEST_SEND =
             Pattern.compile("^/app/chat/nest/(\\d+)/(send|typing)$");
     private static final Pattern DM_SEND =
@@ -216,7 +214,9 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
      * @param nestId the nest id
      */
     private void requireNestMember(final AuthenticatedUser user, final Long nestId) {
-        final NestResponse nest = withPropagatedHeader(user.token(), () -> nestServiceClient.getNest(nestId));
+        // Explicit header — the STOMP thread cannot rely on thread-local
+        // propagation for the Feign call.
+        final NestResponse nest = nestServiceClient.getNest(nestId, user.token());
         final boolean member = nest != null && nest.getMembers() != null && nest.getMembers().stream()
                 .anyMatch(m -> user.userId().equals(m.getUserId())
                         && AppConstants.NEST_MEMBER_STATUS_ACCEPTED.equals(m.getStatus()));
@@ -255,34 +255,20 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
 
     /**
      * Bridges the auth user id to the user-service profile id by calling
-     * {@code /api/users/me} with the CONNECT token propagated to Feign.
+     * {@code /api/users/me} with the CONNECT token passed explicitly.
+     * <p>
+     * The STOMP CONNECT frame is processed on a different thread than the
+     * Feign HTTP request, so thread-local header propagation (via
+     * {@link AuthHeaderPropagator}) cannot be relied on here — the header is
+     * forwarded as an explicit request parameter instead.
+     * </p>
      *
      * @param authorizationHeader the raw Authorization header value
      * @return the profile id, or {@code null} if it cannot be resolved
      */
     private Long resolveProfileId(final String authorizationHeader) {
-        return withPropagatedHeader(authorizationHeader, () -> {
-            final UserProfileResponse profile = userServiceClient.getMyProfile();
-            return profile == null ? null : profile.getId();
-        });
-    }
-
-    /**
-     * Runs the supplier with the given Authorization header propagated to
-     * Feign calls, clearing it afterwards.
-     *
-     * @param authorizationHeader the raw Authorization header value
-     * @param supplier            the work to run
-     * @param <T>                 the result type
-     * @return the supplier result
-     */
-    private <T> T withPropagatedHeader(final String authorizationHeader, final Supplier<T> supplier) {
-        AuthHeaderPropagator.setToken(authorizationHeader);
-        try {
-            return supplier.get();
-        } finally {
-            AuthHeaderPropagator.clear();
-        }
+        final UserProfileResponse profile = userServiceClient.getMyProfile(authorizationHeader);
+        return profile == null ? null : profile.getId();
     }
 
     /**

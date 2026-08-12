@@ -91,3 +91,44 @@ export function getInitials(name?: string | null): string {
   const second = parts.length > 1 ? (parts[parts.length - 1]?.[0] ?? '') : '';
   return `${first}${second}`.toUpperCase() || '?';
 }
+
+/**
+ * Formats an ISO timestamp for chat bubbles (e.g. "14:32" today,
+ * "12 Aug" otherwise).
+ *
+ * @param iso - ISO 8601 timestamp
+ * @returns a compact time/date string
+ */
+export function formatMessageTime(iso?: string | null): string {
+  if (!iso) return '';
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return '';
+  const now = new Date();
+  const sameDay = date.toDateString() === now.toDateString();
+  if (sameDay) {
+    return date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+  }
+  return date.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+}
+
+/**
+ * Formats a timestamp as a short relative time for notification lists
+ * (e.g. "now", "5m", "2h", "3d", then a date).
+ *
+ * @param iso - ISO 8601 timestamp or null
+ * @returns a compact relative-time string
+ */
+export function formatRelativeTime(iso?: string | null): string {
+  if (!iso) return '';
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return '';
+  const diffMs = Date.now() - date.getTime();
+  const minutes = Math.floor(diffMs / 60_000);
+  if (minutes < 1) return 'now';
+  if (minutes < 60) return `${minutes}m`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d`;
+  return date.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+}

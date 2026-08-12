@@ -89,6 +89,16 @@ app:
       disbanded-routing-key: nest.disbanded
       chat-routing-key: chat.message.sent
 
+# Generous Feign timeouts: Spring Cloud OpenFeign's circuit breaker applies a
+# 1s TimeLimiter by default, which kills legitimate cold-start calls (first
+# Hibernate bootstrap, JIT warm-up) to sibling services.
+resilience4j:
+  timelimiter:
+    configs:
+      default:
+        timeout-duration: 20s
+        cancel-running-future: true
+
 logging:
   level:
     com.neighbornest.notificationservice: INFO

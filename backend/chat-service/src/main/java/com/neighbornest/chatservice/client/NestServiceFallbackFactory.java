@@ -38,7 +38,17 @@ public class NestServiceFallbackFactory implements FallbackFactory<NestServiceCl
             }
 
             @Override
+            public NestResponse getNest(final Long nestId, final String authorizationHeader) {
+                throw new ServiceUnavailableException("Nest service is unavailable. Please try again later.");
+            }
+
+            @Override
             public List<NestResponse> getMyNests() {
+                throw new ServiceUnavailableException("Nest service is unavailable. Please try again later.");
+            }
+
+            @Override
+            public List<NestResponse> getMyNests(final String authorizationHeader) {
                 throw new ServiceUnavailableException("Nest service is unavailable. Please try again later.");
             }
         };

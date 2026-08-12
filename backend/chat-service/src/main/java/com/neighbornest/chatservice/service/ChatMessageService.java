@@ -5,6 +5,7 @@ import com.neighbornest.chatservice.client.NestResponse;
 import com.neighbornest.chatservice.client.NestServiceClient;
 import com.neighbornest.chatservice.client.UserProfileResponse;
 import com.neighbornest.chatservice.client.UserServiceClient;
+import com.neighbornest.chatservice.config.ChatServiceProperties;
 import com.neighbornest.chatservice.constants.AppConstants;
 import com.neighbornest.chatservice.dto.request.ChatMessagePayload;
 import com.neighbornest.chatservice.dto.response.MessageResponse;
@@ -13,6 +14,7 @@ import com.neighbornest.chatservice.entity.Message;
 import com.neighbornest.chatservice.entity.ReadReceipt;
 import com.neighbornest.chatservice.enums.MessageType;
 import com.neighbornest.chatservice.enums.RoomType;
+import com.neighbornest.chatservice.event.ChatMessageEvent;
 import com.neighbornest.chatservice.exception.BadRequestException;
 import com.neighbornest.chatservice.exception.ForbiddenException;
 import com.neighbornest.chatservice.exception.ResourceNotFoundException;
@@ -21,10 +23,13 @@ import com.neighbornest.chatservice.repository.MessageRepository;
 import com.neighbornest.chatservice.repository.ReadReceiptRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.HashMap;
 import java.util.List;
@@ -54,6 +59,8 @@ public class ChatMessageService {
     private final ConversationRepository conversationRepository;
     private final UserServiceClient userServiceClient;
     private final NestServiceClient nestServiceClient;
+    private final RabbitTemplate rabbitTemplate;
+    private final ChatServiceProperties chatServiceProperties;
 
     /** Matches any HTML tag so tags are stripped from message content. */
     private static final String HTML_TAG_PATTERN = "<[^>]*>";
@@ -64,16 +71,20 @@ public class ChatMessageService {
     /**
      * Validates membership, sanitizes and persists a group (Nest) message.
      *
-     * @param nestId   the nest id
-     * @param senderId the sender's profile id
-     * @param payload  the message payload
+     * @param nestId              the nest id
+     * @param senderId            the sender's profile id
+     * @param payload             the message payload
+     * @param authorizationHeader the raw Authorization header value (may be
+     *                            {@code null} on REST paths where the Feign
+     *                            interceptor forwards it from the request context)
      * @return the enriched message response
      * @throws ForbiddenException        if the sender is not an active Nest member
      * @throws BadRequestException       if the content is blank or too long
      */
     @Transactional
-    public MessageResponse sendNestMessage(final Long nestId, final Long senderId, final ChatMessagePayload payload) {
-        requireNestMember(nestId, senderId);
+    public MessageResponse sendNestMessage(final Long nestId, final Long senderId, final ChatMessagePayload payload,
+                                           final String authorizationHeader) {
+        final NestResponse nest = requireNestMemberAndGet(nestId, senderId, authorizationHeader);
 
         final Message message = Message.builder()
                 .roomType(RoomType.NEST_GROUP)
@@ -85,15 +96,25 @@ public class ChatMessageService {
 
         final Message saved = messageRepository.save(message);
         log.info("Profile {} sent a {} message to nest {}", senderId, saved.getMessageType(), nestId);
-        return toResponse(saved, null, Set.of(), new HashMap<>());
+        final List<Long> recipientIds = nest.getMembers() == null ? List.of()
+                : nest.getMembers().stream()
+                        .filter(m -> m != null && AppConstants.NEST_MEMBER_STATUS_ACCEPTED.equals(m.getStatus()))
+                        .map(NestMemberResponse::getUserId)
+                        .filter(id -> id != null && !senderId.equals(id))
+                        .toList();
+        publishMessageEvent(saved, senderId, null, recipientIds, nestId, null);
+        return toResponse(saved, null, Set.of(), new HashMap<>(), authorizationHeader);
     }
 
     /**
      * Validates participation, sanitizes and persists a direct message.
      *
-     * @param conversationId the conversation id
-     * @param senderId       the sender's profile id
-     * @param payload        the message payload
+     * @param conversationId      the conversation id
+     * @param senderId            the sender's profile id
+     * @param payload             the message payload
+     * @param authorizationHeader the raw Authorization header value (may be
+     *                            {@code null} on REST paths where the Feign
+     *                            interceptor forwards it from the request context)
      * @return the enriched message response
      * @throws ResourceNotFoundException if the conversation does not exist
      * @throws ForbiddenException        if the sender is not a participant
@@ -101,7 +122,8 @@ public class ChatMessageService {
      */
     @Transactional
     public MessageResponse sendDirectMessage(final Long conversationId, final Long senderId,
-                                             final ChatMessagePayload payload) {
+                                             final ChatMessagePayload payload,
+                                             final String authorizationHeader) {
         final Conversation conversation = findConversation(conversationId);
         if (!isParticipant(conversation, senderId)) {
             throw new ForbiddenException("You are not a participant of this conversation");
@@ -117,7 +139,11 @@ public class ChatMessageService {
 
         final Message saved = messageRepository.save(message);
         log.info("Profile {} sent a direct message in conversation {}", senderId, conversationId);
-        return toResponse(saved, null, Set.of(), new HashMap<>());
+        final Long recipientId = senderId.equals(conversation.getParticipant1Id())
+                ? conversation.getParticipant2Id()
+                : conversation.getParticipant1Id();
+        publishMessageEvent(saved, senderId, recipientId, List.of(), null, conversationId);
+        return toResponse(saved, null, Set.of(), new HashMap<>(), authorizationHeader);
     }
 
     /**
@@ -130,15 +156,16 @@ public class ChatMessageService {
      * @return the page of messages
      * @throws ForbiddenException if the caller is not an active Nest member
      */
-    @Transactional(readOnly = true)
+    // NOT read-only: fetching history writes read receipts for the caller.
+    @Transactional
     public Page<MessageResponse> getNestMessages(final Long nestId, final Long userId, final Pageable pageable) {
-        requireNestMember(nestId, userId);
+        requireNestMember(nestId, userId, null);
 
         final Page<Message> page = messageRepository.findByRoomTypeAndNestId(RoomType.NEST_GROUP, nestId, pageable);
         final Set<Long> readIds = markRead(page.getContent(), userId);
 
         final Map<Long, UserProfileResponse> profileCache = new HashMap<>();
-        return page.map(message -> toResponse(message, userId, readIds, profileCache));
+        return page.map(message -> toResponse(message, userId, readIds, profileCache, null));
     }
 
     /**
@@ -152,7 +179,8 @@ public class ChatMessageService {
      * @throws ResourceNotFoundException if the conversation does not exist
      * @throws ForbiddenException        if the caller is not a participant
      */
-    @Transactional(readOnly = true)
+    // NOT read-only: fetching history writes read receipts for the caller.
+    @Transactional
     public Page<MessageResponse> getDirectMessages(final Long conversationId, final Long userId,
                                                    final Pageable pageable) {
         final Conversation conversation = findConversation(conversationId);
@@ -165,7 +193,7 @@ public class ChatMessageService {
         final Set<Long> readIds = markRead(page.getContent(), userId);
 
         final Map<Long, UserProfileResponse> profileCache = new HashMap<>();
-        return page.map(message -> toResponse(message, userId, readIds, profileCache));
+        return page.map(message -> toResponse(message, userId, readIds, profileCache, null));
     }
 
     /**
@@ -179,7 +207,7 @@ public class ChatMessageService {
      */
     @Transactional(readOnly = true)
     public List<Long> getNestMemberIds(final Long nestId, final Long userId) {
-        final NestResponse nest = requireNestMemberAndGet(nestId, userId);
+        final NestResponse nest = requireNestMemberAndGet(nestId, userId, null);
 
         return nest.getMembers().stream()
                 .filter(member -> AppConstants.NEST_MEMBER_STATUS_ACCEPTED.equals(member.getStatus()))
@@ -190,12 +218,28 @@ public class ChatMessageService {
     /**
      * Resolves the display name of a sender (used for typing indicators).
      *
+     * @param senderId            the sender's profile id
+     * @param authorizationHeader the raw Authorization header value (may be
+     *                            {@code null} on REST paths where the Feign
+     *                            interceptor forwards it from the request context)
+     * @return the display name
+     */
+    @Transactional(readOnly = true)
+    public String resolveSenderName(final Long senderId, final String authorizationHeader) {
+        return senderInfo(senderId, new HashMap<>(), authorizationHeader).name();
+    }
+
+    /**
+     * Resolves the display name of a sender without an explicit header (REST
+     * path — the Feign interceptor forwards the Authorization header from the
+     * request context).
+     *
      * @param senderId the sender's profile id
      * @return the display name
      */
     @Transactional(readOnly = true)
     public String resolveSenderName(final Long senderId) {
-        return senderInfo(senderId, new HashMap<>()).name();
+        return senderInfo(senderId, new HashMap<>(), null).name();
     }
 
     /**
@@ -218,18 +262,21 @@ public class ChatMessageService {
 
         final Message saved = messageRepository.save(message);
         log.info("Saved system message for nest {}", nestId);
-        return toResponse(saved, null, Set.of(), new HashMap<>());
+        return toResponse(saved, null, Set.of(), new HashMap<>(), null);
     }
 
     /**
      * Verifies the user is an active member of the Nest via the nest-service.
      *
-     * @param nestId the nest id
-     * @param userId the user's profile id
+     * @param nestId              the nest id
+     * @param userId              the user's profile id
+     * @param authorizationHeader the raw Authorization header value (may be
+     *                            {@code null} on REST paths where the Feign
+     *                            interceptor forwards it from the request context)
      * @throws ForbiddenException if the user is not an active member
      */
-    private void requireNestMember(final Long nestId, final Long userId) {
-        requireNestMemberAndGet(nestId, userId);
+    private void requireNestMember(final Long nestId, final Long userId, final String authorizationHeader) {
+        requireNestMemberAndGet(nestId, userId, authorizationHeader);
     }
 
     /**
@@ -241,8 +288,10 @@ public class ChatMessageService {
      * @return the Nest response
      * @throws ForbiddenException if the user is not an active member
      */
-    private NestResponse requireNestMemberAndGet(final Long nestId, final Long userId) {
-        final NestResponse nest = nestServiceClient.getNest(nestId);
+    private NestResponse requireNestMemberAndGet(final Long nestId, final Long userId, final String authorizationHeader) {
+        final NestResponse nest = authorizationHeader != null
+                ? nestServiceClient.getNest(nestId, authorizationHeader)
+                : nestServiceClient.getNest(nestId);
         final boolean member = nest != null && nest.getMembers() != null && nest.getMembers().stream()
                 .anyMatch(m -> userId.equals(m.getUserId())
                         && AppConstants.NEST_MEMBER_STATUS_ACCEPTED.equals(m.getStatus()));
@@ -327,8 +376,9 @@ public class ChatMessageService {
      */
     private MessageResponse toResponse(final Message message, final Long viewerId,
                                        final Set<Long> readMessageIds,
-                                       final Map<Long, UserProfileResponse> profileCache) {
-        final SenderInfo sender = senderInfo(message.getSenderId(), profileCache);
+                                       final Map<Long, UserProfileResponse> profileCache,
+                                       final String authorizationHeader) {
+        final SenderInfo sender = senderInfo(message.getSenderId(), profileCache, authorizationHeader);
         final boolean readByMe = viewerId != null && readMessageIds.contains(message.getId());
 
         return MessageResponse.builder()
@@ -344,17 +394,87 @@ public class ChatMessageService {
     }
 
     /**
+     * Publishes a {@code chat.message.sent} event on the shared {@code nest.events}
+     * exchange so the notification-service can create per-recipient in-app
+     * notifications.
+     * <p>
+     * The publish is registered as an {@code afterCommit} synchronization when a
+     * transaction is active, so consumers never see an event for a message that
+     * was rolled back. A broker failure must never break message delivery, so
+     * publish errors are logged and swallowed.
+     * </p>
+     *
+     * @param saved          the persisted message
+     * @param senderId       the sender's profile id
+     * @param recipientId    the DM recipient's profile id ({@code null} for groups)
+     * @param recipientIds   the group recipients' profile ids (empty for DMs)
+     * @param nestId         the nest id for group messages ({@code null} for DMs)
+     * @param conversationId the conversation id for DMs ({@code null} for groups)
+     */
+    private void publishMessageEvent(final Message saved, final Long senderId, final Long recipientId,
+                                     final List<Long> recipientIds, final Long nestId, final Long conversationId) {
+        final ChatMessageEvent event = new ChatMessageEvent(
+                saved.getId(),
+                senderId,
+                recipientId,
+                recipientIds,
+                saved.getContent(),
+                saved.getRoomType().name(),
+                nestId,
+                conversationId);
+        try {
+            if (TransactionSynchronizationManager.isSynchronizationActive()) {
+                TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                    @Override
+                    public void afterCommit() {
+                        doPublish(event);
+                    }
+                });
+            } else {
+                doPublish(event);
+            }
+        } catch (final Exception e) {
+            log.warn("Could not schedule chat.message.sent event for message {}", saved.getId(), e);
+        }
+    }
+
+    /**
+     * Sends the event to RabbitMQ using the configured exchange and routing key.
+     *
+     * @param event the chat message event
+     */
+    private void doPublish(final ChatMessageEvent event) {
+        try {
+            rabbitTemplate.convertAndSend(
+                    chatServiceProperties.getEvents().getExchange(),
+                    chatServiceProperties.getEvents().getChatRoutingKey(),
+                    event);
+            log.debug("Published chat.message.sent event for message {} (room {})",
+                    event.messageId(), event.roomType());
+        } catch (final Exception e) {
+            // Notifications are best-effort: a broker hiccup must never fail a send.
+            log.warn("Could not publish chat.message.sent event for message {}", event.messageId(), e);
+        }
+    }
+
+    /**
      * Resolves the sender display name and photo, caching per call.
      *
      * @param senderId     the sender's profile id
      * @param profileCache per-call cache of user-service profiles
      * @return the sender info
      */
-    private SenderInfo senderInfo(final Long senderId, final Map<Long, UserProfileResponse> profileCache) {
+    private SenderInfo senderInfo(final Long senderId, final Map<Long, UserProfileResponse> profileCache,
+                                  final String authorizationHeader) {
         if (senderId.equals(AppConstants.SYSTEM_SENDER_ID)) {
             return new SenderInfo(AppConstants.SYSTEM_SENDER_NAME, null);
         }
-        final UserProfileResponse profile = profileCache.computeIfAbsent(senderId, userServiceClient::getProfile);
+        final UserProfileResponse profile = profileCache.computeIfAbsent(senderId, id -> {
+            if (authorizationHeader != null) {
+                return userServiceClient.getProfile(id, authorizationHeader);
+            }
+            return userServiceClient.getProfile(id);
+        });
         if (profile == null || profile.getFullName() == null) {
             return new SenderInfo(UNKNOWN_USER_PREFIX + senderId, null);
         }
@@ -389,3 +509,4 @@ public class ChatMessageService {
     private record SenderInfo(String name, String photoUrl) {
     }
 }
+

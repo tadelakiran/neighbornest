@@ -16,6 +16,11 @@ import { defineConfig } from 'vitest/config';
  */
 export default defineConfig({
   plugins: [react()],
+  // sockjs-client references the Node global `global` — map it to `window`
+  // so the chat WebSocket layer works in the browser (dev + build).
+  define: {
+    global: 'window',
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
@@ -43,6 +48,8 @@ export default defineConfig({
       'react-hook-form',
       'zod',
       '@hookform/resolvers',
+      '@stomp/stompjs',
+      'sockjs-client',
     ],
   },
   test: {

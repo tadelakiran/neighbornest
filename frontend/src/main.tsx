@@ -3,6 +3,12 @@ import { createRoot } from 'react-dom/client';
 import App from '@/App';
 import '@/index.css';
 
+// sockjs-client assumes a Node-style `global` — polyfill it for the browser
+// before any chat/websocket module is evaluated.
+if (typeof (window as unknown as Record<string, unknown>).global === 'undefined') {
+  (window as unknown as Record<string, unknown>).global = window;
+}
+
 const rootElement = document.getElementById('root');
 
 if (!rootElement) {

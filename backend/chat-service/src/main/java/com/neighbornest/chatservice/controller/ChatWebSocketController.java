@@ -19,6 +19,9 @@ import com.neighbornest.chatservice.service.RoomRead;
 import com.neighbornest.chatservice.service.RoomRef;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Map;
+
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -51,7 +54,8 @@ public class ChatWebSocketController {
 
     /**
      * Sends a group message to a Nest and broadcasts it to
-     * {@code /topic/nest/{nestId}/messages}.
+     * {@code /topic/nest.{nestId}.messages} (dot-separated because RabbitMQ's
+     * STOMP plugin rejects slashes in topic routing keys).
      *
      * @param nestId  the nest id (from the destination)
      * @param payload the message payload
@@ -59,13 +63,13 @@ public class ChatWebSocketController {
      * @return the enriched message, broadcast by {@code @SendTo}
      */
     @MessageMapping("/chat/nest/{nestId}/send")
-    @SendTo("/topic/nest/{nestId}/messages")
+    @SendTo("/topic/nest.{nestId}.messages")
     public MessageResponse sendNestMessage(@DestinationVariable final Long nestId,
                                            final ChatMessagePayload payload,
                                            final StompHeaderAccessor accessor) {
         final Long senderId = currentUserId(accessor);
         log.debug("WS send nest message from profile {} to nest {}", senderId, nestId);
-        return chatMessageService.sendNestMessage(nestId, senderId, payload);
+        return chatMessageService.sendNestMessage(nestId, senderId, payload, sessionToken(accessor));
     }
 
     /**
@@ -82,7 +86,8 @@ public class ChatWebSocketController {
                                   final ChatMessagePayload payload,
                                   final StompHeaderAccessor accessor) {
         final Long senderId = currentUserId(accessor);
-        final MessageResponse response = chatMessageService.sendDirectMessage(conversationId, senderId, payload);
+        final MessageResponse response =
+                chatMessageService.sendDirectMessage(conversationId, senderId, payload, sessionToken(accessor));
         final Long recipientId = conversationService.getOtherParticipant(conversationId, senderId);
 
         messagingTemplate.convertAndSend(AppConstants.QUEUE_USER_PREFIX + recipientId + AppConstants.DM_SUFFIX, response);
@@ -91,7 +96,7 @@ public class ChatWebSocketController {
     }
 
     /**
-     * Broadcasts a Nest typing indicator to {@code /topic/nest/{nestId}/typing}.
+     * Broadcasts a Nest typing indicator to {@code /topic/nest.{nestId}.typing}.
      *
      * @param nestId  the nest id (from the destination)
      * @param payload the typing payload
@@ -99,7 +104,7 @@ public class ChatWebSocketController {
      * @return the typing event, broadcast by {@code @SendTo}
      */
     @MessageMapping("/chat/nest/{nestId}/typing")
-    @SendTo("/topic/nest/{nestId}/typing")
+    @SendTo("/topic/nest.{nestId}.typing")
     public TypingEventResponse nestTyping(@DestinationVariable final Long nestId,
                                           final TypingEventPayload payload,
                                           final StompHeaderAccessor accessor) {
@@ -107,7 +112,7 @@ public class ChatWebSocketController {
         log.debug("WS typing in nest {} from profile {} (isTyping: {})", nestId, senderId, payload.getIsTyping());
         return TypingEventResponse.builder()
                 .senderId(senderId)
-                .senderName(chatMessageService.resolveSenderName(senderId))
+                .senderName(chatMessageService.resolveSenderName(senderId, sessionToken(accessor)))
                 .typing(Boolean.TRUE.equals(payload.getIsTyping()))
                 .build();
     }
@@ -128,7 +133,7 @@ public class ChatWebSocketController {
         final Long recipientId = conversationService.getOtherParticipant(conversationId, senderId);
         final TypingEventResponse response = TypingEventResponse.builder()
                 .senderId(senderId)
-                .senderName(chatMessageService.resolveSenderName(senderId))
+                .senderName(chatMessageService.resolveSenderName(senderId, sessionToken(accessor)))
                 .typing(Boolean.TRUE.equals(payload.getIsTyping()))
                 .build();
 
@@ -191,5 +196,25 @@ public class ChatWebSocketController {
             return user.userId();
         }
         throw new UnauthorizedException("No authenticated user on WebSocket session");
+    }
+
+    /**
+     * Returns the raw Authorization header stored on the session by the JWT
+     * channel interceptor at CONNECT time, so WebSocket-originated Feign calls
+     * can forward it explicitly (thread-local propagation is unreliable on the
+     * STOMP inbound channel).
+     *
+     * @param accessor the STOMP header accessor
+     * @return the raw Authorization header value, or {@code null}
+     */
+    private String sessionToken(final StompHeaderAccessor accessor) {
+        final Map<String, Object> sessionAttributes = accessor.getSessionAttributes();
+        if (sessionAttributes != null) {
+            final Object token = sessionAttributes.get(AppConstants.WS_SESSION_TOKEN);
+            if (token != null) {
+                return token.toString();
+            }
+        }
+        return null;
     }
 }

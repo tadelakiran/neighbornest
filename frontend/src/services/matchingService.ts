@@ -8,6 +8,13 @@ import type {
 } from '@/types/matching.types';
 
 /**
+ * IMPORTANT — id spaces: every matching endpoint is keyed by the
+ * user-service PROFILE id (the same ids used for compatibles, proposals and
+ * nest members). The auth-service id from the JWT is a different id space;
+ * callers must pass `user.id` (profile id), never `user.authUserId`.
+ */
+
+/**
  * Matching-service API — thin wrappers around the shared axios instance.
  * All endpoints hit the API Gateway (baseURL from `services/api.ts`).
  *
@@ -128,19 +135,42 @@ export async function getPendingProposals(userId: number): Promise<MatchProposal
 /**
  * Accepts or declines a pending Nest proposal.
  *
+ * The backend DTO is `{ accept: boolean }` (NOT a `response` enum) — sending
+ * anything else surfaces a 400 validation error and the invitation appears
+ * broken.
+ *
  * @param proposalId - the proposal id
  * @param response - 'ACCEPTED' | 'DECLINED'
- * @returns the server confirmation
+ * @returns the updated proposal
  */
 export async function respondToProposal(
   proposalId: number,
-  response: RespondProposalRequest['response']
+  response: 'ACCEPTED' | 'DECLINED'
 ): Promise<RespondProposalResponse> {
   const { data } = await api.post<RespondProposalResponse>(
     `/api/matching/proposals/${proposalId}/respond`,
-    { response } satisfies RespondProposalRequest
+    { accept: response === 'ACCEPTED' } satisfies RespondProposalRequest
   );
   return data;
+}
+
+/**
+ * Creates a Nest formation proposal (5–8 people total, 1–2 anchors).
+ *
+ * The caller MUST be included in `userIds` to be part of the resulting Nest
+ * (the backend does not add the creator automatically). All members start
+ * PENDING — including the creator, who should accept right after creating.
+ *
+ * @param userIds - profile ids of all proposed members (5–8)
+ * @param anchorIds - profile ids of the 1–2 anchors (subset of userIds)
+ * @returns the created proposal
+ */
+export async function createProposal(
+  userIds: number[],
+  anchorIds: number[]
+): Promise<MatchProposalResponse> {
+  const { data } = await api.post<ProposalWire>('/api/matching/propose', { userIds, anchorIds });
+  return mapProposal(data);
 }
 
 /**

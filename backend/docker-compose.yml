@@ -1,111 +1,14 @@
 services:
   # ============================================================
-  # Infrastructure: Databases, Message Broker, Service Discovery
+  # Infrastructure: Message Broker, Service Discovery
   # ============================================================
-
-  mysql-auth:
-    image: mysql:8
-    container_name: neighbornest-mysql-auth
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
-      MYSQL_DATABASE: neighbornest_auth
-    ports:
-      # Host port 3310 — 3306 is typically taken by a local MySQL on the host.
-      # The auth-service still reaches this DB internally via mysql-auth:3306.
-      - "3310:3306"
-    volumes:
-      - mysql-auth-data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$${MYSQL_ROOT_PASSWORD}"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-
-  mysql-user:
-    image: mysql:8
-    container_name: neighbornest-mysql-user
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
-      MYSQL_DATABASE: user_db
-    ports:
-      - "3307:3306"
-    volumes:
-      - mysql-user-data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$${MYSQL_ROOT_PASSWORD}"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-
-  mysql-matching:
-    image: mysql:8
-    container_name: neighbornest-mysql-matching
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
-      MYSQL_DATABASE: matching_db
-    ports:
-      - "3308:3306"
-    volumes:
-      - mysql-matching-data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$${MYSQL_ROOT_PASSWORD}"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-
-  mysql-nest:
-    image: mysql:8
-    container_name: neighbornest-mysql-nest
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
-      MYSQL_DATABASE: nest_db
-    ports:
-      - "3309:3306"
-    volumes:
-      - mysql-nest-data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$${MYSQL_ROOT_PASSWORD}"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-
-  mysql-chat:
-    image: mysql:8
-    container_name: neighbornest-mysql-chat
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
-      MYSQL_DATABASE: chat_db
-    ports:
-      # Host port 3311 — 3310 is already occupied by mysql-auth, so chat gets
-      # the next free host port. The chat-service still reaches this DB
-      # internally via mysql-chat:3306.
-      - "3311:3306"
-    volumes:
-      - mysql-chat-data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$${MYSQL_ROOT_PASSWORD}"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-
-  mysql-notification:
-    image: mysql:8
-    container_name: neighbornest-mysql-notification
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
-      MYSQL_DATABASE: notification_db
-    ports:
-      # Host port 3312 — 3310 (auth), 3307 (user), 3308 (matching), 3309
-      # (nest) and 3311 (chat) are already taken. The notification-service
-      # still reaches this DB internally via mysql-notification:3306.
-      - "3312:3306"
-    volumes:
-      - mysql-notification-data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$${MYSQL_ROOT_PASSWORD}"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
+  #
+  # NOTE ON DATABASES: NeighborNest deliberately does NOT run MySQL in Docker.
+  # All services share the developer's local MySQL instance on the host
+  # (localhost:3306) so data is easy to inspect with any SQL client / IDE.
+  # Containers reach it via `host.docker.internal`. See backend/scripts/
+  # setup_local_mysql.sql — run it once to create the six databases and the
+  # `neighbornest` user the containers authenticate as.
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -152,16 +55,14 @@ services:
     ports:
       - "8081:8081"
     environment:
-      MYSQL_USER: ${MYSQL_USER:-root}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-${MYSQL_ROOT_PASSWORD:-root}}
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-auth:3306/neighbornest_auth?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      # Single shared local MySQL (host port 3306). SPRING_DATASOURCE_URL
+      # wins over the relaxed MYSQL_HOST/MYSQL_PORT/DB_NAME bindings.
+      SPRING_DATASOURCE_URL: jdbc:mysql://host.docker.internal:3306/neighbornest_auth?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER:-neighbornest}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:-root}
       JWT_SECRET: ${JWT_SECRET:-VGhpcyBpcyBhIHNlY3JldCBrZXkgZm9yIE5laWdoYm9yTmVzdCBKV1QgdG9rZW4gc2lnbmluZyAtIGRldmVsb3BtZW50IG9ubHk=}
-      # auth-service reads its datasource URL via SPRING_DATASOURCE_URL (relaxed
-      # binding) and its eureka defaultZone via EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-service:8761/eureka/
     depends_on:
-      mysql-auth:
-        condition: service_healthy
       eureka-service:
         condition: service_started
 
@@ -173,16 +74,14 @@ services:
     ports:
       - "8082:8082"
     environment:
-      MYSQL_HOST: mysql-user
+      MYSQL_HOST: host.docker.internal
       MYSQL_PORT: 3306
-      MYSQL_USER: ${MYSQL_USER:-root}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-${MYSQL_ROOT_PASSWORD:-root}}
+      MYSQL_USER: ${MYSQL_USER:-neighbornest}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-root}
       DB_NAME: user_db
       JWT_SECRET: ${JWT_SECRET:-VGhpcyBpcyBhIHNlY3JldCBrZXkgZm9yIE5laWdoYm9yTmVzdCBKV1QgdG9rZW4gc2lnbmluZyAtIGRldmVsb3BtZW50IG9ubHk=}
       EUREKA_SERVER_URL: http://eureka-service:8761/eureka/
     depends_on:
-      mysql-user:
-        condition: service_healthy
       eureka-service:
         condition: service_started
 
@@ -194,10 +93,10 @@ services:
     ports:
       - "8083:8083"
     environment:
-      MYSQL_HOST: mysql-matching
+      MYSQL_HOST: host.docker.internal
       MYSQL_PORT: 3306
-      MYSQL_USER: ${MYSQL_USER:-root}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-${MYSQL_ROOT_PASSWORD:-root}}
+      MYSQL_USER: ${MYSQL_USER:-neighbornest}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-root}
       DB_NAME: matching_db
       JWT_SECRET: ${JWT_SECRET:-VGhpcyBpcyBhIHNlY3JldCBrZXkgZm9yIE5laWdoYm9yTmVzdCBKV1QgdG9rZW4gc2lnbmluZyAtIGRldmVsb3BtZW50IG9ubHk=}
       EUREKA_SERVER_URL: http://eureka-service:8761/eureka/
@@ -206,8 +105,6 @@ services:
       RABBITMQ_USER: ${RABBITMQ_USER:-neighbornest}
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-neighbornest}
     depends_on:
-      mysql-matching:
-        condition: service_healthy
       rabbitmq:
         condition: service_healthy
       eureka-service:
@@ -221,10 +118,10 @@ services:
     ports:
       - "8084:8084"
     environment:
-      MYSQL_HOST: mysql-nest
+      MYSQL_HOST: host.docker.internal
       MYSQL_PORT: 3306
-      MYSQL_USER: ${MYSQL_USER:-root}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-${MYSQL_ROOT_PASSWORD:-root}}
+      MYSQL_USER: ${MYSQL_USER:-neighbornest}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-root}
       DB_NAME: nest_db
       JWT_SECRET: ${JWT_SECRET:-VGhpcyBpcyBhIHNlY3JldCBrZXkgZm9yIE5laWdoYm9yTmVzdCBKV1QgdG9rZW4gc2lnbmluZyAtIGRldmVsb3BtZW50IG9ubHk=}
       EUREKA_SERVER_URL: http://eureka-service:8761/eureka/
@@ -233,8 +130,6 @@ services:
       RABBITMQ_USER: ${RABBITMQ_USER:-neighbornest}
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-neighbornest}
     depends_on:
-      mysql-nest:
-        condition: service_healthy
       rabbitmq:
         condition: service_healthy
       eureka-service:
@@ -248,10 +143,10 @@ services:
     ports:
       - "8085:8085"
     environment:
-      MYSQL_HOST: mysql-chat
+      MYSQL_HOST: host.docker.internal
       MYSQL_PORT: 3306
-      MYSQL_USER: ${MYSQL_USER:-root}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-${MYSQL_ROOT_PASSWORD:-root}}
+      MYSQL_USER: ${MYSQL_USER:-neighbornest}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-root}
       DB_NAME: chat_db
       JWT_SECRET: ${JWT_SECRET:-VGhpcyBpcyBhIHNlY3JldCBrZXkgZm9yIE5laWdoYm9yTmVzdCBKV1QgdG9rZW4gc2lnbmluZyAtIGRldmVsb3BtZW50IG9ubHk=}
       EUREKA_SERVER_URL: http://eureka-service:8761/eureka/
@@ -263,8 +158,6 @@ services:
       STOMP_RELAY_HOST: rabbitmq
       STOMP_RELAY_PORT: 61613
     depends_on:
-      mysql-chat:
-        condition: service_healthy
       rabbitmq:
         condition: service_healthy
       eureka-service:
@@ -278,10 +171,10 @@ services:
     ports:
       - "8086:8086"
     environment:
-      MYSQL_HOST: mysql-notification
+      MYSQL_HOST: host.docker.internal
       MYSQL_PORT: 3306
-      MYSQL_USER: ${MYSQL_USER:-root}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-${MYSQL_ROOT_PASSWORD:-root}}
+      MYSQL_USER: ${MYSQL_USER:-neighbornest}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-root}
       DB_NAME: notification_db
       JWT_SECRET: ${JWT_SECRET:-VGhpcyBpcyBhIHNlY3JldCBrZXkgZm9yIE5laWdoYm9yTmVzdCBKV1QgdG9rZW4gc2lnbmluZyAtIGRldmVsb3BtZW50IG9ubHk=}
       EUREKA_SERVER_URL: http://eureka-service:8761/eureka/
@@ -296,8 +189,6 @@ services:
       MAIL_USERNAME: ${MAIL_USERNAME:-}
       MAIL_PASSWORD: ${MAIL_PASSWORD:-}
     depends_on:
-      mysql-notification:
-        condition: service_healthy
       rabbitmq:
         condition: service_healthy
       eureka-service:
@@ -329,11 +220,3 @@ services:
         condition: service_started
       notification-service:
         condition: service_started
-
-volumes:
-  mysql-auth-data:
-  mysql-user-data:
-  mysql-matching-data:
-  mysql-nest-data:
-  mysql-chat-data:
-  mysql-notification-data:
