@@ -81,7 +81,13 @@ services:
       DB_NAME: user_db
       JWT_SECRET: ${JWT_SECRET:-VGhpcyBpcyBhIHNlY3JldCBrZXkgZm9yIE5laWdoYm9yTmVzdCBKV1QgdG9rZW4gc2lnbmluZyAtIGRldmVsb3BtZW50IG9ubHk=}
       EUREKA_SERVER_URL: http://eureka-service:8761/eureka/
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: ${RABBITMQ_USER:-neighbornest}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-neighbornest}
     depends_on:
+      rabbitmq:
+        condition: service_healthy
       eureka-service:
         condition: service_started
 

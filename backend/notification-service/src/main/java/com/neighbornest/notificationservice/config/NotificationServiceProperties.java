@@ -44,6 +44,9 @@ public class NotificationServiceProperties {
         /** Durable queue bound for chat offline-push events (future). */
         private String chatQueue;
 
+        /** Durable queue bound for user anchor-application review events. */
+        private String anchorQueue;
+
         /** Routing key for Nest-created events. */
         private String createdRoutingKey;
 
@@ -55,5 +58,8 @@ public class NotificationServiceProperties {
 
         /** Routing key for chat message events. */
         private String chatRoutingKey;
+
+        /** Routing key for user anchor-application review events. */
+        private String anchorRoutingKey;
     }
 }

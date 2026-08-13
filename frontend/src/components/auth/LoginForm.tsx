@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Eye, EyeOff, Lock, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -40,58 +41,104 @@ export function LoginForm() {
   });
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4" noValidate>
-      <Input
-        id="email"
-        type="email"
-        label="Email"
-        placeholder="you@example.com"
-        autoComplete="email"
-        icon={<Mail className="h-4 w-4" aria-hidden="true" />}
-        error={errors.email?.message}
-        className="h-12 rounded-2xl border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--text-primary)] shadow-sm transition-all duration-200 focus-within:border-accent-400 focus-within:ring-4 focus-within:ring-accent-400/20"
-        {...register('email')}
-      />
-
-      <Input
-        id="password"
-        type={showPassword ? 'text' : 'password'}
-        label="Password"
-        placeholder="••••••••"
-        autoComplete="current-password"
-        icon={<Lock className="h-4 w-4" aria-hidden="true" />}
-        error={errors.password?.message}
-        className="h-12 rounded-2xl border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--text-primary)] shadow-sm transition-all duration-200 focus-within:border-accent-400 focus-within:ring-4 focus-within:ring-accent-400/20"
-        trailing={
-          <button
-            type="button"
-            onClick={() => setShowPassword((v) => !v)}
-            className="rounded-full p-1.5 text-muted transition-colors hover:bg-white/[0.06] hover:text-primary"
-            aria-label={showPassword ? 'Hide password' : 'Show password'}
-          >
-            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-          </button>
-        }
-        {...register('password')}
-      />
-
-      <Button
-        type="submit"
-        variant="primary"
-        size="lg"
-        fullWidth
-        isLoading={isSubmitting}
-        className="h-12 rounded-2xl shadow-glow"
-        rightIcon={<ArrowRight className="h-4 w-4" aria-hidden="true" />}
+    <form onSubmit={onSubmit} className="relative space-y-5" noValidate>
+      <motion.div
+        initial={{ opacity: 0, x: -8 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.1 }}
       >
-        {isSubmitting ? 'Signing in…' : 'Sign in'}
-      </Button>
+        <Input
+          id="email"
+          type="email"
+          label="Email"
+          placeholder="you@example.com"
+          autoComplete="email"
+          icon={<Mail className="h-4 w-4 text-muted" aria-hidden="true" />}
+          error={errors.email?.message}
+          className="h-12 rounded-xl border-white/[0.08] bg-surface-2 text-primary shadow-sm transition-all duration-200 focus-within:border-accent-400/50 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.12)]"
+          {...register('email')}
+        />
+      </motion.div>
 
-      <p className="text-center text-sm text-[var(--text-muted)]">
+      <motion.div
+        initial={{ opacity: 0, x: -8 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+        <Input
+          id="password"
+          type={showPassword ? 'text' : 'password'}
+          label="Password"
+          placeholder="••••••••"
+          autoComplete="current-password"
+          icon={<Lock className="h-4 w-4 text-muted" aria-hidden="true" />}
+          error={errors.password?.message}
+          className="h-12 rounded-xl border-white/[0.08] bg-surface-2 text-primary shadow-sm transition-all duration-200 focus-within:border-accent-400/50 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.12)]"
+          trailing={
+            <motion.button
+              type="button"
+              whileTap={{ scale: 0.85 }}
+              onClick={() => setShowPassword((v) => !v)}
+              className="rounded-lg p-1.5 text-muted transition-colors hover:bg-white/[0.06] hover:text-primary"
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+            >
+              <AnimatePresence mode="wait" initial={false}>
+                {showPassword ? (
+                  <motion.div
+                    key="eyeoff"
+                    initial={{ scale: 0.5, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.5, opacity: 0 }}
+                    transition={{ duration: 0.15 }}
+                  >
+                    <EyeOff className="h-4 w-4" />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="eye"
+                    initial={{ scale: 0.5, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.5, opacity: 0 }}
+                    transition={{ duration: 0.15 }}
+                  >
+                    <Eye className="h-4 w-4" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.button>
+          }
+          {...register('password')}
+        />
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+      >
+        <Button
+          type="submit"
+          variant="primary"
+          size="lg"
+          fullWidth
+          isLoading={isSubmitting}
+          className="h-12 rounded-xl shadow-glow"
+          rightIcon={<ArrowRight className="h-4 w-4" aria-hidden="true" />}
+        >
+          {isSubmitting ? 'Signing in…' : 'Sign in'}
+        </Button>
+      </motion.div>
+
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.4 }}
+        className="text-center text-sm text-muted"
+      >
         Don&apos;t have an account?{' '}
         <Link
           to={ROUTES.REGISTER}
-          className="group relative font-semibold text-accent-400 transition-colors hover:text-accent-300"
+          className="group relative inline-block font-semibold text-accent-400 transition-colors hover:text-accent-300"
         >
           Register
           <span
@@ -99,10 +146,9 @@ export function LoginForm() {
             className="absolute -bottom-0.5 left-0 h-px w-0 bg-accent-gradient transition-all duration-300 group-hover:w-full"
           />
         </Link>
-      </p>
+      </motion.p>
     </form>
   );
 }
 
-// Default export added so this works with React.lazy() in the router.
 export default LoginForm;

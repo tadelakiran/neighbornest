@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type { StompSubscription } from '@stomp/stompjs';
 import { motion } from 'framer-motion';
-import { MessageSquare, Plus, SendHorizonal, Users } from 'lucide-react';
+import { ChevronDown, MessageSquare, Plus, SendHorizonal, Users } from 'lucide-react';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
@@ -54,6 +54,11 @@ export function MessagesPage() {
   const [typingUsers, setTypingUsers] = useState<Record<number, string>>({});
   const [showNewDm, setShowNewDm] = useState(false);
   const [startingDm, setStartingDm] = useState(false);
+  // Auto-scroll (WhatsApp-style): pinned to the bottom while the user is near
+  // the latest message; shows a "jump to latest" button once they scroll up.
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const stickToBottomRef = useRef(true);
+  const [showJumpToLatest, setShowJumpToLatest] = useState(false);
 
   // Refs mirror latest state for websocket callbacks (avoid stale closures).
   const roomListRef = useRef<ChatRoom[]>([]);
@@ -68,6 +73,34 @@ export function MessagesPage() {
     () => rooms.find((r) => r.id === activeRoomId) ?? null,
     [rooms, activeRoomId]
   );
+
+  // ── Auto-scroll helpers ──
+  const handleScroll = useCallback(() => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+    stickToBottomRef.current = nearBottom;
+    setShowJumpToLatest(!nearBottom);
+  }, []);
+
+  const scrollToBottom = useCallback((behavior: ScrollBehavior = 'smooth') => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    el.scrollTo({ top: el.scrollHeight, behavior });
+    stickToBottomRef.current = true;
+    setShowJumpToLatest(false);
+  }, []);
+
+  // Keep the view pinned to the newest message (only when already near the
+  // bottom, so reading older history is never yanked away). Runs after the
+  // DOM commits, so the container already includes the newest messages.
+  useEffect(() => {
+    if (historyLoading) return;
+    if (stickToBottomRef.current) {
+      const el = scrollContainerRef.current;
+      if (el) el.scrollTop = el.scrollHeight;
+    }
+  }, [messages, activeRoomId, historyLoading]);
 
   // ── Patch helpers for the room list ──
   const patchRoom = useCallback((roomId: string, patch: Partial<ChatRoom>) => {
@@ -145,8 +178,12 @@ export function MessagesPage() {
 
     (async () => {
       try {
-        const [nests, convs] = await Promise.all([getMyNests(), getConversations()]);
+        // allSettled: a failing fetch (e.g. notifications service hiccup) must
+        // not blank the entire room list — show whatever did load.
+        const [nestsResult, convsResult] = await Promise.allSettled([getMyNests(), getConversations()]);
         if (cancelled) return;
+        const nests = nestsResult.status === 'fulfilled' ? nestsResult.value : [];
+        const convs = convsResult.status === 'fulfilled' ? convsResult.value : [];
         const list: ChatRoom[] = [
           ...nests
             .filter((n) => n.status === 'ACTIVE' || n.status === 'VIBE_CHECK')
@@ -190,6 +227,9 @@ export function MessagesPage() {
 
     let cancelled = false;
     const subs: StompSubscription[] = [];
+    // New room → start pinned to the bottom (WhatsApp-style).
+    stickToBottomRef.current = true;
+    setShowJumpToLatest(false);
     setHistoryLoading(true);
 
     (async () => {
@@ -406,7 +446,12 @@ export function MessagesPage() {
             </header>
 
             {/* Messages */}
-            <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
+            <div className="relative flex-1 overflow-hidden">
+              <div
+                ref={scrollContainerRef}
+                onScroll={handleScroll}
+                className="h-full space-y-3 overflow-y-auto px-4 py-4"
+              >
               {historyLoading ? (
                 <div className="space-y-3">
                   {Array.from({ length: 5 }).map((_, i) => (
@@ -462,6 +507,19 @@ export function MessagesPage() {
                   );
                 })
               )}
+            </div>
+
+            {/* Jump-to-latest (shown once the user scrolls up) */}
+            {showJumpToLatest && !historyLoading && messages.length > 0 && (
+              <button
+                onClick={() => scrollToBottom('smooth')}
+                className="absolute bottom-4 right-4 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-[var(--color-border)] bg-surface text-secondary shadow-lg transition-colors hover:text-primary"
+                aria-label="Scroll to latest message"
+                title="Scroll to latest"
+              >
+                <ChevronDown className="h-4 w-4" aria-hidden="true" />
+              </button>
+            )}
             </div>
 
             {/* Composer */}

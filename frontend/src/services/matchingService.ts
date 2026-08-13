@@ -101,13 +101,17 @@ function mapProposal(raw: ProposalWire): MatchProposalResponse {
 /**
  * Triggers a fresh compatibility calculation for a user.
  *
- * @param userId - the user's id (auth-user id from the session)
- * @returns the calculated compatible users
+ * The endpoint computes scores against every eligible user and returns the
+ * number of scores computed (a plain count), not the compatible list — the
+ * caller then re-fetches `getCompatibles` for the ranked results.
+ *
+ * @param userId - the user's PROFILE id
+ * @returns how many compatibility scores were computed
  */
-export async function calculateCompatibility(userId: number): Promise<CompatibleUserResponse[]> {
-  const { data } = await api.post<CompatibleWire[]>(`/api/matching/calculate/${userId}`);
+export async function calculateCompatibility(userId: number): Promise<number> {
+  const { data } = await api.post<number>(`/api/matching/calculate/${userId}`);
   invalidateCache(compatiblesKey(userId));
-  return data.map(mapCompatible);
+  return data;
 }
 
 /**

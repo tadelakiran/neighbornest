@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { DollarSign, UserRound, Users } from 'lucide-react';
+import { IndianRupee, UserRound, Users } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -83,7 +83,7 @@ export function AddExpenseModal({ open, onClose, nestId, members, onAdded }: Add
           min="0"
           step="0.01"
           placeholder="0.00"
-          icon={<DollarSign className="h-4 w-4" aria-hidden="true" />}
+          icon={<IndianRupee className="h-4 w-4" aria-hidden="true" />}
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
         />

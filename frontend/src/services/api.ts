@@ -130,6 +130,26 @@ function processQueue(error: unknown, token: string | null): void {
   failedQueue = [];
 }
 
+/**
+ * Shows an error toast with deduplication.
+ *
+ * On a page refresh (or a backend outage) several requests fail at once and
+ * each would otherwise push the same toast — that spams the screen with
+ * identical "no response from the server" popups. Identical messages shown
+ * within the window are suppressed; the first one is enough.
+ */
+const ERROR_TOAST_DEDUPE_MS = 4000;
+let lastErrorToast = { message: '', at: 0 };
+
+function showErrorToast(message: string): void {
+  const now = Date.now();
+  if (lastErrorToast.message === message && now - lastErrorToast.at < ERROR_TOAST_DEDUPE_MS) {
+    return;
+  }
+  lastErrorToast = { message, at: now };
+  useToastStore.getState().addToast(message, 'error');
+}
+
 /** Clears the session and hard-redirects to the login page. */
 function handleAuthFailure(): void {
   const { clearAuth } = useAuthStore.getState();
@@ -187,15 +207,13 @@ api.interceptors.response.use(
       }
     }
 
-    // --- 403 / 500 / network errors: surface a toast ---
+    // --- 403 / 500 / network errors: surface a (deduped) toast ---
     if (status === 403) {
-      useToastStore
-        .getState()
-        .addToast(error.response?.data?.message ?? 'You do not have permission to do that.', 'error');
+      showErrorToast(error.response?.data?.message ?? 'You do not have permission to do that.');
     } else if (status === 500) {
-      useToastStore.getState().addToast('Something went wrong on our end. Please try again.', 'error');
+      showErrorToast('Something went wrong on our end. Please try again.');
     } else if (!error.response) {
-      useToastStore.getState().addToast('Network error — please check your connection.', 'error');
+      showErrorToast('Network error — please check your connection.');
     }
 
     return Promise.reject(error);

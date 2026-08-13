@@ -62,20 +62,23 @@ export function formatDate(iso?: string | null): string {
 }
 
 /**
- * Formats a number as a USD currency string (e.g. 12.5 -> "$12.50").
+ * Formats a number as an Indian Rupee currency string (e.g. 12.5 -> "₹12.50").
  *
- * @param value - the amount to format (NaN/infinity become $0.00)
+ * Uses the en-IN digit grouping (12,34,567) with a leading ₹ symbol so the
+ * output is stable across browser locales. NaN/infinity become ₹0.
+ *
+ * @param value - the amount to format (NaN/infinity become ₹0)
  * @returns a compact currency string without cents when whole
  */
 export function formatCurrency(value: number): string {
   const amount = Number.isFinite(value) ? value : 0;
   const whole = Math.abs(amount % 1) < 0.005;
-  return amount.toLocaleString(undefined, {
-    style: 'currency',
-    currency: 'USD',
+  const sign = amount < 0 ? '-' : '';
+  const formatted = Math.abs(amount).toLocaleString('en-IN', {
     minimumFractionDigits: whole ? 0 : 2,
     maximumFractionDigits: 2,
   });
+  return `${sign}₹${formatted}`;
 }
 
 /**

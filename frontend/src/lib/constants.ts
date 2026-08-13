@@ -22,6 +22,8 @@ export const ROUTES = {
   /** Nest detail hub — path pattern `/nests/:nestId`. */
   NEST_DETAIL: '/nests/:nestId',
   MESSAGES: '/messages',
+  /** Admin — review queue for Anchor applications (ADMIN role only). */
+  ADMIN_ANCHORS: '/admin/anchors',
 } as const;
 
 /** Builds a nest detail path from a nest id. */

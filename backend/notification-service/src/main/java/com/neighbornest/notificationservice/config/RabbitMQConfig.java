@@ -96,6 +96,16 @@ public class RabbitMQConfig {
     }
 
     /**
+     * Declares the durable queue for user anchor-application review events.
+     *
+     * @return the durable queue
+     */
+    @Bean
+    public Queue anchorReviewedQueue() {
+        return new Queue(properties.getEvents().getAnchorQueue(), true);
+    }
+
+    /**
      * Binds the created queue to the exchange.
      *
      * @return the binding
@@ -141,6 +151,18 @@ public class RabbitMQConfig {
         return BindingBuilder.bind(chatMessageQueue())
                 .to(nestEventsExchange())
                 .with(properties.getEvents().getChatRoutingKey());
+    }
+
+    /**
+     * Binds the anchor-review queue to the exchange.
+     *
+     * @return the binding
+     */
+    @Bean
+    public Binding anchorBinding() {
+        return BindingBuilder.bind(anchorReviewedQueue())
+                .to(nestEventsExchange())
+                .with(properties.getEvents().getAnchorRoutingKey());
     }
 
     /**

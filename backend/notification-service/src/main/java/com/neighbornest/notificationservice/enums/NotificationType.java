@@ -30,6 +30,9 @@ public enum NotificationType {
     /** A direct/group chat message arrived while the user was offline. */
     CHAT_MESSAGE,
 
+    /** The user's Anchor application was approved or rejected by an admin. */
+    ANCHOR_APPLICATION,
+
     /** Generic system notification. */
     SYSTEM
 }

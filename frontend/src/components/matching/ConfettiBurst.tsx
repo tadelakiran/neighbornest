@@ -2,31 +2,26 @@ import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 
 interface ConfettiBurstProps {
-  /** Number of particles. Default 30. */
   count?: number;
 }
 
-const COLORS = ['#38bdf8', '#0ea5e9', '#f8fafc', '#7dd3fc', '#ffffff'];
+const COLORS = ['#38bdf8', '#0ea5e9', '#7dd3fc', '#fbbf24', '#fde68a', '#f8fafc'];
 
-/**
- * One-shot confetti burst: ~30 small rectangles launched from the center of
- * the screen with randomized trajectories (Framer Motion physics). Renders
- * nothing once the animation completes.
- */
 export function ConfettiBurst({ count = 30 }: ConfettiBurstProps) {
   const pieces = useMemo(
     () =>
       Array.from({ length: count }, (_, i) => ({
         id: i,
-        x: (Math.random() - 0.5) * 480,
-        y: -(Math.random() * 420 + 180),
+        x: (Math.random() - 0.5) * 520,
+        y: -(Math.random() * 460 + 200),
         rotate: Math.random() * 720 - 360,
-        scale: 0.6 + Math.random() * 0.8,
+        scale: 0.5 + Math.random() * 0.9,
         color: COLORS[i % COLORS.length],
-        width: 6 + Math.random() * 6,
-        height: 10 + Math.random() * 8,
-        delay: Math.random() * 0.15,
-        duration: 1 + Math.random() * 0.7,
+        width: 5 + Math.random() * 7,
+        height: 8 + Math.random() * 10,
+        delay: Math.random() * 0.2,
+        duration: 0.9 + Math.random() * 0.8,
+        shape: Math.random() > 0.7 ? 'rounded-full' : 'rounded-[2px]',
       })),
     [count]
   );
@@ -49,14 +44,20 @@ export function ConfettiBurst({ count = 30 }: ConfettiBurstProps) {
             delay: piece.delay,
             ease: 'easeOut',
           }}
-          className="absolute left-1/2 top-1/2 rounded-[2px]"
+          className={cn('absolute left-1/2 top-1/2', piece.shape)}
           style={{
             width: piece.width,
             height: piece.height,
             backgroundColor: piece.color,
+            boxShadow: `0 0 ${4 + Math.random() * 6}px ${piece.color}`,
           }}
         />
       ))}
     </div>
   );
+}
+
+// Need cn for this component
+function cn(...classes: Array<string | false | undefined>) {
+  return classes.filter(Boolean).join(' ');
 }

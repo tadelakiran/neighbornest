@@ -104,8 +104,8 @@ export function buildDemoMeetings(seed = 42): MeetingResponse[] {
 /**
  * Expenses with mixed settle states and a clear money trail. Matches the
  * ExpenseTracker test expectations:
- *  - 601: payer 1, everyone still unsettled (users 2 and 3 both owe $10)
- *  - 600: payer 2, user 1 owes $12 (unsettled) while payer 2's own share is
+ *  - 601: payer 1, everyone still unsettled (users 2 and 3 both owe ₹10)
+ *  - 600: payer 2, user 1 owes ₹12 (unsettled) while payer 2's own share is
  *    settled — you never owe yourself.
  */
 export function buildDemoExpenses(seed = 42): ExpenseResponse[] {

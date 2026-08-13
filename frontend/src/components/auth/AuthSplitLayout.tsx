@@ -20,48 +20,34 @@ const STATS = [
 ];
 
 const stagger = {
-  container: { hidden: {}, show: { transition: { staggerChildren: 0.12, delayChildren: 0.15 } } },
+  container: { hidden: {}, show: { transition: { staggerChildren: 0.1, delayChildren: 0.2 } } },
   item: {
-    hidden: { opacity: 0, y: 18 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
   },
 };
 
+const floatAnimation = {
+  y: [0, -8, 0],
+  transition: { repeat: Infinity, duration: 5, ease: 'easeInOut' },
+};
+
 interface AuthSplitLayoutProps {
-  /** Heading shown above the form, e.g. "Welcome back". */
   heading: string;
-  /** Supporting copy under the heading. */
   subheading: string;
-  /** The form (or other content) rendered inside the auth card. */
   children: ReactNode;
 }
 
-/**
- * Shared split-screen shell for the login and register pages.
- *
- * Left (55%): full-bleed community photography with a navy/gold overlay, a
- * floating image collage, a feature list and the 5–8 / 1–2 / 6-week stats band
- * — the same premium treatment as the landing page hero.
- *
- * Right (45%): centered glass auth card with a gradient hairline and the
- * theme toggle. On mobile the imagery collapses into a compact banner.
- */
 export function AuthSplitLayout({ heading, subheading, children }: AuthSplitLayoutProps) {
   return (
-    <div className="relative flex min-h-screen">
-      {/* Ambient warmth — shared by both panels */}
-      <div
-        className="pointer-events-none absolute -top-32 right-[8%] h-[420px] w-[420px] rounded-full bg-accent-500/[0.08] blur-3xl lg:left-auto"
-        aria-hidden="true"
-      />
-      <div
-        className="pointer-events-none absolute bottom-[12%] left-[8%] hidden h-[340px] w-[340px] rounded-full bg-gold-400/[0.06] blur-3xl lg:block"
-        aria-hidden="true"
-      />
+    <div className="relative flex min-h-screen overflow-hidden">
+      {/* Ambient orbs */}
+      <div className="pointer-events-none absolute -top-40 right-[5%] h-[500px] w-[500px] rounded-full bg-accent-500/[0.07] blur-[100px] lg:left-auto" aria-hidden="true" />
+      <div className="pointer-events-none absolute bottom-[8%] left-[5%] hidden h-[400px] w-[400px] rounded-full bg-gold-400/[0.05] blur-[90px] lg:block" aria-hidden="true" />
 
-      {/* ── Brand panel — desktop only ── */}
+      {/* ── Left brand panel ── */}
       <div className="relative hidden w-[55%] flex-col overflow-hidden lg:flex">
-        {/* Background photo + overlays */}
+        {/* Background */}
         <div className="absolute inset-0">
           <LazyImage
             src={IMAGES.community}
@@ -71,39 +57,32 @@ export function AuthSplitLayout({ heading, subheading, children }: AuthSplitLayo
             className="object-cover"
             loading="eager"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-accent-950/95 via-accent-900/85 to-accent-700/30" />
+          <div className="absolute inset-0 bg-gradient-to-r from-accent-950/95 via-accent-900/85 to-accent-700/25" />
           <div className="absolute inset-0 bg-gradient-to-t from-accent-950/80 via-transparent to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-gold-500/15 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-gold-500/12 via-transparent to-transparent" />
         </div>
 
-        {/* Floating collage cards (echoes the landing hero) */}
+        {/* Floating collage */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.7 }}
-          className="absolute right-10 top-28 z-20 hidden w-40 overflow-hidden rounded-2xl border border-white/15 shadow-2xl xl:block"
+          initial={{ opacity: 0, y: 30, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ delay: 0.6, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          className="absolute right-10 top-24 z-20 hidden w-40 overflow-hidden rounded-2xl border border-white/15 shadow-2xl backdrop-blur-sm xl:block"
         >
-          <LazyImage
-            src={IMAGES.coffee}
-            alt="Coffee shop meetup"
-            aspectRatio="4/3"
-            placeholder="blur"
-            className="h-full w-full object-cover"
-          />
+          <motion.div animate={floatAnimation} className="h-full w-full">
+            <LazyImage src={IMAGES.coffee} alt="Coffee shop meetup" aspectRatio="4/3" placeholder="blur" className="h-full w-full object-cover" />
+          </motion.div>
         </motion.div>
+
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.65, duration: 0.7 }}
-          className="absolute bottom-40 left-8 z-20 hidden w-44 overflow-hidden rounded-2xl border border-white/15 shadow-2xl xl:block"
+          initial={{ opacity: 0, y: 30, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ delay: 0.8, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          className="absolute bottom-44 left-8 z-20 hidden w-44 overflow-hidden rounded-2xl border border-white/15 shadow-2xl backdrop-blur-sm xl:block"
         >
-          <LazyImage
-            src={IMAGES.park}
-            alt="Group of friends outdoors"
-            aspectRatio="4/3"
-            placeholder="blur"
-            className="h-full w-full object-cover"
-          />
+          <motion.div animate={{ ...floatAnimation, transition: { ...floatAnimation.transition, delay: 1.5 } }} className="h-full w-full">
+            <LazyImage src={IMAGES.park} alt="Group of friends outdoors" aspectRatio="4/3" placeholder="blur" className="h-full w-full object-cover" />
+          </motion.div>
         </motion.div>
 
         {/* Header */}
@@ -111,40 +90,40 @@ export function AuthSplitLayout({ heading, subheading, children }: AuthSplitLayo
           <BrandLogo />
         </div>
 
-        {/* Headline + features */}
+        {/* Content */}
         <motion.div
           variants={stagger.container}
           initial="hidden"
           animate="show"
           className="relative z-10 flex flex-1 flex-col justify-center px-10"
         >
-          <motion.div variants={stagger.item} className="max-w-lg space-y-4">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-gold-400/40 bg-gold-400/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-gold-200">
+          <motion.div variants={stagger.item} className="max-w-lg space-y-5">
+            <span className="inline-flex items-center gap-2 rounded-full border border-gold-400/30 bg-gold-400/10 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.12em] text-gold-200 shadow-[0_0_20px_rgba(251,191,36,0.1)]">
               <Sparkles className="h-3.5 w-3.5 fill-gold-300 text-gold-300" aria-hidden="true" />
-              New to the city? You&apos;re in the right place.
+              New to the city? You're in the right place.
             </span>
-            <h1 className="font-display text-4xl font-bold leading-[1.1] tracking-tight text-white xl:text-5xl">
+            <h1 className="font-display text-4xl font-bold leading-[1.08] tracking-tight text-white xl:text-[3.25rem]">
               Find your people in a{' '}
               <span className="bg-gradient-to-r from-accent-300 via-accent-200 to-white bg-clip-text text-transparent">
                 new city
               </span>
               <span className="text-gold-400">.</span>
             </h1>
-            <p className="text-lg leading-relaxed text-accent-100/85">
+            <p className="text-base leading-relaxed text-accent-100/80 lg:text-lg">
               {APP_NAME} matches newcomers into small curated groups with local Anchors — real
               friendships, zero awkward networking.
             </p>
           </motion.div>
 
-          <motion.ul variants={stagger.container} className="mt-9 space-y-4">
+          <motion.ul variants={stagger.container} className="mt-10 space-y-5">
             {FEATURES.map(({ icon: Icon, title, text }) => (
               <motion.li key={title} variants={stagger.item} className="flex max-w-lg items-start gap-4">
-                <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/20 bg-white/10 shadow-lg backdrop-blur-sm">
+                <span className="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/15 bg-white/[0.08] shadow-lg backdrop-blur-md">
                   <Icon className="h-5 w-5 text-accent-200" aria-hidden="true" />
                 </span>
                 <div>
                   <p className="font-semibold text-white">{title}</p>
-                  <p className="text-sm leading-relaxed text-accent-100/75">{text}</p>
+                  <p className="mt-0.5 text-sm leading-relaxed text-accent-100/70">{text}</p>
                 </div>
               </motion.li>
             ))}
@@ -156,27 +135,27 @@ export function AuthSplitLayout({ heading, subheading, children }: AuthSplitLayo
           variants={stagger.container}
           initial="hidden"
           animate="show"
-          className="relative z-10 flex flex-wrap gap-x-10 gap-y-3 px-10 pb-8"
+          className="relative z-10 flex flex-wrap gap-x-12 gap-y-4 px-10 pb-8"
         >
           {STATS.map((stat) => (
-            <motion.div key={stat.label} variants={stagger.item} className="flex flex-col">
-              <dt className="order-last text-[10px] uppercase tracking-[0.18em] text-accent-100/60">
+            <motion.div key={stat.label} variants={stagger.item} className="flex flex-col gap-1">
+              <dd className="order-first font-display text-3xl font-bold text-gradient-gold">{stat.value}</dd>
+              <dt className="order-last text-[10px] font-bold uppercase tracking-[0.2em] text-accent-100/50">
                 {stat.label}
               </dt>
-              <dd className="order-first font-display text-2xl font-bold text-gradient-gold">{stat.value}</dd>
             </motion.div>
           ))}
         </motion.dl>
 
-        <p className="relative z-10 px-10 pb-6 text-xs text-accent-100/40">
+        <p className="relative z-10 px-10 pb-8 text-[11px] text-accent-100/30">
           © {new Date().getFullYear()} {APP_NAME} — small groups, big friendships.
         </p>
       </div>
 
-      {/* ── Form panel ── */}
-      <div className="relative flex w-full flex-col items-center justify-center px-4 py-10 sm:px-8 lg:w-[45%]">
-        {/* Mobile-only image banner */}
-        <div className="relative mb-8 w-full max-w-md overflow-hidden rounded-3xl border border-white/[0.08] shadow-xl lg:hidden">
+      {/* ── Right form panel ── */}
+      <div className="relative flex w-full flex-col items-center justify-center px-4 py-12 sm:px-8 lg:w-[45%]">
+        {/* Mobile banner */}
+        <div className="relative mb-10 w-full max-w-md overflow-hidden rounded-3xl border border-white/[0.08] shadow-2xl lg:hidden">
           <LazyImage
             src={IMAGES.community}
             alt="Neighbors spending time together"
@@ -185,39 +164,42 @@ export function AuthSplitLayout({ heading, subheading, children }: AuthSplitLayo
             loading="eager"
             className="h-full w-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-accent-950/80 via-accent-900/50 to-transparent" />
-          <div className="absolute inset-0 flex items-center px-5">
-            <p className="font-display text-lg font-bold leading-tight text-white">
+          <div className="absolute inset-0 bg-gradient-to-r from-accent-950/85 via-accent-900/50 to-transparent" />
+          <div className="absolute inset-0 flex items-center px-6">
+            <p className="font-display text-xl font-bold leading-tight text-white">
               Find your people in a <span className="text-gradient">new city</span>.
             </p>
           </div>
         </div>
 
-        {/* Top bar: dark mode toggle */}
-        <div className="absolute right-4 top-4 z-20 flex items-center gap-2">
+        {/* Theme toggle */}
+        <div className="absolute right-5 top-5 z-20">
           <DarkModeToggle variant="icon" />
         </div>
 
         <div className="w-full max-w-md">
-          {/* Logo: visible on mobile only */}
-          <div className="mb-6 flex items-center justify-between lg:hidden">
+          {/* Mobile logo */}
+          <div className="mb-8 flex items-center justify-between lg:hidden">
             <BrandLogo />
           </div>
 
           <motion.div
-            initial={{ opacity: 0, y: 24 }}
+            initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            className="relative rounded-3xl border border-[var(--color-border)] bg-[var(--color-bg)] p-8 shadow-xl theme-transition"
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className="relative overflow-hidden rounded-3xl border border-white/[0.08] bg-surface/80 p-8 shadow-2xl backdrop-blur-2xl"
           >
-            {/* Card hairline */}
-            <div className="absolute inset-x-8 top-0 h-0.5 rounded-t-full bg-accent-gradient" aria-hidden="true" />
+            {/* Hairline */}
+            <div className="absolute inset-x-8 top-0 h-[2px] rounded-b-full bg-accent-gradient shadow-[0_0_12px_rgba(14,165,233,0.4)]" aria-hidden="true" />
+            
+            {/* Inner glow */}
+            <div className="pointer-events-none absolute -top-20 left-1/2 h-40 w-40 -translate-x-1/2 rounded-full bg-accent-400/10 blur-3xl" aria-hidden="true" />
 
-            <div className="mb-7 space-y-1.5">
-              <h2 className="font-display text-2xl font-bold tracking-tight text-[var(--text-primary)]">
+            <div className="relative mb-8 space-y-2">
+              <h2 className="font-display text-2xl font-bold tracking-tight text-primary">
                 {heading}
               </h2>
-              <p className="text-sm leading-relaxed text-[var(--text-muted)]">{subheading}</p>
+              <p className="text-sm leading-relaxed text-muted">{subheading}</p>
             </div>
 
             {children}

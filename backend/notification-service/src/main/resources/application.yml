@@ -84,10 +84,12 @@ app:
       graduated-queue: notification.nest.graduated
       disbanded-queue: notification.nest.disbanded
       chat-queue: notification.chat.message
+      anchor-queue: notification.user.anchor.reviewed
       created-routing-key: nest.created
       graduated-routing-key: nest.graduated
       disbanded-routing-key: nest.disbanded
       chat-routing-key: chat.message.sent
+      anchor-routing-key: user.anchor.reviewed
 
 # Generous Feign timeouts: Spring Cloud OpenFeign's circuit breaker applies a
 # 1s TimeLimiter by default, which kills legitimate cold-start calls (first

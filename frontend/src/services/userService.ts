@@ -1,7 +1,9 @@
 import { api, cachedGet, invalidateCache } from '@/services/api';
 import type {
+  AnchorApplication,
   AnchorApplicationRequest,
   AnchorApplicationResponse,
+  AnchorReviewDecision,
   OnboardingStatusResponse,
   OnboardingSubmitRequest,
   ProfileCreateRequest,
@@ -36,6 +38,24 @@ export function mapProfileToUserProfile(response: ProfileResponse): UserProfile 
     onboardingAnswers: response.onboarding_answers ?? [],
     createdAt: response.created_at ?? null,
     updatedAt: response.updated_at ?? null,
+  };
+}
+
+/** Maps a snake_case anchor application wire response to the app model. */
+function mapAnchorApplication(raw: AnchorApplicationResponse): AnchorApplication {
+  return {
+    id: raw.id,
+    userProfileId: raw.user_profile_id,
+    fullName: raw.full_name ?? undefined,
+    yearsInCity: raw.years_in_city,
+    neighborhoodsKnown: raw.neighborhoods_known,
+    languagesSpoken: raw.languages_spoken,
+    experience: raw.experience,
+    availability: raw.availability,
+    status: raw.status,
+    appliedAt: raw.applied_at,
+    reviewedAt: raw.reviewed_at ?? undefined,
+    reviewNote: raw.review_note ?? undefined,
   };
 }
 
@@ -102,14 +122,42 @@ export const userService = {
    * GET /api/users/anchor-application — returns the current user's most recent
    * anchor application, or null when they have never applied (backend 404).
    */
-  async getAnchorApplication(): Promise<AnchorApplicationResponse | null> {
+  async getAnchorApplication(): Promise<AnchorApplication | null> {
     try {
       const { data } = await api.get<AnchorApplicationResponse>('/api/users/anchor-application');
-      return data;
+      return mapAnchorApplication(data);
     } catch (error) {
       const status = (error as { response?: { status?: number } }).response?.status;
       if (status === 404) return null;
       throw error;
     }
+  },
+
+  /**
+   * GET /api/users/anchor-applications — lists anchor applications (ADMIN only),
+   * optionally filtered by status.
+   */
+  async listAnchorApplications(status?: 'PENDING' | 'APPROVED' | 'REJECTED'): Promise<AnchorApplication[]> {
+    const { data } = await api.get<AnchorApplicationResponse[]>('/api/users/anchor-applications', {
+      params: status ? { status } : undefined,
+    });
+    return data.map(mapAnchorApplication);
+  },
+
+  /**
+   * PUT /api/users/anchor-applications/{id}/review — approves or rejects a
+   * pending anchor application (ADMIN only). Approval upgrades the applicant
+   * to the ANCHOR role.
+   */
+  async reviewAnchorApplication(
+    applicationId: number,
+    decision: AnchorReviewDecision,
+    note?: string
+  ): Promise<AnchorApplication> {
+    const { data } = await api.put<AnchorApplicationResponse>(
+      `/api/users/anchor-applications/${applicationId}/review`,
+      { decision, note }
+    );
+    return mapAnchorApplication(data);
   },
 };

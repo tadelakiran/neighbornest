@@ -7,6 +7,8 @@ import com.neighbornest.user.entity.AnchorApplication;
 import com.neighbornest.user.entity.AnchorStatus;
 import com.neighbornest.user.entity.UserProfile;
 import com.neighbornest.user.entity.UserRole;
+import com.neighbornest.user.event.AnchorApplicationReviewedEvent;
+import com.neighbornest.user.event.UserEventPublisher;
 import com.neighbornest.user.exception.BadRequestException;
 import com.neighbornest.user.exception.ResourceNotFoundException;
 import com.neighbornest.user.repository.AnchorApplicationRepository;
@@ -51,13 +53,17 @@ class AnchorApplicationServiceTest {
     @Mock
     private UserProfileRepository userProfileRepository;
 
+    @Mock
+    private UserEventPublisher userEventPublisher;
+
     private AnchorApplicationService service;
 
     private static final Long AUTH_USER_ID = 42L;
 
     @BeforeEach
     void setUp() {
-        service = new AnchorApplicationService(anchorApplicationRepository, userProfileRepository);
+        service = new AnchorApplicationService(
+                anchorApplicationRepository, userProfileRepository, userEventPublisher);
     }
 
     /**
@@ -170,6 +176,8 @@ class AnchorApplicationServiceTest {
             assertThat(response.getFullName()).isEqualTo("John Doe");
             assertThat(profile.getRole()).isEqualTo(UserRole.ANCHOR);
             verify(userProfileRepository).save(profile);
+            // The applicant is notified about the verdict.
+            verify(userEventPublisher).publishAnchorApplicationReviewed(any(AnchorApplicationReviewedEvent.class));
         }
 
         @Test
@@ -191,6 +199,8 @@ class AnchorApplicationServiceTest {
             assertThat(response.getStatus()).isEqualTo(AnchorStatus.REJECTED);
             assertThat(response.getFullName()).isEqualTo("John Doe");
             verify(userProfileRepository, never()).save(any(UserProfile.class));
+            // A rejection is also communicated to the applicant.
+            verify(userEventPublisher).publishAnchorApplicationReviewed(any(AnchorApplicationReviewedEvent.class));
         }
 
         @Test

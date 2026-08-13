@@ -15,7 +15,7 @@ import { useToast } from '@/hooks/useToast';
 import { ROUTES } from '@/lib/constants';
 import { getErrorMessage } from '@/lib/utils';
 import { userService } from '@/services/userService';
-import type { AnchorApplicationResponse } from '@/types/user.types';
+import type { AnchorApplication } from '@/types/user.types';
 
 /** Reads the initial tab from `?tab=` (e.g. the navbar Settings shortcut). */
 function initialTab(): ProfileTab {
@@ -38,7 +38,7 @@ export function ProfilePage() {
 
   // Anchor application status — shown instead of the "Become an Anchor" CTA
   // once a newcomer has applied (PENDING / APPROVED / REJECTED).
-  const [anchorApp, setAnchorApp] = useState<AnchorApplicationResponse | null>(null);
+  const [anchorApp, setAnchorApp] = useState<AnchorApplication | null>(null);
   const [anchorChecked, setAnchorChecked] = useState(false);
 
   useEffect(() => {
@@ -176,7 +176,7 @@ export function ProfilePage() {
  * visible: an admin reviews the application and approves or rejects it; when
  * approved, the user's role is upgraded to ANCHOR.
  */
-function AnchorStatusBanner({ application }: { application: AnchorApplicationResponse }) {
+function AnchorStatusBanner({ application }: { application: AnchorApplication }) {
   if (application.status === 'APPROVED') {
     return (
       <Card className="flex flex-col gap-4 border-emerald-500/30 bg-gradient-to-r from-emerald-500/15 to-transparent p-5 sm:flex-row sm:items-center">

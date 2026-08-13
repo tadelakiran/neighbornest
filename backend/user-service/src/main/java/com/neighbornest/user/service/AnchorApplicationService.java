@@ -7,6 +7,8 @@ import com.neighbornest.user.entity.AnchorApplication;
 import com.neighbornest.user.entity.AnchorStatus;
 import com.neighbornest.user.entity.UserProfile;
 import com.neighbornest.user.entity.UserRole;
+import com.neighbornest.user.event.AnchorApplicationReviewedEvent;
+import com.neighbornest.user.event.UserEventPublisher;
 import com.neighbornest.user.exception.BadRequestException;
 import com.neighbornest.user.exception.ResourceNotFoundException;
 import com.neighbornest.user.repository.AnchorApplicationRepository;
@@ -15,6 +17,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -38,6 +42,7 @@ public class AnchorApplicationService {
 
     private final AnchorApplicationRepository anchorApplicationRepository;
     private final UserProfileRepository userProfileRepository;
+    private final UserEventPublisher userEventPublisher;
 
     /**
      * Submits an anchor application for the authenticated user.
@@ -136,6 +141,32 @@ public class AnchorApplicationService {
 
         log.info("Anchor application {} {}", applicationId,
                 decision == ReviewDecision.APPROVE ? "approved" : "rejected");
+
+        // Notify the applicant after the transaction commits so a rollback
+        // never produces a notification for a review that did not happen.
+        final AnchorApplicationReviewedEvent event = new AnchorApplicationReviewedEvent(
+                saved.getId(),
+                saved.getUserProfileId(),
+                applicant.getFullName(),
+                decision.name(),
+                saved.getReviewNote(),
+                saved.getReviewedAt());
+        try {
+            if (TransactionSynchronizationManager.isSynchronizationActive()) {
+                TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                    @Override
+                    public void afterCommit() {
+                        userEventPublisher.publishAnchorApplicationReviewed(event);
+                    }
+                });
+            } else {
+                userEventPublisher.publishAnchorApplicationReviewed(event);
+            }
+        } catch (final Exception e) {
+            // Best-effort: never fail the review because a notification publish broke.
+            log.warn("Could not schedule AnchorApplicationReviewedEvent for application {}",
+                    saved.getId(), e);
+        }
 
         return toResponse(saved, applicant.getFullName());
     }
