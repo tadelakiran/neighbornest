@@ -17,6 +17,11 @@ import type {
  *
  * GET endpoints use the short-lived cache; every mutating call invalidates the
  * affected keys so the UI always reflects the latest state.
+ *
+ * IMPORTANT — the nest-service serializes every response in snake_case
+ * (`start_date`, `user_id`, `full_name`, `role_in_nest`, `payer_id`, …).
+ * All responses below are mapped to the camelCase app model before they are
+ * cached or returned, mirroring the chatService/userService mapper pattern.
  */
 
 const MY_NESTS_KEY = '/api/nests/my-nests';
@@ -24,6 +29,144 @@ const nestKey = (nestId: number | string) => `/api/nests/${nestId}`;
 const meetingsKey = (nestId: number | string) => `/api/nests/${nestId}/meetings`;
 const expensesKey = (nestId: number | string) => `/api/nests/${nestId}/expenses`;
 const vibeStatusKey = (nestId: number | string) => `/api/nests/${nestId}/vibe-check/status`;
+
+// ---------------------------------------------------------------------------
+// Response mappers (snake_case wire → camelCase app model)
+// ---------------------------------------------------------------------------
+
+interface RawNestMember {
+  user_id: number;
+  full_name: string;
+  role_in_nest: NestResponse['members'][number]['roleInNest'];
+  status: NestResponse['members'][number]['status'];
+  joined_at?: string;
+  graduated: boolean;
+}
+
+interface RawNest {
+  id: number;
+  name: string;
+  city: string;
+  status: NestResponse['status'];
+  start_date?: string;
+  end_date?: string;
+  members: RawNestMember[];
+  created_at: string;
+}
+
+interface RawMeeting {
+  id: number;
+  scheduled_at: string;
+  venue_name?: string;
+  venue_address?: string;
+  activity_type?: string;
+  description?: string;
+  status: MeetingResponse['status'];
+}
+
+interface RawExpenseSplit {
+  user_id: number;
+  amount_owed: number;
+  settled: boolean;
+}
+
+interface RawExpense {
+  id: number;
+  payer_id: number;
+  amount: number;
+  description: string;
+  split_type: ExpenseResponse['splitType'];
+  splits: RawExpenseSplit[];
+  created_at: string;
+}
+
+interface RawVibeCheck {
+  user_id: number;
+  connection_score: number;
+  comfort_score: number;
+  feedback?: string;
+  submitted_at: string;
+}
+
+interface RawVibeCheckStatus {
+  average_connection: number;
+  average_comfort: number;
+  overall_average: number;
+  submissionCount: number;
+  submissions: RawVibeCheck[];
+}
+
+function mapNestMember(raw: RawNestMember): NestResponse['members'][number] {
+  return {
+    userId: raw.user_id,
+    fullName: raw.full_name,
+    roleInNest: raw.role_in_nest,
+    status: raw.status,
+    joinedAt: raw.joined_at,
+    graduated: raw.graduated,
+  };
+}
+
+function mapNest(raw: RawNest): NestResponse {
+  return {
+    id: raw.id,
+    name: raw.name,
+    city: raw.city,
+    status: raw.status,
+    startDate: raw.start_date,
+    endDate: raw.end_date,
+    members: (raw.members ?? []).map(mapNestMember),
+    createdAt: raw.created_at,
+  };
+}
+
+function mapMeeting(raw: RawMeeting): MeetingResponse {
+  return {
+    id: raw.id,
+    scheduledAt: raw.scheduled_at,
+    venueName: raw.venue_name,
+    venueAddress: raw.venue_address,
+    activityType: raw.activity_type,
+    description: raw.description,
+    status: raw.status,
+  };
+}
+
+function mapExpense(raw: RawExpense): ExpenseResponse {
+  return {
+    id: raw.id,
+    payerId: raw.payer_id,
+    amount: raw.amount,
+    description: raw.description,
+    splitType: raw.split_type,
+    splits: (raw.splits ?? []).map((s) => ({
+      userId: s.user_id,
+      amountOwed: s.amount_owed,
+      settled: s.settled,
+    })),
+    createdAt: raw.created_at,
+  };
+}
+
+function mapVibeCheck(raw: RawVibeCheck): VibeCheckResponse {
+  return {
+    userId: raw.user_id,
+    connectionScore: raw.connection_score,
+    comfortScore: raw.comfort_score,
+    feedback: raw.feedback,
+    submittedAt: raw.submitted_at,
+  };
+}
+
+function mapVibeCheckStatus(raw: RawVibeCheckStatus): VibeCheckStatusResponse {
+  return {
+    averageConnection: raw.average_connection,
+    averageComfort: raw.average_comfort,
+    overallAverage: raw.overall_average,
+    submissionCount: raw.submissionCount,
+    submissions: (raw.submissions ?? []).map(mapVibeCheck),
+  };
+}
 
 /** Drops every cached key for a nest (nest + its meetings/expenses/vibe). */
 function invalidateNest(nestId: number | string): void {
@@ -39,8 +182,9 @@ function invalidateNest(nestId: number | string): void {
  *
  * @returns an array of full nest responses
  */
-export function getMyNests(): Promise<NestResponse[]> {
-  return cachedGet<NestResponse[]>(MY_NESTS_KEY, 30_000);
+export async function getMyNests(): Promise<NestResponse[]> {
+  const data = await cachedGet<RawNest[]>(MY_NESTS_KEY, 30_000);
+  return data.map(mapNest);
 }
 
 /**
@@ -49,8 +193,9 @@ export function getMyNests(): Promise<NestResponse[]> {
  * @param nestId - the nest id
  * @returns full nest details including members
  */
-export function getNestById(nestId: number | string): Promise<NestResponse> {
-  return cachedGet<NestResponse>(nestKey(nestId), 15_000);
+export async function getNestById(nestId: number | string): Promise<NestResponse> {
+  const data = await cachedGet<RawNest>(nestKey(nestId), 15_000);
+  return mapNest(data);
 }
 
 /** Drops the cached my-nests list (call after a proposal is accepted). */
@@ -66,9 +211,9 @@ export function invalidateMyNests(): void {
  * @returns the created meeting
  */
 export async function scheduleMeeting(nestId: number | string, data: MeetingRequest): Promise<MeetingResponse> {
-  const { data: response } = await api.post<MeetingResponse>(meetingsKey(nestId), data);
+  const { data: response } = await api.post<RawMeeting>(meetingsKey(nestId), data);
   invalidateCache(meetingsKey(nestId));
-  return response;
+  return mapMeeting(response);
 }
 
 /**
@@ -77,8 +222,9 @@ export async function scheduleMeeting(nestId: number | string, data: MeetingRequ
  * @param nestId - the nest id
  * @returns meetings ordered by scheduled date
  */
-export function getMeetings(nestId: number | string): Promise<MeetingResponse[]> {
-  return cachedGet<MeetingResponse[]>(meetingsKey(nestId), 15_000);
+export async function getMeetings(nestId: number | string): Promise<MeetingResponse[]> {
+  const data = await cachedGet<RawMeeting[]>(meetingsKey(nestId), 15_000);
+  return data.map(mapMeeting);
 }
 
 /**
@@ -89,9 +235,9 @@ export function getMeetings(nestId: number | string): Promise<MeetingResponse[]>
  * @returns the updated meeting
  */
 export async function completeMeeting(nestId: number | string, meetingId: number): Promise<MeetingResponse> {
-  const { data } = await api.post<MeetingResponse>(`${meetingsKey(nestId)}/${meetingId}/complete`);
+  const { data } = await api.post<RawMeeting>(`${meetingsKey(nestId)}/${meetingId}/complete`);
   invalidateCache(meetingsKey(nestId));
-  return data;
+  return mapMeeting(data);
 }
 
 /**
@@ -102,9 +248,9 @@ export async function completeMeeting(nestId: number | string, meetingId: number
  * @returns the updated meeting
  */
 export async function cancelMeeting(nestId: number | string, meetingId: number): Promise<MeetingResponse> {
-  const { data } = await api.post<MeetingResponse>(`${meetingsKey(nestId)}/${meetingId}/cancel`);
+  const { data } = await api.post<RawMeeting>(`${meetingsKey(nestId)}/${meetingId}/cancel`);
   invalidateCache(meetingsKey(nestId));
-  return data;
+  return mapMeeting(data);
 }
 
 /**
@@ -115,9 +261,9 @@ export async function cancelMeeting(nestId: number | string, meetingId: number):
  * @returns the created expense with splits
  */
 export async function createExpense(nestId: number | string, data: ExpenseRequest): Promise<ExpenseResponse> {
-  const { data: response } = await api.post<ExpenseResponse>(expensesKey(nestId), data);
+  const { data: response } = await api.post<RawExpense>(expensesKey(nestId), data);
   invalidateCache(expensesKey(nestId));
-  return response;
+  return mapExpense(response);
 }
 
 /**
@@ -126,8 +272,9 @@ export async function createExpense(nestId: number | string, data: ExpenseReques
  * @param nestId - the nest id
  * @returns expenses with their splits
  */
-export function getExpenses(nestId: number | string): Promise<ExpenseResponse[]> {
-  return cachedGet<ExpenseResponse[]>(expensesKey(nestId), 15_000);
+export async function getExpenses(nestId: number | string): Promise<ExpenseResponse[]> {
+  const data = await cachedGet<RawExpense[]>(expensesKey(nestId), 15_000);
+  return data.map(mapExpense);
 }
 
 /**
@@ -138,9 +285,9 @@ export function getExpenses(nestId: number | string): Promise<ExpenseResponse[]>
  * @returns the updated expense
  */
 export async function settleExpense(nestId: number | string, expenseId: number): Promise<ExpenseResponse> {
-  const { data } = await api.patch<ExpenseResponse>(`${expensesKey(nestId)}/${expenseId}/settle`);
+  const { data } = await api.patch<RawExpense>(`${expensesKey(nestId)}/${expenseId}/settle`);
   invalidateCache(expensesKey(nestId));
-  return data;
+  return mapExpense(data);
 }
 
 /**
@@ -151,9 +298,9 @@ export async function settleExpense(nestId: number | string, expenseId: number):
  * @returns the submitted vibe check
  */
 export async function submitVibeCheck(nestId: number | string, data: VibeCheckRequest): Promise<VibeCheckResponse> {
-  const { data: response } = await api.post<VibeCheckResponse>(`/api/nests/${nestId}/vibe-check`, data);
+  const { data: response } = await api.post<RawVibeCheck>(`/api/nests/${nestId}/vibe-check`, data);
   invalidateCache(vibeStatusKey(nestId));
-  return response;
+  return mapVibeCheck(response);
 }
 
 /**
@@ -162,8 +309,9 @@ export async function submitVibeCheck(nestId: number | string, data: VibeCheckRe
  * @param nestId - the nest id
  * @returns average scores and the individual submissions
  */
-export function getVibeCheckStatus(nestId: number | string): Promise<VibeCheckStatusResponse> {
-  return cachedGet<VibeCheckStatusResponse>(vibeStatusKey(nestId), 15_000);
+export async function getVibeCheckStatus(nestId: number | string): Promise<VibeCheckStatusResponse> {
+  const data = await cachedGet<RawVibeCheckStatus>(vibeStatusKey(nestId), 15_000);
+  return mapVibeCheckStatus(data);
 }
 
 /**
@@ -173,9 +321,9 @@ export function getVibeCheckStatus(nestId: number | string): Promise<VibeCheckSt
  * @returns the updated Nest
  */
 export async function graduateNest(nestId: number | string): Promise<NestResponse> {
-  const { data } = await api.post<NestResponse>(`${nestKey(nestId)}/graduate`);
+  const { data } = await api.post<RawNest>(`${nestKey(nestId)}/graduate`);
   invalidateNest(nestId);
-  return data;
+  return mapNest(data);
 }
 
 /**
@@ -185,9 +333,9 @@ export async function graduateNest(nestId: number | string): Promise<NestRespons
  * @returns the updated Nest
  */
 export async function disbandNest(nestId: number | string): Promise<NestResponse> {
-  const { data } = await api.post<NestResponse>(`${nestKey(nestId)}/disband`);
+  const { data } = await api.post<RawNest>(`${nestKey(nestId)}/disband`);
   invalidateNest(nestId);
-  return data;
+  return mapNest(data);
 }
 
 /**
@@ -197,9 +345,9 @@ export async function disbandNest(nestId: number | string): Promise<NestResponse
  * @returns the updated Nest
  */
 export async function leaveNest(nestId: number | string): Promise<NestResponse> {
-  const { data } = await api.post<NestResponse>(`${nestKey(nestId)}/leave`);
+  const { data } = await api.post<RawNest>(`${nestKey(nestId)}/leave`);
   invalidateNest(nestId);
-  return data;
+  return mapNest(data);
 }
 
 /**
@@ -210,7 +358,7 @@ export async function leaveNest(nestId: number | string): Promise<NestResponse> 
  * @returns the updated Nest
  */
 export async function removeMember(nestId: number | string, userId: number): Promise<NestResponse> {
-  const { data } = await api.delete<NestResponse>(`${nestKey(nestId)}/members/${userId}`);
+  const { data } = await api.delete<RawNest>(`${nestKey(nestId)}/members/${userId}`);
   invalidateNest(nestId);
-  return data;
+  return mapNest(data);
 }

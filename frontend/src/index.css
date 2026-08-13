@@ -66,6 +66,29 @@
     --dur-base: 220ms;
     --dur-slow: 350ms;
     --dur-page: 420ms;
+
+    /* ── NEW: Accent tokens ── */
+    --accent-300: #38bdf8;
+    --accent-400: #0ea5e9;
+    --accent-500: #0284c7;
+
+    /* ── NEW: Gold tokens ── */
+    --gold-300: #fde68a;
+    --gold-400: #fbbf24;
+    --gold-500: #f59e0b;
+
+    /* ── NEW: Semantic status colors ── */
+    --success: #34d399;
+    --success-glow: rgba(52, 211, 153, 0.15);
+    --warning: #fbbf24;
+    --warning-glow: rgba(251, 191, 36, 0.15);
+    --error: #fb7185;
+    --error-glow: rgba(251, 113, 133, 0.15);
+
+    /* ── NEW: Radius scale ── */
+    --radius: 1rem;
+    --radius-lg: 1.25rem;
+    --radius-xl: 1.5rem;
   }
 
   /* ---- LIGHT MODE (optional override, Blue Dynasty tinted) ---- */
@@ -103,6 +126,24 @@
     --shadow-lg: 0 8px 32px rgba(2, 132, 199, 0.18), 0 4px 12px rgba(0,0,0,0.08);
     --shadow-xl: 0 16px 48px rgba(2, 132, 199, 0.22), 0 8px 20px rgba(0,0,0,0.10);
     --shadow-glow: 0 0 0 3px rgba(14,165,233,0.2), 0 4px 20px rgba(14,165,233,0.3);
+
+    /* ── NEW: Light-mode accent tokens ── */
+    --accent-300: #0ea5e9;
+    --accent-400: #0284c7;
+    --accent-500: #0369a1;
+
+    /* ── NEW: Light-mode gold tokens ── */
+    --gold-300: #f59e0b;
+    --gold-400: #d97706;
+    --gold-500: #b45309;
+
+    /* ── NEW: Light-mode semantic colors ── */
+    --success: #10b981;
+    --success-glow: rgba(16, 185, 129, 0.12);
+    --warning: #f59e0b;
+    --warning-glow: rgba(245, 158, 11, 0.12);
+    --error: #f43f5e;
+    --error-glow: rgba(244, 63, 94, 0.12);
   }
 
   html {
@@ -323,6 +364,27 @@
 
   /* ── Form error shake ── */
   .error-shake { animation: shake 0.4s ease-out; }
+
+  /* ── NEW: Gradient background utilities ── */
+  .bg-accent-gradient {
+    background: var(--grad-primary);
+  }
+  .bg-gold-gradient {
+    background: linear-gradient(135deg, var(--gold-400), var(--gold-500));
+  }
+
+  /* ── NEW: Glow shadow variants ── */
+  .shadow-glow-sm {
+    box-shadow: 0 0 12px rgba(14, 165, 233, 0.15);
+  }
+  .shadow-gold {
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.15);
+  }
+
+  /* ── NEW: Surface shorthand ── */
+  .bg-void {
+    background-color: var(--color-bg);
+  }
 }
 
 /* ============================================================

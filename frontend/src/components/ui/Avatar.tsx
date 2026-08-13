@@ -4,8 +4,8 @@ type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
 interface AvatarProps {
   name: string;
-  src?:      string | null;
-  size?:     AvatarSize;
+  src?: string | null;
+  size?: AvatarSize;
   className?: string;
 }
 
@@ -17,10 +17,6 @@ const SIZE_CLASSES: Record<AvatarSize, string> = {
   xl: 'h-16 w-16 text-xl',
 };
 
-/**
- * Circular avatar — shows a photo if available, else a gradient monogram.
- * Gradient is blue-based and works in both light and dark modes.
- */
 export function Avatar({ name, src, size = 'md', className }: AvatarProps) {
   const initials = getInitials(name);
 
@@ -29,7 +25,7 @@ export function Avatar({ name, src, size = 'md', className }: AvatarProps) {
       <img
         src={src}
         alt={name}
-        className={cn('rounded-full object-cover', SIZE_CLASSES[size], className)}
+        className={cn('rounded-full object-cover ring-1 ring-white/10', SIZE_CLASSES[size], className)}
       />
     );
   }
@@ -39,9 +35,9 @@ export function Avatar({ name, src, size = 'md', className }: AvatarProps) {
       role="img"
       aria-label={name}
       className={cn(
-        'inline-flex shrink-0 items-center justify-center rounded-full font-semibold',
+        'inline-flex shrink-0 items-center justify-center rounded-full font-bold',
         'bg-gradient-to-br from-accent-500 to-accent-700 text-white',
-        'ring-2 ring-white/80 shadow-md',
+        'ring-1 ring-white/10 shadow-lg shadow-accent-500/20',
         SIZE_CLASSES[size],
         className
       )}

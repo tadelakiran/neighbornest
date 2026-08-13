@@ -4,22 +4,26 @@ import { formatCurrency, getErrorMessage, getInitials } from '@/lib/utils';
 
 describe('formatCurrency', () => {
   it('omits cents for whole amounts', () => {
-    expect(formatCurrency(15)).toBe('$15');
-    expect(formatCurrency(0)).toBe('$0');
+    expect(formatCurrency(15)).toBe('₹15');
+    expect(formatCurrency(0)).toBe('₹0');
   });
 
   it('includes cents for fractional amounts', () => {
-    expect(formatCurrency(12.5)).toBe('$12.50');
-    expect(formatCurrency(10.125)).toBe('$10.13');
+    expect(formatCurrency(12.5)).toBe('₹12.50');
+    expect(formatCurrency(10.125)).toBe('₹10.13');
   });
 
   it('handles non-finite input gracefully', () => {
-    expect(formatCurrency(Number.NaN)).toBe('$0');
-    expect(formatCurrency(Number.POSITIVE_INFINITY)).toBe('$0');
+    expect(formatCurrency(Number.NaN)).toBe('₹0');
+    expect(formatCurrency(Number.POSITIVE_INFINITY)).toBe('₹0');
   });
 
   it('formats negative balances', () => {
-    expect(formatCurrency(-45.5)).toBe('-$45.50');
+    expect(formatCurrency(-45.5)).toBe('-₹45.50');
+  });
+
+  it('uses Indian digit grouping', () => {
+    expect(formatCurrency(1234567.5)).toBe('₹12,34,567.50');
   });
 });
 

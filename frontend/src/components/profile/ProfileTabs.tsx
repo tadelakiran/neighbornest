@@ -15,15 +15,11 @@ interface ProfileTabsProps {
   onChange: (tab: ProfileTab) => void;
 }
 
-/**
- * Profile tab bar — spring-animated sliding underline indicator.
- * White/light bg in light mode, dark surface in dark mode.
- */
 export function ProfileTabs({ tab, onChange }: ProfileTabsProps) {
   return (
     <div
       role="tablist"
-      className="flex gap-1 rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] p-1"
+      className="flex gap-1 rounded-xl border border-white/[0.08] bg-surface/60 p-1.5 backdrop-blur-sm shadow-lg shadow-black/10"
     >
       {TABS.map(({ id, label, icon: Icon }) => {
         const active = id === tab;
@@ -35,18 +31,18 @@ export function ProfileTabs({ tab, onChange }: ProfileTabsProps) {
             aria-selected={active}
             onClick={() => onChange(id)}
             className={cn(
-              'relative flex flex-1 items-center justify-center gap-2 rounded-md px-3 py-2.5 text-sm font-medium transition-colors duration-200',
+              'relative flex flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold transition-all duration-200',
               active
-                ? 'bg-[var(--color-bg)] text-accent-600 shadow-sm'
-                : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+                ? 'bg-surface-2 text-accent-400 shadow-sm'
+                : 'text-muted hover:bg-white/[0.04] hover:text-primary'
             )}
           >
-            <Icon className="h-4 w-4" aria-hidden="true" />
+            <Icon className={cn('h-4 w-4 transition-colors', active ? 'text-accent-400' : 'text-muted')} aria-hidden="true" />
             <span>{label}</span>
             {active && (
               <motion.span
                 layoutId="profile-tab-indicator"
-                className="absolute inset-x-3 -bottom-[5px] h-0.5 rounded-full bg-accent-gradient"
+                className="absolute inset-x-3 -bottom-[5px] h-0.5 rounded-full bg-accent-gradient shadow-[0_0_8px_rgba(14,165,233,0.5)]"
                 transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                 aria-hidden="true"
               />

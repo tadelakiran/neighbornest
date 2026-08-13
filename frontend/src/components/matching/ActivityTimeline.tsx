@@ -8,7 +8,6 @@ export interface TimelineEvent {
   id: string;
   title: string;
   description: string;
-  /** Human-friendly timestamp, e.g. "2 days ago". */
   time: string;
   category: TimelineCategory;
 }
@@ -18,48 +17,64 @@ interface ActivityTimelineProps {
   className?: string;
 }
 
-const CATEGORY_ICONS: Record<TimelineCategory, LucideIcon> = {
-  nest:     Home,
-  proposal: Handshake,
-  meeting:  CalendarDays,
-  system:   Sparkles,
+const CATEGORY_META: Record<TimelineCategory, { icon: LucideIcon; accent: string; glow: string }> = {
+  nest:     { icon: Home,        accent: 'text-emerald-400 bg-emerald-400/10 border-emerald-400/25', glow: 'shadow-[0_0_12px_rgba(52,211,153,0.25)]' },
+  proposal: { icon: Handshake,   accent: 'text-amber-400 bg-amber-400/10 border-amber-400/25',       glow: 'shadow-[0_0_12px_rgba(251,191,36,0.25)]' },
+  meeting:  { icon: CalendarDays, accent: 'text-violet-400 bg-violet-400/10 border-violet-400/25',  glow: 'shadow-[0_0_12px_rgba(167,139,250,0.25)]' },
+  system:   { icon: Sparkles,    accent: 'text-accent-400 bg-accent-400/10 border-accent-400/25',   glow: 'shadow-[0_0_12px_rgba(14,165,233,0.3)]' },
 };
 
-/**
- * Vertical activity timeline with a glowing blue spine and pulsing dots.
- * Rows stagger in from the left; each row lifts slightly on hover.
- */
 export function ActivityTimeline({ events, className }: ActivityTimelineProps) {
   return (
     <div className={cn('relative', className)}>
       {/* Glowing spine */}
       <div
-        className="absolute bottom-2 left-[15px] top-2 w-px bg-gradient-to-b from-accent-400/70 via-accent-500/30 to-transparent"
+        className="absolute bottom-3 left-[19px] top-3 w-px bg-gradient-to-b from-accent-400/60 via-accent-500/25 to-transparent"
+        aria-hidden="true"
+      />
+      {/* Spine glow line */}
+      <div
+        className="absolute bottom-3 left-[19px] top-3 w-px bg-accent-400/20 blur-sm"
         aria-hidden="true"
       />
 
-      <ol className="space-y-5">
+      <ol className="space-y-4">
         {events.map((event, index) => {
-          const Icon = CATEGORY_ICONS[event.category] ?? Sparkles;
+          const meta = CATEGORY_META[event.category] ?? CATEGORY_META.system;
+          const Icon = meta.icon;
           return (
             <motion.li
               key={event.id}
-              initial={{ opacity: 0, x: -16 }}
+              initial={{ opacity: 0, x: -12 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.4, delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 0.45, delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }}
               className="group relative flex gap-4"
             >
-              {/* Dot + icon */}
-              <div className="relative z-10 mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-accent-400/30 bg-deep shadow-[0_0_12px_rgba(14,165,233,0.25)] transition-transform duration-200 group-hover:scale-110">
-                <span className="glow-dot absolute inset-0 rounded-full opacity-40" aria-hidden="true" />
-                <Icon className="h-3.5 w-3.5 text-accent-300" aria-hidden="true" />
+              {/* Connector dot */}
+              <div className="relative z-10 mt-1 flex h-[38px] w-[38px] shrink-0 items-center justify-center">
+                <span className={cn(
+                  'absolute inset-0 rounded-full border transition-all duration-300',
+                  meta.accent,
+                  meta.glow
+                )} />
+                <span className="absolute inset-0 rounded-full bg-deep" />
+                <Icon className={cn(
+                  'relative h-3.5 w-3.5 transition-transform duration-200 group-hover:scale-110',
+                  meta.accent.split(' ')[0]
+                )} aria-hidden="true" />
               </div>
 
-              {/* Content */}
-              <div className="flex-1 rounded-xl border border-white/[0.06] bg-surface/60 p-3.5 transition-all duration-200 group-hover:border-accent-400/25 group-hover:bg-surface">
-                <div className="flex items-start justify-between gap-2">
+              {/* Content card */}
+              <div className={cn(
+                'flex-1 rounded-xl border p-3.5 transition-all duration-200',
+                'border-white/[0.06] bg-surface/50',
+                'group-hover:border-accent-400/20 group-hover:bg-surface group-hover:shadow-md'
+              )}>
+                <div className="flex items-start justify-between gap-3">
                   <h4 className="text-sm font-semibold text-primary">{event.title}</h4>
-                  <span className="shrink-0 text-[11px] font-medium text-muted">{event.time}</span>
+                  <span className="shrink-0 rounded-full bg-white/[0.04] px-2 py-0.5 text-[10px] font-semibold text-muted">
+                    {event.time}
+                  </span>
                 </div>
                 <p className="mt-1 text-xs leading-relaxed text-secondary">{event.description}</p>
               </div>
@@ -69,10 +84,17 @@ export function ActivityTimeline({ events, className }: ActivityTimelineProps) {
       </ol>
 
       {events.length === 0 && (
-        <div className="flex items-center gap-2 py-2 text-sm text-muted">
-          <Activity className="h-4 w-4" aria-hidden="true" />
-          No activity yet — your journey starts with your first match.
-        </div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="flex flex-col items-center gap-3 py-8 text-center"
+        >
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-400/10 ring-1 ring-accent-400/20">
+            <Activity className="h-6 w-6 text-accent-300" aria-hidden="true" />
+          </span>
+          <p className="text-sm text-muted">No activity yet</p>
+          <p className="max-w-[14rem] text-xs text-subtle">Your journey starts with your first match.</p>
+        </motion.div>
       )}
     </div>
   );

@@ -14,11 +14,6 @@ interface TagInputProps {
   maxTags?: number;
 }
 
-/**
- * Custom tag input: type a value and press Enter (or comma) to add a removable
- * pill; Backspace on an empty input removes the last tag. Pills animate in and
- * out with a scale + fade.
- */
 export function TagInput({
   label,
   placeholder = 'Type and press Enter',
@@ -53,27 +48,31 @@ export function TagInput({
 
   return (
     <div className="w-full">
-      {label && <span className="mb-2 block text-xs font-medium uppercase tracking-wider text-muted">{label}</span>}
+      {label && (
+        <span className="mb-2 block text-[10px] font-bold uppercase tracking-[0.15em] text-muted">
+          {label}
+        </span>
+      )}
 
       <div
         onClick={() => inputRef.current?.focus()}
         className={cn(
-          'flex flex-wrap items-center gap-2 rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2.5 transition-colors duration-200',
+          'flex flex-wrap items-center gap-2 rounded-xl border bg-surface-2 px-4 py-3 transition-all duration-200',
           error
-            ? 'border-rose-500/50'
-            : 'focus-within:border-accent-400 focus-within:ring-2 focus-within:ring-accent-400/20'
+            ? 'border-rose-500/40 shadow-[0_0_0_3px_rgba(244,63,94,0.1)]'
+            : 'border-white/[0.08] focus-within:border-accent-400/40 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.1)]'
         )}
       >
-        <AnimatePresence>
+        <AnimatePresence mode="popLayout">
           {value.map((tag) => (
             <motion.span
               key={tag}
               layout
-              initial={{ scale: 0.5, opacity: 0 }}
+              initial={{ scale: 0.6, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.5, opacity: 0 }}
+              exit={{ scale: 0.6, opacity: 0 }}
               transition={{ type: 'spring', stiffness: 500, damping: 26 }}
-              className="inline-flex items-center gap-1 rounded-full bg-accent-400/15 py-1 pl-2.5 pr-1 text-xs font-medium text-accent-200"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-accent-400/20 bg-accent-400/10 py-1 pl-3 pr-1.5 text-xs font-semibold text-accent-300"
             >
               {tag}
               <button
@@ -83,7 +82,7 @@ export function TagInput({
                   removeTag(tag);
                 }}
                 aria-label={`Remove ${tag}`}
-                className="rounded-full p-0.5 text-accent-300 transition-colors hover:bg-accent-400/20 hover:text-accent-100"
+                className="rounded-md p-0.5 text-accent-400 transition-colors hover:bg-accent-400/20 hover:text-accent-200"
               >
                 <X className="h-3 w-3" />
               </button>
@@ -104,12 +103,15 @@ export function TagInput({
           className="min-w-[140px] flex-1 bg-transparent text-sm text-primary outline-none placeholder:text-muted"
         />
 
-        <span className="shrink-0 text-xs text-muted">
+        <span className={cn(
+          'shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold',
+          value.length >= maxTags ? 'bg-rose-400/10 text-rose-400' : 'bg-surface text-muted'
+        )}>
           {value.length}/{maxTags}
         </span>
       </div>
 
-      {hint && !error && <p className="mt-1.5 text-sm text-muted">{hint}</p>}
+      {hint && !error && <p className="mt-1.5 text-xs text-muted">{hint}</p>}
       <FieldError message={error} />
     </div>
   );

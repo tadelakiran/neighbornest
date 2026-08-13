@@ -7,7 +7,7 @@ const MEMBERS = buildDemoMembers();
 
 describe('ExpenseTracker', () => {
   it('shows the correct running balance for the current user', () => {
-    // User 2 owes $10 on expense 601, but is owed $12 on expense 600 → net +$2.
+    // User 2 owes ₹10 on expense 601, but is owed ₹12 on expense 600 → net +₹2.
     render(
       <ExpenseTracker
         expenses={buildDemoExpenses()}
@@ -18,13 +18,13 @@ describe('ExpenseTracker', () => {
       />
     );
 
-    expect(screen.getByText("You're owed $2")).toBeInTheDocument();
+    expect(screen.getByText("You're owed ₹2")).toBeInTheDocument();
   });
 
   it('shows "You owe" when the balance is negative', () => {
-    // User 3: owes $10 (601, unsettled), no money owed to them → net -$10.
+    // User 3: owes ₹10 (601, unsettled), no money owed to them → net -₹10.
     // The running-balance banner and the expense row both correctly say
-    // "You owe $10", so match all occurrences.
+    // "You owe ₹10", so match all occurrences.
     render(
       <ExpenseTracker
         expenses={buildDemoExpenses()}
@@ -35,7 +35,7 @@ describe('ExpenseTracker', () => {
       />
     );
 
-    expect(screen.getAllByText('You owe $10').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('You owe ₹10').length).toBeGreaterThan(0);
   });
 
   it('groups expenses by month with sticky headers', () => {

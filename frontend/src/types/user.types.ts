@@ -127,10 +127,12 @@ export interface AnchorApplicationRequest {
   availability: string;
 }
 
-/** Wire shape returned by `POST /api/users/anchor-apply`. */
+/** Wire shape returned by the user-service anchor-application endpoints. */
 export interface AnchorApplicationResponse {
   id: number;
   user_profile_id: number;
+  /** Applicant full name — populated on the admin list/review views. */
+  full_name?: string;
   years_in_city: number;
   neighborhoods_known: string;
   languages_spoken: string;
@@ -139,6 +141,32 @@ export interface AnchorApplicationResponse {
   status: AnchorStatus;
   applied_at: string;
   reviewed_at?: string | null;
+  review_note?: string | null;
+}
+
+/** Admin review decision for a pending anchor application. */
+export type AnchorReviewDecision = 'APPROVE' | 'REJECT';
+
+/** Body for `PUT /api/users/anchor-applications/{id}/review`. */
+export interface AnchorReviewRequest {
+  decision: AnchorReviewDecision;
+  note?: string;
+}
+
+/** App-facing anchor application model (camelCase, mapped from the wire shape). */
+export interface AnchorApplication {
+  id: number;
+  userProfileId: number;
+  fullName?: string;
+  yearsInCity: number;
+  neighborhoodsKnown: string;
+  languagesSpoken: string;
+  experience: string;
+  availability: string;
+  status: AnchorStatus;
+  appliedAt: string;
+  reviewedAt?: string;
+  reviewNote?: string;
 }
 
 /**

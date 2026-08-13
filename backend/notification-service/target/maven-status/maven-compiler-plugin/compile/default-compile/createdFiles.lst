@@ -1,6 +1,7 @@
 com\neighbornest\notificationservice\dto\response\ErrorResponse.class
 com\neighbornest\notificationservice\dto\response\NotificationPreferenceResponse$NotificationPreferenceResponseBuilder.class
 com\neighbornest\notificationservice\NotificationServiceApplication.class
+com\neighbornest\notificationservice\event\AnchorApplicationReviewedEvent.class
 com\neighbornest\notificationservice\event\NestCreatedEvent.class
 com\neighbornest\notificationservice\client\VibeCheckResponse$VibeCheckResponseBuilder.class
 com\neighbornest\notificationservice\dto\response\NotificationStatsResponse.class
@@ -38,6 +39,7 @@ com\neighbornest\notificationservice\constants\AppConstants.class
 com\neighbornest\notificationservice\controller\NotificationController.class
 com\neighbornest\notificationservice\listener\NestEventListener.class
 com\neighbornest\notificationservice\dto\response\ErrorResponse$ErrorResponseBuilder.class
+com\neighbornest\notificationservice\listener\AnchorApplicationEventListener.class
 com\neighbornest\notificationservice\config\TemplateConfig.class
 com\neighbornest\notificationservice\dto\request\UpdatePreferenceRequest.class
 com\neighbornest\notificationservice\exception\ResourceNotFoundException.class

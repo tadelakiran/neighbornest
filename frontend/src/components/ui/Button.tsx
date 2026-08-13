@@ -4,46 +4,42 @@ import { cn } from '@/lib/utils';
 import { Spinner } from '@/components/ui/Spinner';
 
 type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'outline';
-type ButtonSize    = 'sm' | 'md' | 'lg';
+type ButtonSize = 'sm' | 'md' | 'lg';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?:    ButtonVariant;
-  size?:       ButtonSize;
-  isLoading?:  boolean;
-  fullWidth?:  boolean;
-  leftIcon?:   ReactNode;
-  rightIcon?:  ReactNode;
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+  isLoading?: boolean;
+  fullWidth?: boolean;
+  leftIcon?: ReactNode;
+  rightIcon?: ReactNode;
   nonMagnetic?: boolean;
 }
 
 const BASE =
   'relative inline-flex select-none items-center justify-center gap-2 font-semibold ' +
-  'rounded-md transition-all duration-200 will-change-transform ' +
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500/50 focus-visible:ring-offset-2 ' +
-  'focus-visible:ring-offset-[var(--color-bg)] ' +
+  'rounded-xl transition-all duration-200 will-change-transform ' +
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-400/50 focus-visible:ring-offset-2 ' +
+  'focus-visible:ring-offset-void ' +
   'disabled:cursor-not-allowed disabled:opacity-50 active:scale-[0.97]';
 
 const VARIANTS: Record<ButtonVariant, string> = {
   primary:
-    'bg-accent-gradient text-white shadow-md ' +
-    'hover:shadow-glow hover:brightness-105',
+    'bg-accent-gradient text-white shadow-glow-sm ' +
+    'hover:shadow-glow hover:brightness-110',
   secondary:
-    'bg-[var(--color-surface)] text-[var(--text-primary)] ' +
-    'border border-[var(--color-border)] ' +
-    'hover:border-accent-300 hover:bg-accent-50 hover:text-accent-700 ' +
-    'dark:hover:bg-accent-900/30 dark:hover:text-accent-300',
+    'bg-surface-2 text-primary ' +
+    'border border-white/[0.08] ' +
+    'hover:border-accent-400/30 hover:bg-surface hover:text-accent-300',
   outline:
-    'bg-transparent border border-accent-500 text-accent-600 ' +
-    'hover:bg-accent-50 hover:border-accent-600 ' +
-    'dark:text-accent-400 dark:hover:bg-accent-900/30',
+    'bg-transparent border border-accent-400/30 text-accent-400 ' +
+    'hover:bg-accent-400/10 hover:border-accent-400/50',
   ghost:
-    'bg-transparent text-accent-600 ' +
-    'hover:bg-accent-50 hover:text-accent-700 ' +
-    'dark:text-accent-400 dark:hover:bg-accent-900/30',
+    'bg-transparent text-accent-400 ' +
+    'hover:bg-accent-400/10 hover:text-accent-300',
   danger:
-    'border border-rose-200 bg-rose-50 text-rose-600 ' +
-    'hover:bg-rose-100 hover:border-rose-300 ' +
-    'dark:border-rose-500/20 dark:bg-rose-500/10 dark:text-rose-400',
+    'border border-rose-500/20 bg-rose-500/10 text-rose-400 ' +
+    'hover:bg-rose-500/20 hover:border-rose-500/30 hover:text-rose-300',
 };
 
 const SIZES: Record<ButtonSize, string> = {
@@ -89,7 +85,10 @@ export function Button({
   );
 
   const handleMouseMove = useCallback(
-    (e: React.MouseEvent<HTMLButtonElement>) => { onMouseMove?.(e); applyMagnetic(e); },
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      onMouseMove?.(e);
+      applyMagnetic(e);
+    },
     [onMouseMove, applyMagnetic]
   );
   const handleMouseLeave = useCallback(
@@ -101,10 +100,15 @@ export function Button({
     [onMouseLeave]
   );
   const handleMouseDown = useCallback(
-    (e: React.MouseEvent<HTMLButtonElement>) => { pressedRef.current = true; applyMagnetic(e); },
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      pressedRef.current = true;
+      applyMagnetic(e);
+    },
     [applyMagnetic]
   );
-  const handleMouseUp = useCallback(() => { pressedRef.current = false; }, []);
+  const handleMouseUp = useCallback(() => {
+    pressedRef.current = false;
+  }, []);
 
   return (
     <button
@@ -125,5 +129,4 @@ export function Button({
   );
 }
 
-/** Framer Motion wrapper for animated button entrance */
 export const MotionButton = motion(Button);

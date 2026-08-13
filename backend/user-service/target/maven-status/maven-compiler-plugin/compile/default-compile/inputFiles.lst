@@ -2,6 +2,7 @@ C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\user-servi
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\user-service\src\main\java\com\neighbornest\user\client\AuthServiceClientFallbackFactory.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\user-service\src\main\java\com\neighbornest\user\config\FeignClientConfig.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\user-service\src\main\java\com\neighbornest\user\config\OpenApiConfig.java
+C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\user-service\src\main\java\com\neighbornest\user\config\RabbitMQConfig.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\user-service\src\main\java\com\neighbornest\user\config\SecurityConfig.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\user-service\src\main\java\com\neighbornest\user\controller\UserProfileController.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\user-service\src\main\java\com\neighbornest\user\dto\request\AnchorApplyRequest.java
@@ -27,6 +28,8 @@ C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\user-servi
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\user-service\src\main\java\com\neighbornest\user\entity\UserProfile.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\user-service\src\main\java\com\neighbornest\user\entity\UserRole.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\user-service\src\main\java\com\neighbornest\user\entity\WorkType.java
+C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\user-service\src\main\java\com\neighbornest\user\event\AnchorApplicationReviewedEvent.java
+C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\user-service\src\main\java\com\neighbornest\user\event\UserEventPublisher.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\user-service\src\main\java\com\neighbornest\user\exception\BadRequestException.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\user-service\src\main\java\com\neighbornest\user\exception\DuplicateProfileException.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\user-service\src\main\java\com\neighbornest\user\exception\ResourceNotFoundException.java

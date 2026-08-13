@@ -8,12 +8,36 @@ import { ROUTES } from '@/lib/constants';
 import { useAuthStore } from '@/stores/authStore';
 
 /**
+ * Route guard for the admin Anchor review queue — only ADMIN users may view
+ * it; everyone else is redirected to the dashboard.
+ *
+ * While the profile is still bootstrapping (`user` null — e.g. a page refresh
+ * where the persisted session is being revalidated), nothing is decided yet:
+ * rendering the page would fire admin API calls without a known role, and
+ * redirecting would bounce a real admin off the page before their role
+ * restores. So we wait with a loader until the role is known.
+ */
+export function AdminRoute() {
+  const user = useAuthStore((state) => state.user);
+  if (user === null) {
+    return <PageLoader />;
+  }
+  if (user.role !== 'ADMIN') {
+    return <Navigate to={ROUTES.DASHBOARD} replace />;
+  }
+  return <AdminAnchorReviewsPage />;
+}
+
+/**
  * Route-level code splitting: every page is a lazy chunk that only loads when
  * its route is first visited. The shared layouts (AppLayout / PublicLayout) and
  * the router itself stay in the initial bundle so navigation feels instant.
  */
 const AnchorApplicationForm = lazy(() =>
   import('@/components/profile/AnchorApplicationForm').then((m) => ({ default: m.AnchorApplicationForm }))
+);
+const AdminAnchorReviewsPage = lazy(() =>
+  import('@/pages/AdminAnchorReviewsPage').then((m) => ({ default: m.AdminAnchorReviewsPage }))
 );
 const DashboardPage = lazy(() => import('@/pages/DashboardPage').then((m) => ({ default: m.DashboardPage })));
 const DiscoverPage = lazy(() => import('@/pages/DiscoverPage').then((m) => ({ default: m.DiscoverPage })));
@@ -74,6 +98,7 @@ export function AppRouter() {
             <Route path={ROUTES.PROFILE} element={<ProfilePage />} />
             <Route path={ROUTES.ANCHOR_APPLY} element={<AnchorApplyRoute />} />
             <Route path={ROUTES.MESSAGES} element={<MessagesPage />} />
+            <Route path={ROUTES.ADMIN_ANCHORS} element={<AdminRoute />} />
           </Route>
         </Route>
 

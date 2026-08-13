@@ -14,6 +14,7 @@ export type NotificationType =
   | 'EXPENSE_SPLIT'
   | 'VIBE_CHECK_DUE'
   | 'CHAT_MESSAGE'
+  | 'ANCHOR_APPLICATION'
   | 'SYSTEM';
 
 /** Delivery channel of a notification. */

@@ -5,7 +5,10 @@ spring:
   application:
     name: auth-service
   datasource:
-    url: jdbc:mysql://localhost:3306/neighbornest_auth?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    # Host port 3310 matches docker-compose's mysql-auth mapping (3306 on the
+    # host is usually a local MySQL). When auth-service runs in Docker, the
+    # compose file overrides this with SPRING_DATASOURCE_URL=mysql-auth:3306.
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3310}/${DB_NAME:neighbornest_auth}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
     username: ${MYSQL_USER:root}
     # Local/dev default only — always override with MYSQL_PASSWORD (or backend/.env)
     # in real environments. Never hardcode real credentials in source control.

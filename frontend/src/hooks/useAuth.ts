@@ -52,7 +52,10 @@ export function useAuth() {
     async (payload: LoginRequest): Promise<AuthActionResult> => {
       try {
         const authResponse = await authService.login(payload);
-        setAuth(authResponse);
+        // Pass `null` so a previous session's persisted profile is dropped —
+        // otherwise pages briefly read the old user's id while fetchUser()
+        // resolves, querying APIs with the wrong profile and rendering blank.
+        setAuth(authResponse, null);
         void fetchUser();
         navigate(intendedPath, { replace: true });
         toast.success('Welcome back to NeighborNest!');
@@ -97,7 +100,9 @@ export function useAuth() {
           email: payload.email,
           password: payload.password,
         });
-        setAuth(authResponse);
+        // Drop any persisted profile from a previous session before the new
+        // user's profile is fetched (see login above).
+        setAuth(authResponse, null);
         // Step 3: provision the user-service profile (best-effort).
         // 409 = profile already exists; any other 4xx just means the onboarding
         // wizard will create it later. Never block the session on this call.

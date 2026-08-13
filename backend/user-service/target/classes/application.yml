@@ -36,6 +36,11 @@ spring:
     openfeign:
       circuitbreaker:
         enabled: true
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
 
 eureka:
   client:
@@ -55,6 +60,21 @@ app:
     secret: ${JWT_SECRET:VGhpcyBpcyBhIHNlY3JldCBrZXkgZm9yIE5laWdoYm9yTmVzdCBKV1QgdG9rZW4gc2lnbmluZyAtIGRldmVsb3BtZW50IG9ubHk=}
   upload:
     photo-dir: ${PHOTO_DIR:./uploads/photos}
+  user:
+    event:
+      # Anchor application review events are published on the shared
+      # nest.events topic exchange (same broker channel the nest/chat services
+      # use); the notification-service binds its own queue to this routing key.
+      exchange: ${USER_EVENT_EXCHANGE:nest.events}
+      anchor-reviewed-routing-key: ${ANCHOR_REVIEWED_ROUTING_KEY:user.anchor.reviewed}
+
+# Generous Feign timeouts (default 1s TimeLimiter kills cold-start calls).
+resilience4j:
+  timelimiter:
+    configs:
+      default:
+        timeout-duration: 15s
+        cancel-running-future: true
 
 logging:
   level:

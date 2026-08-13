@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.neighbornest.notificationservice.controller.NotificationControllerTest$InboxEndpoints
 -------------------------------------------------------------------------------
-Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.386 s -- in com.neighbornest.notificationservice.controller.NotificationControllerTest$InboxEndpoints
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.161 s -- in com.neighbornest.notificationservice.controller.NotificationControllerTest$InboxEndpoints

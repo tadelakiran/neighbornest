@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   LogOut,
   MessageSquare,
+  ShieldCheck,
   UserRound,
   X,
   type LucideIcon,
@@ -25,18 +26,28 @@ interface SidebarProps {
 
 const NAV_ITEMS: Array<{ to: string; label: string; icon: LucideIcon; end?: boolean }> = [
   { to: ROUTES.DASHBOARD, label: 'Dashboard', icon: LayoutDashboard, end: true },
-  { to: ROUTES.DISCOVER, label: 'Discover',   icon: Compass },
+  { to: ROUTES.DISCOVER,  label: 'Discover',  icon: Compass },
   { to: ROUTES.PROPOSALS, label: 'Proposals', icon: Inbox },
-  { to: ROUTES.MY_NEST, label: 'My Nest',     icon: Home },
-  { to: ROUTES.MESSAGES, label: 'Messages',   icon: MessageSquare },
-  { to: ROUTES.PROFILE, label: 'Profile',     icon: UserRound },
+  { to: ROUTES.MY_NEST,    label: 'My Nest',   icon: Home },
+  { to: ROUTES.MESSAGES,   label: 'Messages',  icon: MessageSquare },
+  { to: ROUTES.PROFILE,    label: 'Profile',   icon: UserRound },
 ];
 
-/**
- * Blue Dynasty side navigation. Fixed drawer on desktop, slide-over with
- * backdrop on mobile. Nav items highlight the active route with an accent
- * gradient; the footer shows the current user + logout.
- */
+const ADMIN_ITEMS: Array<{ to: string; label: string; icon: LucideIcon }> = [
+  { to: ROUTES.ADMIN_ANCHORS, label: 'Anchor Reviews', icon: ShieldCheck },
+];
+
+const backdropVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1 },
+  exit: { opacity: 0 },
+};
+
+const sidebarVariants = {
+  closed: { x: '-100%' },
+  open: { x: 0, transition: { type: 'spring', damping: 28, stiffness: 280 } },
+};
+
 export function Sidebar({ isOpen, onClose, className = '' }: SidebarProps) {
   const navigate = useNavigate();
   const { logout } = useAuth();
@@ -48,22 +59,24 @@ export function Sidebar({ isOpen, onClose, className = '' }: SidebarProps) {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            variants={backdropVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
             onClick={onClose}
-            className="fixed inset-0 z-40 bg-void/70 backdrop-blur-sm lg:hidden"
+            className="fixed inset-0 z-40 bg-void/60 backdrop-blur-sm lg:hidden"
           />
         )}
       </AnimatePresence>
 
-      <aside
+      <motion.aside
+        variants={sidebarVariants}
+        initial={false}
+        animate={isOpen ? 'open' : 'closed'}
         className={cn(
           'fixed inset-y-0 left-0 z-50 flex w-72 flex-col',
-          'border-r border-[var(--color-border)] bg-deep/90 backdrop-blur-2xl',
-          'transition-transform duration-300 ease-in-out',
-          'lg:static lg:translate-x-0',
-          isOpen ? 'translate-x-0' : '-translate-x-full',
+          'border-r border-white/[0.06] bg-deep/95 backdrop-blur-2xl',
+          'lg:static lg:transform-none',
           className
         )}
       >
@@ -83,7 +96,7 @@ export function Sidebar({ isOpen, onClose, className = '' }: SidebarProps) {
           </button>
           <button
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-muted transition-colors hover:text-primary lg:hidden"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-muted transition-colors hover:bg-white/[0.06] hover:text-primary lg:hidden"
             aria-label="Close menu"
           >
             <X className="h-5 w-5" />
@@ -91,7 +104,7 @@ export function Sidebar({ isOpen, onClose, className = '' }: SidebarProps) {
         </div>
 
         {/* Nav */}
-        <nav className="mt-4 flex-1 space-y-1 overflow-y-auto px-4" aria-label="Main navigation">
+        <nav className="mt-6 flex-1 space-y-1 overflow-y-auto px-3 no-scrollbar" aria-label="Main navigation">
           {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
             <NavLink
               key={to}
@@ -103,34 +116,85 @@ export function Sidebar({ isOpen, onClose, className = '' }: SidebarProps) {
                   'group relative flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200',
                   isActive
                     ? 'bg-accent-gradient text-white shadow-glow'
-                    : 'text-secondary hover:bg-[var(--color-raised)] hover:text-primary'
+                    : 'text-secondary hover:bg-raised hover:text-primary'
                 )
               }
             >
               {({ isActive }) => (
                 <>
                   <Icon
-                    className={cn('h-5 w-5 transition-transform duration-200', !isActive && 'group-hover:scale-110')}
+                    className={cn(
+                      'h-5 w-5 transition-transform duration-200',
+                      !isActive && 'group-hover:scale-110'
+                    )}
                     aria-hidden="true"
                   />
                   <span>{label}</span>
                   {isActive && (
                     <motion.span
-                      layoutId="sidebar-active-dot"
-                      className="absolute right-3 h-1.5 w-1.5 rounded-full bg-white/90"
+                      layoutId="sidebar-active-pill"
+                      className="absolute right-3 h-1.5 w-1.5 rounded-full bg-white/90 shadow-[0_0_6px_rgba(255,255,255,0.6)]"
                       aria-hidden="true"
+                      transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
                     />
                   )}
                 </>
               )}
             </NavLink>
           ))}
+
+          {/* Admin section */}
+          {user?.role === 'ADMIN' && (
+            <>
+              <div className="mx-3 my-4 flex items-center gap-3">
+                <div className="h-px flex-1 bg-white/[0.06]" />
+                <span className="text-[10px] font-bold uppercase tracking-widest text-muted">Admin</span>
+                <div className="h-px flex-1 bg-white/[0.06]" />
+              </div>
+              {ADMIN_ITEMS.map(({ to, label, icon: Icon }) => (
+                <NavLink
+                  key={to}
+                  to={to}
+                  onClick={onClose}
+                  className={({ isActive }) =>
+                    cn(
+                      'group relative flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200',
+                      isActive
+                        ? 'bg-accent-gradient text-white shadow-glow'
+                        : 'text-secondary hover:bg-raised hover:text-primary'
+                    )
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      <Icon
+                        className={cn(
+                          'h-5 w-5 transition-transform duration-200',
+                          !isActive && 'group-hover:scale-110'
+                        )}
+                        aria-hidden="true"
+                      />
+                      <span>{label}</span>
+                      {isActive && (
+                        <motion.span
+                          layoutId="sidebar-active-pill"
+                          className="absolute right-3 h-1.5 w-1.5 rounded-full bg-white/90 shadow-[0_0_6px_rgba(255,255,255,0.6)]"
+                          aria-hidden="true"
+                          transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
+                        />
+                      )}
+                    </>
+                  )}
+                </NavLink>
+              ))}
+            </>
+          )}
         </nav>
 
         {/* User footer */}
-        <div className="border-t border-[var(--color-border)] p-4">
+        <div className="border-t border-white/[0.06] p-4">
           {user ? (
-            <div className="flex items-center gap-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-2)] p-3">
+            <div className="flex items-center gap-3 rounded-xl border border-white/[0.08] bg-surface-2 p-3">
               <Avatar name={user.fullName} src={user.profilePhotoUrl} size="md" />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold text-primary">{user.fullName}</p>
@@ -139,20 +203,21 @@ export function Sidebar({ isOpen, onClose, className = '' }: SidebarProps) {
                   {user.city ? ` · ${user.city}` : ''}
                 </p>
               </div>
-              <button
+              <motion.button
+                whileTap={{ scale: 0.9 }}
                 onClick={() => void logout()}
                 className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-muted transition-colors hover:bg-rose-400/10 hover:text-rose-400"
                 aria-label="Log out"
                 title="Log out"
               >
                 <LogOut className="h-4 w-4" />
-              </button>
+              </motion.button>
             </div>
           ) : (
             <p className="px-2 py-1 text-xs text-muted">Signing in…</p>
           )}
         </div>
-      </aside>
+      </motion.aside>
     </>
   );
 }

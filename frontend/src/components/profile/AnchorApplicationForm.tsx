@@ -3,7 +3,17 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { ArrowLeft, BadgeCheck, CalendarDays, Home, Sparkles } from 'lucide-react';
+import { motion } from 'framer-motion';
+import {
+  ArrowLeft,
+  BadgeCheck,
+  CalendarDays,
+  Clock,
+  Home,
+  Sparkles,
+  ShieldCheck,
+  Send,
+} from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
@@ -17,7 +27,6 @@ import { ROUTES } from '@/lib/constants';
 import { getErrorMessage } from '@/lib/utils';
 import { userService } from '@/services/userService';
 
-/** Validation schema — mirrors the backend anchor-apply constraints. */
 const anchorSchema = z.object({
   yearsInCity: z.coerce.number().min(1, 'You must have lived in the city for at least 1 year'),
   neighborhoods: z.array(z.string().min(1)).min(1, 'Add at least one neighborhood'),
@@ -28,11 +37,11 @@ const anchorSchema = z.object({
 
 type AnchorValues = z.infer<typeof anchorSchema>;
 
-/**
- * Anchor application page: a local-knowledge questionnaire for NEWCOMERs who
- * want to become Anchors. Submits to POST /api/users/anchor-apply and shows a
- * "pending" success modal.
- */
+const stagger = {
+  container: { hidden: {}, show: { transition: { staggerChildren: 0.08 } } },
+  item: { hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } } },
+};
+
 export function AnchorApplicationForm() {
   const navigate = useNavigate();
   const toast = useToast();
@@ -74,154 +83,196 @@ export function AnchorApplicationForm() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      {/* Banner */}
-      <Card className="relative overflow-hidden border-gold-500/30 bg-gradient-to-br from-gold-600/15 via-deep to-deep p-6">
-        <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-          <LazyImage
-            src={IMAGES.home}
-            alt=""
-            placeholder="shimmer"
-            wrapperClassName="absolute inset-0"
-            className="h-full w-full object-cover opacity-15"
-            loading="lazy"
-          />
-          <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-deep)]/85 via-[var(--color-deep)]/75 to-[var(--color-deep)]/90" />
-          <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-accent-400/15 blur-3xl" />
-        </div>
-        <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center">
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-gold-gradient shadow-glow">
-            <Home className="h-6 w-6 text-white" aria-hidden="true" />
-          </span>
-          <div className="flex-1">
-            <h1 className="font-display text-xl font-bold text-primary">Want to help others feel at home?</h1>
-            <p className="mt-1 text-sm text-muted">
-              Become an Anchor — a local who hosts and guides newcomers through
-              their first months in the city.
-            </p>
+      {/* Hero banner */}
+      <motion.div
+        initial={{ opacity: 0, y: -12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <Card className="relative overflow-hidden rounded-2xl border-gold-500/20 p-6">
+          <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+            <LazyImage
+              src={IMAGES.home}
+              alt=""
+              placeholder="shimmer"
+              wrapperClassName="absolute inset-0"
+              className="h-full w-full object-cover opacity-10"
+              loading="lazy"
+            />
+            <div className="absolute inset-0 bg-gradient-to-br from-gold-500/10 via-deep/90 to-deep" />
+            <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-gold-400/10 blur-3xl" />
+            <div className="absolute -left-10 bottom-0 h-32 w-32 rounded-full bg-accent-400/10 blur-2xl" />
           </div>
-          <Sparkles className="hidden h-6 w-6 text-gold-300/60 sm:block" aria-hidden="true" />
-        </div>
-      </Card>
+
+          <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center">
+            <motion.span
+              animate={{ rotate: [0, 8, -8, 0] }}
+              transition={{ repeat: Infinity, duration: 6, ease: 'easeInOut' }}
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gold-gradient shadow-gold"
+            >
+              <Home className="h-6 w-6 text-white" aria-hidden="true" />
+            </motion.span>
+            <div className="flex-1">
+              <h1 className="font-display text-xl font-bold tracking-tight text-primary">
+                Want to help others feel at home?
+              </h1>
+              <p className="mt-1 text-sm leading-relaxed text-muted">
+                Become an Anchor — a local who hosts and guides newcomers through their first months in the city.
+              </p>
+            </div>
+            <Sparkles className="hidden h-5 w-5 text-gold-300/50 sm:block" aria-hidden="true" />
+          </div>
+        </Card>
+      </motion.div>
 
       {/* Form */}
-      <Card className="p-6">
-        <form onSubmit={onSubmit} className="space-y-5" noValidate>
-          <Input
-            id="aa-years"
-            type="number"
-            min={1}
-            label="Years in the city"
-            placeholder="5"
-            icon={<CalendarDays className="h-4 w-4" aria-hidden="true" />}
-            error={errors.yearsInCity?.message}
-            {...register('yearsInCity')}
-          />
+      <motion.div
+        variants={stagger.container}
+        initial="hidden"
+        animate="show"
+      >
+        <Card className="rounded-2xl p-6 sm:p-8">
+          <form onSubmit={onSubmit} className="space-y-5" noValidate>
+            <motion.div variants={stagger.item}>
+              <Input
+                id="aa-years"
+                type="number"
+                min={1}
+                label="Years in the city"
+                placeholder="5"
+                icon={<CalendarDays className="h-4 w-4 text-muted" aria-hidden="true" />}
+                error={errors.yearsInCity?.message}
+                className="h-12 rounded-xl border-white/[0.08] bg-surface-2 text-primary transition-all focus-within:border-accent-400/40 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.1)]"
+                {...register('yearsInCity')}
+              />
+            </motion.div>
 
-          <TagInput
-            label="Neighborhoods you know well"
-            placeholder="Type a neighborhood and press Enter"
-            hint="e.g. Mission, Noe Valley, Castro"
-            value={neighborhoods}
-            onChange={(tags) => setValue('neighborhoods', tags, { shouldValidate: true })}
-            error={errors.neighborhoods?.message}
-          />
+            <motion.div variants={stagger.item}>
+              <TagInput
+                label="Neighborhoods you know well"
+                placeholder="Type a neighborhood and press Enter"
+                hint="e.g. Mission, Noe Valley, Castro"
+                value={neighborhoods}
+                onChange={(tags) => setValue('neighborhoods', tags, { shouldValidate: true })}
+                error={errors.neighborhoods?.message}
+              />
+            </motion.div>
 
-          <TagInput
-            label="Languages spoken (optional)"
-            placeholder="Type a language and press Enter"
-            hint="e.g. English, Spanish"
-            value={languages}
-            onChange={(tags) => setValue('languages', tags, { shouldValidate: true })}
-            error={errors.languages?.message}
-          />
+            <motion.div variants={stagger.item}>
+              <TagInput
+                label="Languages spoken (optional)"
+                placeholder="Type a language and press Enter"
+                hint="e.g. English, Spanish"
+                value={languages}
+                onChange={(tags) => setValue('languages', tags, { shouldValidate: true })}
+                error={errors.languages?.message}
+              />
+            </motion.div>
 
-          <Textarea
-            id="aa-experience"
-            label="Your local experience"
-            placeholder="Tell us about your time in the city — events you've hosted, groups you're part of…"
-            error={errors.experience?.message}
-            {...register('experience')}
-          />
+            <motion.div variants={stagger.item}>
+              <Textarea
+                id="aa-experience"
+                label="Your local experience"
+                placeholder="Tell us about your time in the city — events you've hosted, groups you're part of, hidden gems you know…"
+                rows={4}
+                error={errors.experience?.message}
+                className="rounded-xl border-white/[0.08] bg-surface-2 text-primary transition-all focus-within:border-accent-400/40 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.1)]"
+                {...register('experience')}
+              />
+            </motion.div>
 
-          <Textarea
-            id="aa-availability"
-            label="Availability (optional)"
-            placeholder="e.g. Evenings and weekends"
-            rows={3}
-            error={errors.availability?.message}
-            {...register('availability')}
-          />
+            <motion.div variants={stagger.item}>
+              <Textarea
+                id="aa-availability"
+                label="Availability (optional)"
+                placeholder="e.g. Evenings and weekends"
+                rows={3}
+                error={errors.availability?.message}
+                className="rounded-xl border-white/[0.08] bg-surface-2 text-primary transition-all focus-within:border-accent-400/40 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.1)]"
+                {...register('availability')}
+              />
+            </motion.div>
 
-          <div className="flex items-center justify-between gap-3 pt-2">
-            <Button
-              variant="ghost"
-              leftIcon={<ArrowLeft className="h-4 w-4" aria-hidden="true" />}
-              onClick={() => navigate(ROUTES.PROFILE)}
-            >
-              Back to profile
-            </Button>
-            <Button type="submit" isLoading={submitting} disabled={submitting}>
-              {submitting ? 'Submitting…' : 'Submit application'}
-            </Button>
-          </div>
-        </form>
-      </Card>
+            <motion.div variants={stagger.item} className="flex items-center justify-between gap-3 pt-3">
+              <Button
+                variant="ghost"
+                size="sm"
+                leftIcon={<ArrowLeft className="h-4 w-4" aria-hidden="true" />}
+                onClick={() => navigate(ROUTES.PROFILE)}
+                className="rounded-xl text-muted hover:text-primary"
+              >
+                Back
+              </Button>
+              <Button
+                type="submit"
+                isLoading={submitting}
+                disabled={submitting}
+                className="rounded-xl shadow-glow"
+                leftIcon={<Send className="h-4 w-4" aria-hidden="true" />}
+              >
+                {submitting ? 'Submitting…' : 'Submit application'}
+              </Button>
+            </motion.div>
+          </form>
+        </Card>
+      </motion.div>
 
       {/* Success modal */}
-      <Modal open={submitted} onClose={() => navigate(ROUTES.PROFILE)} title="Application submitted" maxWidth="max-w-sm">
-        <div className="flex flex-col items-center gap-4 py-2 text-center">
-          <SuccessIcon />
+      <Modal open={submitted} onClose={() => navigate(ROUTES.PROFILE)} title="Application submitted" maxWidth="max-w-md">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+          className="flex flex-col items-center gap-5 py-2 text-center"
+        >
+          <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-accent-400/10 shadow-glow-sm ring-1 ring-accent-400/20">
+            <BadgeCheck className="h-8 w-8 text-accent-400" aria-hidden="true" />
+          </span>
+
           <div className="space-y-1">
-            <p className="text-sm font-semibold text-primary">You&apos;re in the running!</p>
-            <p className="text-sm leading-relaxed text-muted">
-              Our team will review your application. You&apos;ll see the status
-              on your profile once a decision is made.
+            <p className="text-base font-bold text-primary">You're in the running!</p>
+            <p className="max-w-[16rem] text-sm leading-relaxed text-muted">
+              Our team will review your application. You'll see the status on your profile once a decision is made.
             </p>
           </div>
+
           <PendingBadge />
 
-          {/* Transparent review process */}
-          <div className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] p-4 text-left">
-            <p className="text-xs font-semibold uppercase tracking-widest text-muted">What happens next</p>
-            <ol className="mt-2 space-y-2">
-              <li className="flex items-start gap-2.5 text-xs leading-relaxed text-secondary">
-                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent-400/15 text-[10px] font-bold text-accent-300">1</span>
-                An admin reviews your application and local experience
-              </li>
-              <li className="flex items-start gap-2.5 text-xs leading-relaxed text-secondary">
-                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent-400/15 text-[10px] font-bold text-accent-300">2</span>
-                Approved? Your role upgrades to Anchor automatically
-              </li>
-              <li className="flex items-start gap-2.5 text-xs leading-relaxed text-secondary">
-                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent-400/15 text-[10px] font-bold text-accent-300">3</span>
-                Track the status on your profile at any time
-              </li>
+          {/* Process steps */}
+          <div className="w-full space-y-3 rounded-xl border border-white/[0.06] bg-surface/50 p-4 text-left">
+            <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted">What happens next</p>
+            <ol className="space-y-3">
+              {[
+                { icon: ShieldCheck, text: 'An admin reviews your application and local experience' },
+                { icon: BadgeCheck, text: 'Approved? Your role upgrades to Anchor automatically' },
+                { icon: Clock, text: 'Track the status on your profile at any time' },
+              ].map((step, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent-400/10 text-[10px] font-bold text-accent-400">
+                    {i + 1}
+                  </span>
+                  <span className="text-xs leading-relaxed text-secondary">{step.text}</span>
+                </li>
+              ))}
             </ol>
           </div>
 
-          <Button fullWidth onClick={() => navigate(ROUTES.PROFILE)}>
+          <Button fullWidth onClick={() => navigate(ROUTES.PROFILE)} className="rounded-xl">
             Back to profile
           </Button>
-        </div>
+        </motion.div>
       </Modal>
     </div>
   );
 }
 
-/** Success check inside the modal. */
-function SuccessIcon() {
-  return (
-    <span className="flex h-14 w-14 items-center justify-center rounded-full bg-accent-400/15 shadow-glow-sm">
-      <BadgeCheck className="h-8 w-8 text-accent-300" aria-hidden="true" />
-    </span>
-  );
-}
-
-/** Pending status pill with a soft pulse. */
 function PendingBadge() {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-medium text-amber-400">
-      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-400" aria-hidden="true" />
+    <span className="inline-flex items-center gap-2 rounded-full border border-amber-400/25 bg-amber-400/10 px-4 py-1.5 text-xs font-bold text-amber-300 shadow-[0_0_12px_rgba(251,191,36,0.1)]">
+      <span className="relative flex h-2 w-2">
+        <span className="absolute inset-0 animate-ping rounded-full bg-amber-400 opacity-60" />
+        <span className="relative h-2 w-2 rounded-full bg-amber-400" />
+      </span>
       Pending review
     </span>
   );

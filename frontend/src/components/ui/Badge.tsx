@@ -8,22 +8,25 @@ interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
 }
 
 const VARIANTS: Record<BadgeVariant, string> = {
-  primary: 'bg-accent-600 text-white border-accent-600',
-  success: 'bg-accent-100 text-accent-700 border-accent-200 dark:bg-accent-900/30 dark:text-accent-300 dark:border-accent-700/40',
-  info:    'bg-accent-50 text-accent-600 border-accent-200 dark:bg-accent-900/20 dark:text-accent-400 dark:border-accent-700/30',
-  warning: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-700/30',
-  danger:  'bg-rose-50 text-rose-600 border-rose-200 dark:bg-rose-900/20 dark:text-rose-400 dark:border-rose-700/30',
-  neutral: 'bg-[var(--color-surface)] text-[var(--text-secondary)] border-[var(--color-border)]',
+  primary:
+    'bg-accent-gradient text-white border-transparent shadow-glow-sm',
+  success:
+    'border-emerald-400/25 bg-emerald-400/10 text-emerald-300 shadow-[0_0_12px_rgba(52,211,153,0.1)]',
+  info:
+    'border-accent-400/25 bg-accent-400/10 text-accent-300 shadow-[0_0_12px_rgba(14,165,233,0.1)]',
+  warning:
+    'border-amber-400/25 bg-amber-400/10 text-amber-300 shadow-[0_0_12px_rgba(251,191,36,0.1)]',
+  danger:
+    'border-rose-400/25 bg-rose-400/10 text-rose-300 shadow-[0_0_12px_rgba(251,113,133,0.1)]',
+  neutral:
+    'border-white/[0.08] bg-surface-2 text-secondary',
 };
 
-/**
- * Compact status pill — adapts to light/dark mode via CSS variables.
- */
 export function Badge({ variant = 'neutral', className, children, ...props }: BadgeProps) {
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium',
+        'inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider',
         VARIANTS[variant],
         className
       )}
