@@ -1,13 +1,18 @@
 package com.neighbornest.auth.controller;
 
+import com.neighbornest.auth.dto.request.ForgotPasswordRequest;
 import com.neighbornest.auth.dto.request.LoginRequest;
 import com.neighbornest.auth.dto.request.LogoutRequest;
 import com.neighbornest.auth.dto.request.RefreshTokenRequest;
 import com.neighbornest.auth.dto.request.RegisterRequest;
+import com.neighbornest.auth.dto.request.ResetPasswordRequest;
+import com.neighbornest.auth.dto.request.SendOtpRequest;
 import com.neighbornest.auth.dto.response.AuthResponse;
 import com.neighbornest.auth.dto.response.AuthValidationResponse;
+import com.neighbornest.auth.dto.response.OtpSendResponse;
 import com.neighbornest.auth.dto.response.UserResponse;
 import com.neighbornest.auth.service.AuthService;
+import com.neighbornest.auth.service.PasswordService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -43,11 +48,73 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
+    private final PasswordService passwordService;
+
+    /**
+     * Emails a one-time passcode to verify an email address during registration.
+     *
+     * @param request the email + purpose
+     * @return metadata about the issued code (never the code itself)
+     */
+    @PostMapping("/otp/send")
+    @Operation(summary = "Send email verification code",
+            description = "Emails a 6-digit code to prove ownership of an email address before registration completes.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Code issued and emailed"),
+            @ApiResponse(responseCode = "400", description = "Invalid input or code requested too soon")
+    })
+    public OtpSendResponse sendOtp(@Valid @RequestBody final SendOtpRequest request) {
+        log.debug("POST /api/auth/otp/send - purpose {} for {}", request.getPurpose(), request.getEmail());
+        return authService.sendOtp(request);
+    }
+
+    /**
+     * Emails a password-reset code if an account exists for the address.
+     * <p>
+     * Always responds with the same success message so the endpoint never
+     * reveals whether an email address is registered.
+     * </p>
+     *
+     * @param request the account email address
+     * @return a generic success message
+     */
+    @PostMapping("/password/forgot")
+    @Operation(summary = "Request password reset code",
+            description = "Emails a 6-digit reset code if an account exists for the address. " +
+                    "Always returns success to avoid leaking which emails are registered.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Reset code dispatched (if the account exists)"),
+            @ApiResponse(responseCode = "400", description = "Invalid input")
+    })
+    public ResponseEntity<String> forgotPassword(@Valid @RequestBody final ForgotPasswordRequest request) {
+        log.debug("POST /api/auth/password/forgot - requested for {}", request.getEmail());
+        passwordService.forgotPassword(request.getEmail());
+        return ResponseEntity.ok("If an account exists for that email, a reset code is on its way.");
+    }
+
+    /**
+     * Completes a password reset using the emailed code.
+     *
+     * @param request the email, code, and new password
+     * @return a success message
+     */
+    @PostMapping("/password/reset")
+    @Operation(summary = "Reset password with code",
+            description = "Verifies the emailed reset code and updates the account password.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Password updated"),
+            @ApiResponse(responseCode = "400", description = "Invalid, expired, or wrong code; weak new password")
+    })
+    public ResponseEntity<String> resetPassword(@Valid @RequestBody final ResetPasswordRequest request) {
+        log.debug("POST /api/auth/password/reset - requested for {}", request.getEmail());
+        passwordService.resetPassword(request);
+        return ResponseEntity.ok("Password updated. You can now sign in with your new password.");
+    }
 
     /**
      * Registers a new user on the NeighborNest platform.
      *
-     * @param request the registration request containing fullName, email, and password
+     * @param request the registration request containing fullName, email, password, and otp
      * @return a {@link ResponseEntity} containing the new user's profile with status 201 CREATED
      */
     @PostMapping("/register")

@@ -29,15 +29,15 @@ import type { NotificationResponse, NotificationType } from '@/types/notificatio
 const POLL_MS = 30_000;
 
 const TYPE_META: Record<NotificationType, { icon: LucideIcon; accent: string }> = {
-  NEST_CREATED:     { icon: Home, accent: 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20' },
+  NEST_CREATED:     { icon: Home, accent: 'text-[var(--success)] bg-[var(--success)]/10 border-[var(--success)]/20' },
   NEST_GRADUATED:   { icon: GraduationCap, accent: 'text-gold-400 bg-gold-400/10 border-gold-400/20' },
-  NEST_DISBANDED:   { icon: XCircle, accent: 'text-rose-400 bg-rose-400/10 border-rose-400/20' },
+  NEST_DISBANDED:   { icon: XCircle, accent: 'text-[var(--error)] bg-[var(--error)]/10 border-[var(--error)]/20' },
   MEETING_REMINDER: { icon: CalendarClock, accent: 'text-accent-400 bg-accent-400/10 border-accent-400/20' },
   EXPENSE_SPLIT:    { icon: Wallet, accent: 'text-violet-400 bg-violet-400/10 border-violet-400/20' },
   VIBE_CHECK_DUE:   { icon: HeartPulse, accent: 'text-pink-400 bg-pink-400/10 border-pink-400/20' },
   CHAT_MESSAGE:     { icon: MessageSquare, accent: 'text-sky-400 bg-sky-400/10 border-sky-400/20' },
-  ANCHOR_APPLICATION:{ icon: BadgeCheck, accent: 'text-amber-400 bg-amber-400/10 border-amber-400/20' },
-  SYSTEM:           { icon: BellRing, accent: 'text-muted bg-white/[0.04] border-white/[0.06]' },
+  ANCHOR_APPLICATION:{ icon: BadgeCheck, accent: 'text-[var(--warning)] bg-[var(--warning)]/10 border-[var(--warning)]/20' },
+  SYSTEM:           { icon: BellRing, accent: 'text-[var(--text-muted)] bg-[var(--color-raised)]/40 border-[var(--color-border)]' },
 };
 
 const panelVariants = {
@@ -130,7 +130,7 @@ export function NotificationPanel() {
       <motion.button
         whileTap={{ scale: 0.9 }}
         onClick={handleOpen}
-        className="relative flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-surface-2 text-secondary transition-colors hover:text-primary"
+        className="relative flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--text-secondary)] transition-colors hover:text-[var(--text-primary)]"
         aria-label={`Notifications${unreadVisible ? ` (${unread} unread)` : ''}`}
         aria-expanded={open}
       >
@@ -156,10 +156,10 @@ export function NotificationPanel() {
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="absolute right-0 top-11 z-50 w-[min(22rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-white/[0.08] bg-surface/95 shadow-2xl backdrop-blur-2xl"
+            className="absolute right-0 top-11 z-50 w-[min(22rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)]/95 shadow-2xl backdrop-blur-2xl"
           >
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-white/[0.06] px-4 py-3">
+            <div className="flex items-center justify-between border-b border-[var(--color-border)] px-4 py-3">
               <h3 className="flex items-center gap-2 text-sm font-bold text-primary">
                 <BellRing className="h-4 w-4 text-accent-400" aria-hidden="true" />
                 Notifications

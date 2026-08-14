@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils';
 type SpinnerSize = 'xs' | 'sm' | 'md' | 'lg';
 
 interface SpinnerProps {
-  size?:      SpinnerSize;
+  size?: SpinnerSize;
   className?: string;
 }
 
@@ -16,7 +16,7 @@ const SIZE_MAP: Record<SpinnerSize, string> = {
 
 /**
  * Minimal circular spinner using CSS border animation.
- * Uses accent-500 as the active arc — works in both light and dark modes.
+ * Uses accent-400 as the active arc — works in both light and dark modes.
  */
 export function Spinner({ size = 'md', className }: SpinnerProps) {
   return (
@@ -25,7 +25,7 @@ export function Spinner({ size = 'md', className }: SpinnerProps) {
       aria-label="Loading"
       className={cn(
         'inline-block animate-spin rounded-full',
-        'border-accent-200 border-t-accent-500',
+        'border-[var(--color-raised)] border-t-[var(--accent-400)]',
         SIZE_MAP[size],
         className
       )}

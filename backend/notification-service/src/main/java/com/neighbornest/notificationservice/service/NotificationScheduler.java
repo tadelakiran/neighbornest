@@ -11,10 +11,12 @@ import com.neighbornest.notificationservice.client.VibeCheckStatusResponse;
 import com.neighbornest.notificationservice.config.NotificationServiceProperties;
 import com.neighbornest.notificationservice.constants.AppConstants;
 import com.neighbornest.notificationservice.enums.NotificationType;
+import com.neighbornest.notificationservice.repository.EmailOtpRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -61,6 +63,7 @@ public class NotificationScheduler {
     private final NestServiceClient nestServiceClient;
     private final NotificationService notificationService;
     private final NotificationServiceProperties properties;
+    private final EmailOtpRepository emailOtpRepository;
 
     /** Renders meeting timestamps in a friendly, locale-free format. */
     private static final DateTimeFormatter MEETING_DATE_FORMAT = DateTimeFormatter.ofPattern("EEE, MMM d 'at' h:mm a");
@@ -135,12 +138,15 @@ public class NotificationScheduler {
     }
 
     /**
-     * Purges notifications older than the retention window (03:00 daily).
+     * Purges notifications older than the retention window and one-time
+     * passcodes that expired more than a day ago (03:00 daily).
      */
+    @Transactional
     @Scheduled(cron = AppConstants.CLEANUP_CRON)
     public void purgeOldNotifications() {
         final long deleted = notificationService.purgeOldNotifications();
-        log.info("Scheduled cleanup removed {} old notifications", deleted);
+        final int purgedOtps = emailOtpRepository.deleteExpiredBefore(LocalDateTime.now().minusDays(1));
+        log.info("Scheduled cleanup removed {} old notifications and {} expired OTPs", deleted, purgedOtps);
     }
 
     /**

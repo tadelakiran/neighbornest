@@ -19,7 +19,7 @@ export function ProfileTabs({ tab, onChange }: ProfileTabsProps) {
   return (
     <div
       role="tablist"
-      className="flex gap-1 rounded-xl border border-white/[0.08] bg-surface/60 p-1.5 backdrop-blur-sm shadow-lg shadow-black/10"
+      className="flex gap-1 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]/60 p-1.5 backdrop-blur-sm shadow-lg shadow-black/10"
     >
       {TABS.map(({ id, label, icon: Icon }) => {
         const active = id === tab;
@@ -33,8 +33,8 @@ export function ProfileTabs({ tab, onChange }: ProfileTabsProps) {
             className={cn(
               'relative flex flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold transition-all duration-200',
               active
-                ? 'bg-surface-2 text-accent-400 shadow-sm'
-                : 'text-muted hover:bg-white/[0.04] hover:text-primary'
+                ? 'bg-[var(--color-surface-2)] text-[var(--accent-400)] shadow-sm'
+                : 'text-[var(--text-muted)] hover:bg-[var(--color-raised)]/40 hover:text-[var(--text-primary)]'
             )}
           >
             <Icon className={cn('h-4 w-4 transition-colors', active ? 'text-accent-400' : 'text-muted')} aria-hidden="true" />

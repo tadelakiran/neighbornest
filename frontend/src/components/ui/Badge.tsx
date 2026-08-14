@@ -11,15 +11,15 @@ const VARIANTS: Record<BadgeVariant, string> = {
   primary:
     'bg-accent-gradient text-white border-transparent shadow-glow-sm',
   success:
-    'border-emerald-400/25 bg-emerald-400/10 text-emerald-300 shadow-[0_0_12px_rgba(52,211,153,0.1)]',
+    'border-[var(--success)]/30 bg-[var(--success)]/10 text-[var(--success)] shadow-[var(--success-glow)]',
   info:
-    'border-accent-400/25 bg-accent-400/10 text-accent-300 shadow-[0_0_12px_rgba(14,165,233,0.1)]',
+    'border-[var(--accent-400)]/30 bg-[var(--accent-400)]/10 text-[var(--accent-300)] shadow-[var(--shadow-glow-sm)]',
   warning:
-    'border-amber-400/25 bg-amber-400/10 text-amber-300 shadow-[0_0_12px_rgba(251,191,36,0.1)]',
+    'border-[var(--warning)]/30 bg-[var(--warning)]/10 text-[var(--warning)] shadow-[var(--warning-glow)]',
   danger:
-    'border-rose-400/25 bg-rose-400/10 text-rose-300 shadow-[0_0_12px_rgba(251,113,133,0.1)]',
+    'border-[var(--error)]/30 bg-[var(--error)]/10 text-[var(--error)] shadow-[var(--error-glow)]',
   neutral:
-    'border-white/[0.08] bg-surface-2 text-secondary',
+    'border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--text-secondary)]',
 };
 
 export function Badge({ variant = 'neutral', className, children, ...props }: BadgeProps) {

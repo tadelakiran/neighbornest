@@ -47,7 +47,7 @@ export function ExpenseRow({ expense, currentUserId, members, onSettle }: Expens
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: 40 }}
       transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-      className="relative overflow-hidden rounded-xl px-3 py-3 transition-colors hover:bg-white/[0.04]"
+      className="relative overflow-hidden rounded-xl px-3 py-3 transition-colors hover:bg-[var(--color-raised)]/40"
     >
       {/* Settle flash */}
       <AnimatePresence>

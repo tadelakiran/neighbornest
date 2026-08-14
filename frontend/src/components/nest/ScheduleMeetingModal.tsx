@@ -104,7 +104,7 @@ export function ScheduleMeetingModal({ open, onClose, nestId, onScheduled }: Sch
                   'flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-2 text-xs font-semibold transition-all duration-200',
                   activityType === id
                     ? 'border-accent-400/50 bg-accent-500 text-white shadow-glow-sm'
-                    : 'border-white/10 bg-surface text-secondary hover:border-white/25 hover:text-primary'
+                    : 'border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--text-secondary)] hover:border-[var(--color-border-2)] hover:text-[var(--text-primary)]'
                 )}
               >
                 <Icon className="h-3.5 w-3.5" aria-hidden="true" />

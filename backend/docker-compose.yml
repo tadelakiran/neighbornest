@@ -62,6 +62,8 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:-root}
       JWT_SECRET: ${JWT_SECRET:-VGhpcyBpcyBhIHNlY3JldCBrZXkgZm9yIE5laWdoYm9yTmVzdCBKV1QgdG9rZW4gc2lnbmluZyAtIGRldmVsb3BtZW50IG9ubHk=}
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-service:8761/eureka/
+      # Shared secret for calling the notification-service email endpoints.
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:-neighbornest-internal-dev-key}
     depends_on:
       eureka-service:
         condition: service_started
@@ -188,12 +190,27 @@ services:
       RABBITMQ_PORT: 5672
       RABBITMQ_USER: ${RABBITMQ_USER:-neighbornest}
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-neighbornest}
-      # Mailtrap in development; swap the credentials for a production
-      # provider (Gmail/SendGrid) via the backend/.env file.
-      MAIL_HOST: ${MAIL_HOST:-smtp.mailtrap.io}
-      MAIL_PORT: ${MAIL_PORT:-2525}
-      MAIL_USERNAME: ${MAIL_USERNAME:-}
-      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      # EmailJS REST API delivery. Templates are managed in the EmailJS
+      # dashboard; the template-id mapping lives in application.yml and can be
+      # overridden with EMAILJS_TEMPLATE_* vars here as needed.
+      EMAILJS_PUBLIC_KEY: ${EMAILJS_PUBLIC_KEY:-ZgCz14aXMuiPcMgHp}
+      EMAILJS_PRIVATE_KEY: ${EMAILJS_PRIVATE_KEY:-0F-beqBI2TQuefr07BHDQ}
+      EMAILJS_SERVICE_ID: ${EMAILJS_SERVICE_ID:-service_tcw88r9}
+      EMAILJS_TEMPLATE_OTP_VERIFICATION: ${EMAILJS_TEMPLATE_OTP_VERIFICATION:-template_ab5ej2h}
+      EMAILJS_TEMPLATE_PASSWORD_RESET: ${EMAILJS_TEMPLATE_PASSWORD_RESET:-template_c4rrzz8}
+      EMAILJS_TEMPLATE_WELCOME: ${EMAILJS_TEMPLATE_WELCOME:-}
+      EMAILJS_TEMPLATE_NEST_WELCOME: ${EMAILJS_TEMPLATE_NEST_WELCOME:-}
+      EMAILJS_TEMPLATE_NEST_GRADUATE: ${EMAILJS_TEMPLATE_NEST_GRADUATE:-}
+      EMAILJS_TEMPLATE_NEST_DISBANDED: ${EMAILJS_TEMPLATE_NEST_DISBANDED:-}
+      EMAILJS_TEMPLATE_MEETING_REMINDER: ${EMAILJS_TEMPLATE_MEETING_REMINDER:-}
+      EMAILJS_TEMPLATE_EXPENSE_ALERT: ${EMAILJS_TEMPLATE_EXPENSE_ALERT:-}
+      EMAILJS_TEMPLATE_VIBE_CHECK_REMINDER: ${EMAILJS_TEMPLATE_VIBE_CHECK_REMINDER:-}
+      EMAILJS_TEMPLATE_CHAT_OFFLINE: ${EMAILJS_TEMPLATE_CHAT_OFFLINE:-}
+      EMAILJS_TEMPLATE_RAW_EMAIL: ${EMAILJS_TEMPLATE_RAW_EMAIL:-}
+      # Shared secret for the internal email endpoints (must match auth-service).
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:-neighbornest-internal-dev-key}
+      # Base URL for email deep links (points at the frontend in dev).
+      NOTIFICATION_BASE_URL: ${NOTIFICATION_BASE_URL:-http://localhost:5173}
     depends_on:
       rabbitmq:
         condition: service_healthy

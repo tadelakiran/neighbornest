@@ -17,9 +17,9 @@ interface ConfirmationModalProps {
 }
 
 const ACCENTS = {
-  danger: 'border-rose-400/30 bg-rose-400/10 text-rose-400 shadow-[0_0_16px_rgba(251,113,133,0.15)]',
-  warning: 'border-amber-400/30 bg-amber-400/10 text-amber-300 shadow-[0_0_16px_rgba(251,191,36,0.15)]',
-  info: 'border-accent-400/30 bg-accent-400/10 text-accent-300 shadow-[0_0_16px_rgba(14,165,233,0.15)]',
+  danger: 'border-[var(--error)]/30 bg-[var(--error)]/10 text-[var(--error)] shadow-[var(--error-glow)]',
+  warning: 'border-[var(--warning)]/30 bg-[var(--warning)]/10 text-[var(--warning)] shadow-[var(--warning-glow)]',
+  info: 'border-[var(--accent-400)]/30 bg-[var(--accent-400)]/10 text-[var(--accent-300)] shadow-[var(--shadow-glow-sm)]',
 } as const;
 
 export function ConfirmationModal({

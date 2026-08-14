@@ -38,7 +38,7 @@ export function MeetingRow({ meeting, index = 0, onComplete, onCancel }: Meeting
       className="group flex items-center gap-4 rounded-xl px-3 py-3 transition-colors duration-200 hover:bg-white/5"
     >
       {/* Date block */}
-      <span className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-xl border border-white/[0.06] bg-surface">
+      <span className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]">
         <span className="font-display text-lg font-bold leading-none text-primary">{date.getDate()}</span>
         <span className="mt-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted">
           {date.toLocaleString('en', { month: 'short' })}

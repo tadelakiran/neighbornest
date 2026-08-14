@@ -1,15 +1,25 @@
 package com.neighbornest.auth.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.neighbornest.auth.client.NotificationEmailClient;
 import com.neighbornest.auth.dto.request.LoginRequest;
 import com.neighbornest.auth.dto.request.LogoutRequest;
 import com.neighbornest.auth.dto.request.RefreshTokenRequest;
 import com.neighbornest.auth.dto.request.RegisterRequest;
+import com.neighbornest.auth.dto.request.SendOtpRequest;
+import com.neighbornest.auth.dto.request.VerifyOtpRequest;
+import com.neighbornest.auth.dto.request.WelcomeEmailRequest;
 import com.neighbornest.auth.dto.response.AuthResponse;
 import com.neighbornest.auth.dto.response.AuthValidationResponse;
+import com.neighbornest.auth.dto.response.OtpSendResponse;
+import com.neighbornest.auth.dto.response.OtpVerifyResponse;
 import com.neighbornest.auth.dto.response.UserResponse;
 import com.neighbornest.auth.entity.RefreshToken;
 import com.neighbornest.auth.entity.Role;
 import com.neighbornest.auth.entity.User;
+import com.neighbornest.auth.enums.OtpPurpose;
+import com.neighbornest.auth.exception.BadRequestException;
 import com.neighbornest.auth.exception.InvalidCredentialsException;
 import com.neighbornest.auth.exception.TokenExpiredException;
 import com.neighbornest.auth.exception.UserAlreadyExistsException;
@@ -17,6 +27,7 @@ import com.neighbornest.auth.repository.RefreshTokenRepository;
 import com.neighbornest.auth.repository.UserRepository;
 import com.neighbornest.auth.util.PasswordValidator;
 import com.neighbornest.auth.util.UserMapper;
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,6 +35,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -47,6 +59,8 @@ public class AuthService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final NotificationEmailClient notificationEmailClient;
+    private final ObjectMapper objectMapper;
 
     @Value("${app.jwt.refresh-expiration-ms}")
     private long refreshExpirationMs;
@@ -57,13 +71,16 @@ public class AuthService {
     /**
      * Registers a new user on the NeighborNest platform.
      * <p>
-     * Validates the input, checks email uniqueness, encodes the password
-     * with BCrypt (strength 12), and saves the user with a default NEWCOMER role.
+     * Validates the input, checks email uniqueness, redeems the email-verification
+     * OTP (proving the user owns the address), encodes the password with BCrypt,
+     * and saves the user as email-verified with a default NEWCOMER role. A welcome
+     * email is then requested from the email service (best-effort).
      * </p>
      *
-     * @param request the registration request containing fullName, email, and password
+     * @param request the registration request containing fullName, email, password, and otp
      * @return a {@link UserResponse} containing the newly created user's profile
      * @throws UserAlreadyExistsException if a user with the given email already exists
+     * @throws BadRequestException        if the OTP is missing, expired, or wrong
      */
     @Transactional
     public UserResponse register(final RegisterRequest request) {
@@ -71,24 +88,60 @@ public class AuthService {
 
         validateRegistrationRequest(request);
 
-        if (userRepository.existsByEmail(request.getEmail())) {
-            log.warn("Registration failed: email {} already exists", request.getEmail());
-            throw new UserAlreadyExistsException("Email " + request.getEmail() + " is already registered");
+        final String email = request.getEmail().trim().toLowerCase();
+        if (userRepository.existsByEmail(email)) {
+            log.warn("Registration failed: email {} already exists", email);
+            throw new UserAlreadyExistsException("Email " + email + " is already registered");
         }
+
+        // Email ownership is proven by the code the user entered.
+        verifyEmailOtp(email, request.getOtp());
 
         final User user = User.builder()
                 .fullName(request.getFullName().trim())
-                .email(request.getEmail().trim().toLowerCase())
+                .email(email)
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
                 .role(Role.NEWCOMER)
-                .isEmailVerified(false)
+                .isEmailVerified(true)
                 .isOnboarded(false)
                 .build();
 
         final User savedUser = userRepository.save(user);
         log.info("User registered successfully with id: {}", savedUser.getId());
 
+        // Best-effort welcome email — never block registration on it.
+        try {
+            notificationEmailClient.sendWelcome(WelcomeEmailRequest.builder()
+                    .email(email)
+                    .fullName(savedUser.getFullName())
+                    .build());
+        } catch (final Exception e) {
+            log.warn("Welcome email for {} could not be dispatched: {}", email, e.getMessage());
+        }
+
         return mapToUserResponse(savedUser);
+    }
+
+    /**
+     * Emails a one-time passcode for the requested purpose (registration
+     * verification). Delegates generation, storage, throttling, and delivery
+     * to the notification-service email endpoints.
+     *
+     * @param request the email + purpose
+     * @return metadata about the issued code (never the code itself)
+     */
+    public OtpSendResponse sendOtp(final SendOtpRequest request) {
+        try {
+            final OtpSendResponse response = notificationEmailClient.sendOtp(request);
+            if (response == null) {
+                throw new BadRequestException("We couldn't send the verification code. Please try again.");
+            }
+            return response;
+        } catch (final FeignException e) {
+            final String reason = extractFeignMessage(e);
+            throw new BadRequestException(
+                    reason != null ? reason : "We couldn't send the verification code. Please try again.");
+        }
     }
 
     /**
@@ -225,6 +278,59 @@ public class AuthService {
         final List<String> passwordErrors = PasswordValidator.validate(request.getPassword());
         if (!passwordErrors.isEmpty()) {
             throw new IllegalArgumentException("Password validation failed: " + String.join("; ", passwordErrors));
+        }
+    }
+
+    /**
+     * Redeems the email-verification OTP through the email service.
+     *
+     * @param email the normalized address being registered
+     * @param otp   the 6-digit code the user entered
+     * @throws BadRequestException if the code is missing, expired, or wrong
+     */
+    private void verifyEmailOtp(final String email, final String otp) {
+        try {
+            final OtpVerifyResponse response = notificationEmailClient.verifyOtp(VerifyOtpRequest.builder()
+                    .email(email)
+                    .purpose(OtpPurpose.EMAIL_VERIFICATION)
+                    .otp(otp)
+                    .build());
+            if (response == null || !response.isValid()) {
+                throw new BadRequestException("Invalid or expired verification code.");
+            }
+        } catch (final FeignException e) {
+            // The email service's 400 carries the precise reason (expired,
+            // attempts remaining) — surface it instead of a generic message.
+            final String reason = extractFeignMessage(e);
+            throw new BadRequestException(
+                    reason != null ? reason : "Invalid or expired verification code.");
+        }
+    }
+
+    /**
+     * Extracts the {@code message} field from a Feign error response body, so
+     * the email service's precise reason can be surfaced to the user.
+     *
+     * @param e the Feign exception
+     * @return the upstream message, or {@code null} if it cannot be parsed
+     */
+    private String extractFeignMessage(final FeignException e) {
+        try {
+            return e.responseBody()
+                    .map(buffer -> {
+                        final byte[] bytes = new byte[buffer.remaining()];
+                        buffer.get(bytes);
+                        try {
+                            final JsonNode node = objectMapper.readTree(
+                                    new String(bytes, StandardCharsets.UTF_8));
+                            return node.path("message").asText(null);
+                        } catch (final Exception ex) {
+                            return null;
+                        }
+                    })
+                    .orElse(null);
+        } catch (final Exception ex) {
+            return null;
         }
     }
 

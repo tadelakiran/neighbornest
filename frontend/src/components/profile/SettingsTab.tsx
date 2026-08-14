@@ -44,7 +44,7 @@ export function SettingsTab() {
   return (
     <div className="space-y-5">
       {/* Notifications */}
-      <Card className="rounded-2xl border border-white/[0.08] bg-surface/50 p-5 backdrop-blur-sm shadow-lg shadow-black/5">
+      <Card className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)]/50 p-5 backdrop-blur-sm shadow-lg shadow-black/5">
         <div className="mb-4 flex items-center gap-3">
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent-400/10 ring-1 ring-accent-400/20">
             <BellRing className="h-4 w-4 text-accent-400" aria-hidden="true" />
@@ -66,7 +66,7 @@ export function SettingsTab() {
       </Card>
 
       {/* Password */}
-      <Card className="rounded-2xl border border-white/[0.08] bg-surface/50 p-5 backdrop-blur-sm shadow-lg shadow-black/5">
+      <Card className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)]/50 p-5 backdrop-blur-sm shadow-lg shadow-black/5">
         <div className="mb-5 flex items-center gap-3">
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent-400/10 ring-1 ring-accent-400/20">
             <KeyRound className="h-4 w-4 text-accent-400" aria-hidden="true" />
@@ -80,7 +80,7 @@ export function SettingsTab() {
             label="Current password"
             placeholder="••••••••"
             icon={<Lock className="h-4 w-4 text-muted" aria-hidden="true" />}
-            className="h-12 rounded-xl border-white/[0.08] bg-surface-2 text-primary transition-all focus-within:border-accent-400/40 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.1)]"
+            className="h-12 rounded-xl border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--text-primary)] transition-all focus-within:border-[var(--accent-400)]/40 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.1)]"
           />
           <div className="grid gap-4 sm:grid-cols-2">
             <Input
@@ -89,7 +89,7 @@ export function SettingsTab() {
               label="New password"
               placeholder="••••••••"
               icon={<Lock className="h-4 w-4 text-muted" aria-hidden="true" />}
-              className="h-12 rounded-xl border-white/[0.08] bg-surface-2 text-primary transition-all focus-within:border-accent-400/40 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.1)]"
+              className="h-12 rounded-xl border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--text-primary)] transition-all focus-within:border-[var(--accent-400)]/40 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.1)]"
             />
             <Input
               id="st-confirm"
@@ -97,7 +97,7 @@ export function SettingsTab() {
               label="Confirm new password"
               placeholder="••••••••"
               icon={<Eye className="h-4 w-4 text-muted" aria-hidden="true" />}
-              className="h-12 rounded-xl border-white/[0.08] bg-surface-2 text-primary transition-all focus-within:border-accent-400/40 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.1)]"
+              className="h-12 rounded-xl border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--text-primary)] transition-all focus-within:border-[var(--accent-400)]/40 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.1)]"
             />
           </div>
           <Button

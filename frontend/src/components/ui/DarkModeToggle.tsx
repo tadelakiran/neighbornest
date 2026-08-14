@@ -27,17 +27,18 @@ export function DarkModeToggle({ variant = 'icon', className }: DarkModeTogglePr
         onClick={toggleTheme}
         className={cn(
           'relative inline-flex h-8 w-16 items-center rounded-full border transition-colors duration-300',
-          isDark
-            ? 'border-accent-700 bg-accent-900'
-            : 'border-accent-200 bg-accent-100',
+          'border-[var(--color-border)]',
+          isDark ? 'bg-[var(--color-deep)]' : 'bg-[var(--color-surface-2)]',
           className
         )}
       >
         {/* Knob */}
         <motion.span
           className={cn(
-            'absolute flex h-6 w-6 items-center justify-center rounded-full shadow-sm',
-            isDark ? 'bg-accent-400' : 'bg-white border border-accent-200'
+            'absolute flex h-6 w-6 items-center justify-center rounded-full shadow-[var(--shadow-sm)]',
+            isDark
+              ? 'bg-[var(--accent-400)] shadow-[0_0_12px_rgba(14,165,233,0.35)]'
+              : 'bg-white border border-[var(--color-border)]'
           )}
           animate={{ x: isDark ? 34 : 2 }}
           transition={{ type: 'spring', stiffness: 500, damping: 30 }}
@@ -61,7 +62,7 @@ export function DarkModeToggle({ variant = 'icon', className }: DarkModeTogglePr
                 exit={{ rotate: -90, opacity: 0 }}
                 transition={{ duration: 0.15 }}
               >
-                <Sun className="h-3.5 w-3.5 text-accent-500" />
+                <Sun className="h-3.5 w-3.5 text-[var(--accent-500)]" />
               </motion.span>
             )}
           </AnimatePresence>
@@ -78,11 +79,10 @@ export function DarkModeToggle({ variant = 'icon', className }: DarkModeTogglePr
       aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
       onClick={toggleTheme}
       className={cn(
-        'relative flex h-9 w-9 items-center justify-center rounded-md transition-colors duration-200',
+        'relative flex h-9 w-9 items-center justify-center rounded-lg transition-all duration-200',
         'border border-[var(--color-border)] bg-[var(--color-surface)]',
-        'hover:border-accent-300 hover:bg-accent-50',
-        'dark:hover:bg-accent-900/40',
-        'focus-visible:ring-2 focus-visible:ring-accent-400/50',
+        'hover:border-[var(--accent-400)]/40 hover:bg-[var(--color-raised)]',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-400)]/40',
         className
       )}
     >
@@ -95,7 +95,7 @@ export function DarkModeToggle({ variant = 'icon', className }: DarkModeTogglePr
             exit={{ scale: 0.5, rotate: 30, opacity: 0 }}
             transition={{ duration: 0.2 }}
           >
-            <Moon className="h-4 w-4 text-accent-400" />
+            <Moon className="h-4 w-4 text-[var(--accent-400)]" />
           </motion.span>
         ) : (
           <motion.span
@@ -105,7 +105,7 @@ export function DarkModeToggle({ variant = 'icon', className }: DarkModeTogglePr
             exit={{ scale: 0.5, rotate: -30, opacity: 0 }}
             transition={{ duration: 0.2 }}
           >
-            <Sun className="h-4 w-4 text-accent-500" />
+            <Sun className="h-4 w-4 text-[var(--accent-500)]" />
           </motion.span>
         )}
       </AnimatePresence>

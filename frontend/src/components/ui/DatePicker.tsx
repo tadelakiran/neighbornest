@@ -29,21 +29,31 @@ function toISODate(date: Date): string {
 
 /** Compares two dates by calendar day. */
 function sameDay(a: Date, b: Date): boolean {
-  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  );
 }
 
 /**
- * Custom calendar date picker (NOT the native HTML input). Renders a month
- * grid on a navy surface with accent-highlighted selection, white/5 hover
- * states, and past days disabled.
+ * Custom calendar date picker. Renders a month grid on a navy surface
+ * with accent-highlighted selection, raised hover states, and past days disabled.
  */
-export function DatePicker({ value, onChange, label, minDate = new Date(), className }: DatePickerProps) {
+export function DatePicker({
+  value,
+  onChange,
+  label,
+  minDate = new Date(),
+  className,
+}: DatePickerProps) {
   const selected = value ? new Date(`${value}T00:00:00`) : null;
   const [view, setView] = useState(() => {
     const base = selected ?? new Date();
     return new Date(base.getFullYear(), base.getMonth(), 1);
   });
 
+  // ✅ FIXED: use minDate (the prop), not min (the variable being declared)
   const min = new Date(minDate.getFullYear(), minDate.getMonth(), minDate.getDate());
   const firstWeekday = new Date(view.getFullYear(), view.getMonth(), 1).getDay();
   const daysInMonth = new Date(view.getFullYear(), view.getMonth() + 1, 0).getDate();
@@ -52,19 +62,22 @@ export function DatePicker({ value, onChange, label, minDate = new Date(), class
 
   const cells = [
     ...Array.from({ length: firstWeekday }, () => null),
-    ...Array.from({ length: daysInMonth }, (_, i) => new Date(view.getFullYear(), view.getMonth(), i + 1)),
+    ...Array.from(
+      { length: daysInMonth },
+      (_, i) => new Date(view.getFullYear(), view.getMonth(), i + 1)
+    ),
   ];
 
   return (
     <div className={cn('w-full', className)}>
       {label && (
-        <span className="mb-2 flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-muted">
-          <Calendar className="h-3.5 w-3.5 text-accent-400" aria-hidden="true" />
+        <span className="mb-2 flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-[var(--text-muted)]">
+          <Calendar className="h-3.5 w-3.5 text-[var(--accent-400)]" aria-hidden="true" />
           {label}
         </span>
       )}
 
-      <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-3">
+      <div className="rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface)] p-3 shadow-[var(--shadow-sm)]">
         {/* Month header */}
         <div className="mb-2 flex items-center justify-between">
           <button
@@ -72,18 +85,19 @@ export function DatePicker({ value, onChange, label, minDate = new Date(), class
             aria-label="Previous month"
             disabled={!canGoBack}
             onClick={() => setView(new Date(view.getFullYear(), view.getMonth() - 1, 1))}
-            className="flex h-7 w-7 items-center justify-center rounded-lg text-secondary transition-colors hover:bg-[var(--color-raised)] hover:text-primary disabled:cursor-not-allowed disabled:opacity-30"
+            className="flex h-7 w-7 items-center justify-center rounded-lg text-[var(--text-secondary)] transition-colors hover:bg-[var(--color-raised)] hover:text-[var(--text-primary)] disabled:cursor-not-allowed disabled:opacity-30"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
-          <p className="text-sm font-semibold text-primary">
-            {MONTHS[view.getMonth()]} <span className="text-muted">{view.getFullYear()}</span>
+          <p className="text-sm font-semibold text-[var(--text-primary)]">
+            {MONTHS[view.getMonth()]}{' '}
+            <span className="text-[var(--text-muted)]">{view.getFullYear()}</span>
           </p>
           <button
             type="button"
             aria-label="Next month"
             onClick={() => setView(new Date(view.getFullYear(), view.getMonth() + 1, 1))}
-            className="flex h-7 w-7 items-center justify-center rounded-lg text-secondary transition-colors hover:bg-[var(--color-raised)] hover:text-primary"
+            className="flex h-7 w-7 items-center justify-center rounded-lg text-[var(--text-secondary)] transition-colors hover:bg-[var(--color-raised)] hover:text-[var(--text-primary)]"
           >
             <ChevronRight className="h-4 w-4" />
           </button>
@@ -92,7 +106,10 @@ export function DatePicker({ value, onChange, label, minDate = new Date(), class
         {/* Weekday header */}
         <div className="mb-1 grid grid-cols-7 text-center">
           {WEEKDAYS.map((day) => (
-            <span key={day} className="py-1 text-[10px] font-semibold uppercase tracking-wider text-muted">
+            <span
+              key={day}
+              className="py-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]"
+            >
               {day}
             </span>
           ))}
@@ -105,6 +122,7 @@ export function DatePicker({ value, onChange, label, minDate = new Date(), class
             const isPast = date < min;
             const isSelected = selected !== null && sameDay(date, selected);
             const isToday = sameDay(date, today);
+
             return (
               <motion.button
                 key={date.toISOString()}
@@ -116,10 +134,13 @@ export function DatePicker({ value, onChange, label, minDate = new Date(), class
                 aria-label={date.toLocaleDateString(undefined, { dateStyle: 'full' })}
                 className={cn(
                   'flex h-9 items-center justify-center rounded-lg text-sm transition-all duration-150',
-                  isPast && 'cursor-not-allowed text-muted/40',
-                  !isPast && !isSelected && 'text-secondary hover:bg-[var(--color-raised)] hover:text-primary',
-                  isSelected && 'bg-accent-500 font-semibold text-white shadow-glow-sm',
-                  isToday && !isSelected && 'ring-1 ring-inset ring-accent-400/60'
+                  isPast && 'cursor-not-allowed text-[var(--text-subtle)]/40',
+                  !isPast &&
+                    !isSelected &&
+                    'text-[var(--text-secondary)] hover:bg-[var(--color-raised)] hover:text-[var(--text-primary)]',
+                  isSelected &&
+                    'bg-[var(--accent-500)] font-semibold text-white shadow-glow-sm',
+                  isToday && !isSelected && 'ring-1 ring-inset ring-[var(--accent-400)]/60'
                 )}
               >
                 {date.getDate()}

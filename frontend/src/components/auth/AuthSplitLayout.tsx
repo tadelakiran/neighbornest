@@ -155,7 +155,7 @@ export function AuthSplitLayout({ heading, subheading, children }: AuthSplitLayo
       {/* ── Right form panel ── */}
       <div className="relative flex w-full flex-col items-center justify-center px-4 py-12 sm:px-8 lg:w-[45%]">
         {/* Mobile banner */}
-        <div className="relative mb-10 w-full max-w-md overflow-hidden rounded-3xl border border-white/[0.08] shadow-2xl lg:hidden">
+        <div className="relative mb-10 w-full max-w-md overflow-hidden rounded-3xl border border-[var(--color-border)] shadow-[var(--shadow-lg)] lg:hidden">
           <LazyImage
             src={IMAGES.community}
             alt="Neighbors spending time together"
@@ -187,7 +187,7 @@ export function AuthSplitLayout({ heading, subheading, children }: AuthSplitLayo
             initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="relative overflow-hidden rounded-3xl border border-white/[0.08] bg-surface/80 p-8 shadow-2xl backdrop-blur-2xl"
+            className="relative overflow-hidden rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)]/85 p-8 shadow-[var(--shadow-lg)] backdrop-blur-2xl"
           >
             {/* Hairline */}
             <div className="absolute inset-x-8 top-0 h-[2px] rounded-b-full bg-accent-gradient shadow-[0_0_12px_rgba(14,165,233,0.4)]" aria-hidden="true" />

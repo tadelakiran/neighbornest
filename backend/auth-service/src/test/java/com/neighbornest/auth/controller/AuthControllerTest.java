@@ -2,9 +2,16 @@ package com.neighbornest.auth.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.neighbornest.auth.client.NotificationEmailClient;
 import com.neighbornest.auth.dto.request.LoginRequest;
 import com.neighbornest.auth.dto.request.RefreshTokenRequest;
 import com.neighbornest.auth.dto.request.RegisterRequest;
+import com.neighbornest.auth.dto.request.SendOtpRequest;
+import com.neighbornest.auth.dto.request.VerifyOtpRequest;
+import com.neighbornest.auth.dto.response.OtpSendResponse;
+import com.neighbornest.auth.dto.response.OtpVerifyResponse;
+import com.neighbornest.auth.enums.OtpPurpose;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -14,9 +21,16 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.UUID;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.Map;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -52,6 +66,28 @@ class AuthControllerTest {
     private static final String LOGIN_URL = "/api/auth/login";
     private static final String REFRESH_URL = "/api/auth/refresh";
     private static final String LOGOUT_URL = "/api/auth/logout";
+    private static final String OTP_SEND_URL = "/api/auth/otp/send";
+    private static final String FORGOT_PASSWORD_URL = "/api/auth/password/forgot";
+    private static final String RESET_PASSWORD_URL = "/api/auth/password/reset";
+
+    private static final String TEST_OTP = "123456";
+
+    /** Mocks the email service so OTP checks always pass unless a test overrides. */
+    @MockitoBean
+    private NotificationEmailClient notificationEmailClient;
+
+    @BeforeEach
+    void stubEmailClient() {
+        when(notificationEmailClient.verifyOtp(any(VerifyOtpRequest.class)))
+                .thenReturn(OtpVerifyResponse.builder().valid(true).build());
+        when(notificationEmailClient.sendOtp(any(SendOtpRequest.class)))
+                .thenReturn(OtpSendResponse.builder()
+                        .email("test@example.com")
+                        .purpose(OtpPurpose.EMAIL_VERIFICATION)
+                        .expiresInSeconds(600)
+                        .resendAfterSeconds(60)
+                        .build());
+    }
 
     /**
      * Generates a unique email for test isolation.
@@ -74,6 +110,7 @@ class AuthControllerTest {
                     .fullName("John Doe")
                     .email(uniqueEmail("register"))
                     .password("Pass@123")
+                    .otp(TEST_OTP)
                     .build();
 
             mockMvc.perform(post(REGISTER_URL)
@@ -116,6 +153,7 @@ class AuthControllerTest {
                     .fullName("John Doe")
                     .email(email)
                     .password("Pass@123")
+                    .otp(TEST_OTP)
                     .build();
             mockMvc.perform(post(REGISTER_URL)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -127,6 +165,7 @@ class AuthControllerTest {
                     .fullName("Jane Doe")
                     .email(email)
                     .password("Test@1234")
+                    .otp(TEST_OTP)
                     .build();
             mockMvc.perform(post(REGISTER_URL)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -208,6 +247,7 @@ class AuthControllerTest {
                     .fullName("John Doe")
                     .email(email)
                     .password(password)
+                    .otp(TEST_OTP)
                     .build();
             mockMvc.perform(post(REGISTER_URL)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -266,6 +306,7 @@ class AuthControllerTest {
                     .fullName("John Doe")
                     .email(email)
                     .password("Pass@123")
+                    .otp(TEST_OTP)
                     .build();
             mockMvc.perform(post(REGISTER_URL)
                     .contentType(MediaType.APPLICATION_JSON)
@@ -317,6 +358,128 @@ class AuthControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("{}"))
                     .andExpect(status().isForbidden());
+        }
+    }
+
+    @Nested
+    @DisplayName("Email verification & password recovery endpoints")
+    class EmailVerificationEndpoints {
+
+        /**
+         * Tests that requesting an email-verification code returns metadata.
+         */
+        @Test
+        @DisplayName("Should return 200 for OTP send request")
+        void shouldReturn200ForOtpSend() throws Exception {
+            mockMvc.perform(post(OTP_SEND_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{\"email\":\"jane@example.com\",\"purpose\":\"EMAIL_VERIFICATION\"}"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.expires_in_seconds").isNumber())
+                    .andExpect(jsonPath("$.resend_after_seconds").isNumber());
+        }
+
+        /**
+         * Tests that an invalid OTP send request is rejected.
+         */
+        @Test
+        @DisplayName("Should return 400 for invalid OTP send request")
+        void shouldReturn400ForInvalidOtpSend() throws Exception {
+            mockMvc.perform(post(OTP_SEND_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{\"email\":\"not-an-email\",\"purpose\":\"EMAIL_VERIFICATION\"}"))
+                    .andExpect(status().isBadRequest());
+        }
+
+        /**
+         * Tests that registration fails without a valid verification code.
+         */
+        @Test
+        @DisplayName("Should return 400 when the verification code is invalid")
+        void shouldReturn400ForInvalidVerificationCode() throws Exception {
+            when(notificationEmailClient.verifyOtp(any(VerifyOtpRequest.class)))
+                    .thenThrow(new feign.FeignException.BadRequest(
+                            "bad request",
+                            mock(feign.Request.class),
+                            "{\"message\":\"Invalid or expired verification code.\"}".getBytes(),
+                            Map.of()));
+
+            final RegisterRequest request = RegisterRequest.builder()
+                    .fullName("John Doe")
+                    .email(uniqueEmail("otp-invalid"))
+                    .password("Pass@123")
+                    .otp("000000")
+                    .build();
+
+            mockMvc.perform(post(REGISTER_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.message").value("Invalid or expired verification code."));
+        }
+
+        /**
+         * Tests the forgot-password endpoint returns the generic success message.
+         */
+        @Test
+        @DisplayName("Should return 200 for forgot-password request")
+        void shouldReturn200ForForgotPassword() throws Exception {
+            mockMvc.perform(post(FORGOT_PASSWORD_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{\"email\":\"jane@example.com\"}"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$").value("If an account exists for that email, a reset code is on its way."));
+        }
+
+        /**
+         * Tests that a valid reset request updates the password.
+         */
+        @Test
+        @DisplayName("Should return 200 for valid password reset")
+        void shouldReturn200ForValidPasswordReset() throws Exception {
+            final String email = uniqueEmail("reset");
+            registerUser(email, "Pass@123");
+
+            mockMvc.perform(post(RESET_PASSWORD_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(java.util.Map.of(
+                                    "email", email,
+                                    "otp", TEST_OTP,
+                                    "newPassword", "NewPass@456"))))
+                    .andExpect(status().isOk());
+
+            // The new password now works.
+            mockMvc.perform(post(LOGIN_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(LoginRequest.builder()
+                                    .email(email)
+                                    .password("NewPass@456")
+                                    .build())))
+                    .andExpect(status().isOk());
+        }
+
+        /**
+         * Tests that a weak new password is rejected.
+         */
+        @Test
+        @DisplayName("Should return 400 for weak new password")
+        void shouldReturn400ForWeakNewPassword() throws Exception {
+            mockMvc.perform(post(RESET_PASSWORD_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{\"email\":\"jane@example.com\",\"otp\":\"123456\",\"newPassword\":\"weak\"}"))
+                    .andExpect(status().isBadRequest());
+        }
+
+        private void registerUser(final String email, final String password) throws Exception {
+            final RegisterRequest request = RegisterRequest.builder()
+                    .fullName("John Doe")
+                    .email(email)
+                    .password(password)
+                    .otp(TEST_OTP)
+                    .build();
+            mockMvc.perform(post(REGISTER_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)));
         }
     }
 }

@@ -90,7 +90,7 @@ export function AddExpenseModal({ open, onClose, nestId, members, onAdded }: Add
         <Input label="Description" placeholder="e.g. Groceries for the house dinner" value={description} onChange={(e) => setDescription(e.target.value)} />
 
         {/* Payer — the backend always attributes expenses to the signed-in user */}
-        <div className="flex items-center gap-2.5 rounded-xl border border-white/[0.06] bg-surface/60 px-3 py-2.5">
+        <div className="flex items-center gap-2.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]/60 px-3 py-2.5">
           <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent-400/10">
             <UserRound className="h-4 w-4 text-accent-300" aria-hidden="true" />
           </span>
@@ -103,7 +103,7 @@ export function AddExpenseModal({ open, onClose, nestId, members, onAdded }: Add
         {/* Split type toggle */}
         <div>
           <p className="mb-2 text-xs font-medium uppercase tracking-wider text-muted">Split</p>
-          <div className="grid grid-cols-2 gap-2 rounded-xl border border-white/10 bg-surface p-1">
+          <div className="grid grid-cols-2 gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-1">
             {(['EQUAL', 'CUSTOM'] as const).map((type) => (
               <button
                 key={type}
@@ -121,7 +121,7 @@ export function AddExpenseModal({ open, onClose, nestId, members, onAdded }: Add
         </div>
 
         {/* Split preview */}
-        <div className="space-y-2 rounded-xl border border-white/[0.06] bg-surface/60 p-3">
+        <div className="space-y-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]/60 p-3">
           {splitType === 'EQUAL' ? (
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">

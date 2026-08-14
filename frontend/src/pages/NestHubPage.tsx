@@ -19,11 +19,25 @@ import { useToast } from '@/hooks/useToast';
 import { ROUTES } from '@/lib/constants';
 import { getErrorMessage } from '@/lib/utils';
 import {
-  cancelMeeting, completeMeeting, disbandNest, getExpenses, getMeetings, getNestById,
-  getVibeCheckStatus, graduateNest, invalidateMyNests, leaveNest, settleExpense, submitVibeCheck,
+  cancelMeeting,
+  completeMeeting,
+  disbandNest,
+  getExpenses,
+  getMeetings,
+  getNestById,
+  getVibeCheckStatus,
+  graduateNest,
+  invalidateMyNests,
+  leaveNest,
+  settleExpense,
+  submitVibeCheck,
 } from '@/services/nestService';
 import type {
-  ExpenseResponse, MeetingResponse, NestResponse, VibeCheckRequest, VibeCheckStatusResponse,
+  ExpenseResponse,
+  MeetingResponse,
+  NestResponse,
+  VibeCheckRequest,
+  VibeCheckStatusResponse,
 } from '@/types/nest.types';
 
 /**
@@ -48,8 +62,6 @@ export function NestHubPage() {
   const [showAddExpense, setShowAddExpense] = useState(false);
   const [showResults, setShowResults] = useState(false);
 
-  // Guards against stale responses overwriting fresh state when the user
-  // navigates between nests quickly (the component itself stays mounted).
   const nestIdRef = useRef<string | null>(nestId ?? null);
   useEffect(() => {
     nestIdRef.current = nestId ?? null;
@@ -96,10 +108,10 @@ export function NestHubPage() {
     if (nestId) void load(nestId);
   }, [nestId, load]);
 
-  const isAnchor = nest?.members.some((m) => m.userId === currentUserId && m.roleInNest === 'ANCHOR') ?? false;
+  const isAnchor =
+    nest?.members.some((m) => m.userId === currentUserId && m.roleInNest === 'ANCHOR') ?? false;
   const activeMembers = nest?.members.filter((m) => m.status === 'ACCEPTED') ?? [];
 
-  // ── Handlers ──
   const handleScheduled = (meeting: MeetingResponse) => {
     setShowSchedule(false);
     setMeetings((prev) => [meeting, ...prev]);
@@ -124,7 +136,10 @@ export function NestHubPage() {
     async (meetingId: number, action: 'complete' | 'cancel') => {
       if (!nestId) return;
       try {
-        const updated = action === 'complete' ? await completeMeeting(nestId, meetingId) : await cancelMeeting(nestId, meetingId);
+        const updated =
+          action === 'complete'
+            ? await completeMeeting(nestId, meetingId)
+            : await cancelMeeting(nestId, meetingId);
         setMeetings((prev) => prev.map((m) => (m.id === meetingId ? updated : m)));
         toast.success(action === 'complete' ? 'Meeting marked as done!' : 'Meeting cancelled.');
       } catch (error) {
@@ -145,10 +160,13 @@ export function NestHubPage() {
     async (action: 'graduate' | 'disband') => {
       if (!nestId) return;
       try {
-        const updated = action === 'graduate' ? await graduateNest(nestId) : await disbandNest(nestId);
+        const updated =
+          action === 'graduate' ? await graduateNest(nestId) : await disbandNest(nestId);
         setNest(updated);
         invalidateMyNests();
-        toast.success(action === 'graduate' ? 'Nest graduated — congratulations! 🎉' : 'Nest disbanded.');
+        toast.success(
+          action === 'graduate' ? 'Nest graduated — congratulations! 🎉' : 'Nest disbanded.'
+        );
       } catch (error) {
         toast.error(getErrorMessage(error, 'That action could not be completed.'));
       }
@@ -184,7 +202,7 @@ export function NestHubPage() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <Skeleton className="h-40 rounded-b-3xl" />
+        <Skeleton className="h-40 rounded-b-[var(--radius-xl)]" />
         <div className="flex gap-3">
           {Array.from({ length: 5 }).map((_, i) => (
             <Skeleton key={i} className="h-32 w-24 rounded-2xl" />
@@ -201,12 +219,14 @@ export function NestHubPage() {
   // ── Not found / no nest ──
   if (notFound || !nest) {
     return (
-      <div className="flex flex-col items-center rounded-3xl border border-[var(--color-border)] bg-deep/60 px-8 py-16 text-center">
-        <span className="flex h-16 w-16 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04]">
-          <Construction className="h-8 w-8 text-muted" aria-hidden="true" />
+      <div className="flex flex-col items-center rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-deep)]/60 px-8 py-16 text-center">
+        <span className="flex h-16 w-16 items-center justify-center rounded-2xl border border-[var(--text-primary)]/10 bg-[var(--text-primary)]/[0.04]">
+          <Construction className="h-8 w-8 text-[var(--text-muted)]" aria-hidden="true" />
         </span>
-        <h1 className="mt-6 font-display text-2xl font-bold text-primary">Nest not found</h1>
-        <p className="mt-2 max-w-sm text-sm text-secondary">
+        <h1 className="mt-6 font-['Space_Grotesk'] text-2xl font-bold text-[var(--text-primary)]">
+          Nest not found
+        </h1>
+        <p className="mt-2 max-w-sm text-sm text-[var(--text-secondary)]">
           This Nest may not exist, or your membership ended. Check your Nests to find active ones.
         </p>
         <Button variant="primary" className="mt-6" onClick={() => navigate(ROUTES.MY_NEST)}>
@@ -271,7 +291,12 @@ export function NestHubPage() {
         members={activeMembers}
         onAdded={handleAddedExpense}
       />
-      <VibeCheckResultsModal open={showResults} onClose={() => setShowResults(false)} status={vibe} totalMembers={activeMembers.length} />
+      <VibeCheckResultsModal
+        open={showResults}
+        onClose={() => setShowResults(false)}
+        status={vibe}
+        totalMembers={activeMembers.length}
+      />
     </div>
   );
 }

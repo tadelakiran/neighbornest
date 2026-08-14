@@ -29,17 +29,17 @@ const VARIANTS: Record<ButtonVariant, string> = {
     'hover:shadow-glow hover:brightness-110',
   secondary:
     'bg-surface-2 text-primary ' +
-    'border border-white/[0.08] ' +
-    'hover:border-accent-400/30 hover:bg-surface hover:text-accent-300',
+    'border border-[var(--color-border)] ' +
+    'hover:border-[var(--accent-400)]/30 hover:bg-[var(--color-surface)] hover:text-[var(--accent-300)]',
   outline:
-    'bg-transparent border border-accent-400/30 text-accent-400 ' +
-    'hover:bg-accent-400/10 hover:border-accent-400/50',
+    'bg-transparent border border-[var(--accent-400)]/30 text-[var(--accent-400)] ' +
+    'hover:bg-[var(--accent-400)]/10 hover:border-[var(--accent-400)]/50',
   ghost:
-    'bg-transparent text-accent-400 ' +
-    'hover:bg-accent-400/10 hover:text-accent-300',
+    'bg-transparent text-[var(--accent-400)] ' +
+    'hover:bg-[var(--accent-400)]/10 hover:text-[var(--accent-300)]',
   danger:
-    'border border-rose-500/20 bg-rose-500/10 text-rose-400 ' +
-    'hover:bg-rose-500/20 hover:border-rose-500/30 hover:text-rose-300',
+    'border border-[var(--error)]/25 bg-[var(--error)]/10 text-[var(--error)] ' +
+    'hover:bg-[var(--error)]/15 hover:border-[var(--error)]/35 hover:text-[var(--error)]',
 };
 
 const SIZES: Record<ButtonSize, string> = {

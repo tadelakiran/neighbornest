@@ -24,9 +24,9 @@ export function Navbar({ onMenuClick, className = '' }: NavbarProps) {
     <header
       className={cn(
         'sticky top-0 z-40 w-full',
-        'border-b border-white/[0.06]',
-        'bg-void/60 backdrop-blur-2xl',
-        'supports-[backdrop-filter]:bg-void/50',
+        'border-b border-[var(--color-border)]',
+        'bg-[var(--color-bg)]/70 backdrop-blur-2xl',
+        'supports-[backdrop-filter]:bg-[var(--color-bg)]/60',
         className
       )}
     >
@@ -40,7 +40,7 @@ export function Navbar({ onMenuClick, className = '' }: NavbarProps) {
             <motion.button
               whileTap={{ scale: 0.92 }}
               onClick={onMenuClick}
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-surface-2 text-secondary transition-colors hover:border-accent-400/30 hover:text-primary lg:hidden"
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--text-secondary)] transition-colors hover:border-[var(--accent-400)]/30 hover:text-[var(--text-primary)] lg:hidden"
               aria-label="Open navigation menu"
             >
               <Menu className="h-5 w-5" />
@@ -74,7 +74,7 @@ export function Navbar({ onMenuClick, className = '' }: NavbarProps) {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => navigate(ROUTES.PROFILE)}
-                className="flex items-center gap-2.5 rounded-xl border border-white/[0.08] bg-surface-2 py-1 pl-1 pr-3 transition-all duration-200 hover:border-accent-400/25 hover:shadow-[0_0_16px_rgba(14,165,233,0.08)]"
+                className="flex items-center gap-2.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-2)] py-1 pl-1 pr-3 transition-all duration-200 hover:border-[var(--accent-400)]/25 hover:shadow-[var(--shadow-card-hover)]"
                 aria-label={`Open profile of ${user.fullName}`}
               >
                 <Avatar name={user.fullName} src={user.profilePhotoUrl} size="sm" />
@@ -91,7 +91,7 @@ export function Navbar({ onMenuClick, className = '' }: NavbarProps) {
               <motion.button
                 whileTap={{ scale: 0.92 }}
                 onClick={() => void logout()}
-                className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-surface-2 text-secondary transition-all duration-200 hover:border-rose-400/30 hover:bg-rose-400/10 hover:text-rose-400"
+                className="flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--text-secondary)] transition-all duration-200 hover:border-[var(--error)]/30 hover:bg-[var(--error)]/10 hover:text-[var(--error)]"
                 aria-label="Log out"
                 title="Log out"
               >
@@ -99,7 +99,7 @@ export function Navbar({ onMenuClick, className = '' }: NavbarProps) {
               </motion.button>
             </div>
           ) : (
-            <span className="rounded-xl border border-white/[0.08] bg-surface-2 px-3 py-1.5 text-xs font-medium text-secondary">
+            <span className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-2)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)]">
               Guest
             </span>
           )}

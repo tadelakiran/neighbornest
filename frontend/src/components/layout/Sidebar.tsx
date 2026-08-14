@@ -75,7 +75,7 @@ export function Sidebar({ isOpen, onClose, className = '' }: SidebarProps) {
         animate={isOpen ? 'open' : 'closed'}
         className={cn(
           'fixed inset-y-0 left-0 z-50 flex w-72 flex-col',
-          'border-r border-white/[0.06] bg-deep/95 backdrop-blur-2xl',
+          'border-r border-[var(--color-border)] bg-[var(--color-deep)]/95 backdrop-blur-2xl',
           'lg:static lg:transform-none',
           className
         )}
@@ -96,7 +96,7 @@ export function Sidebar({ isOpen, onClose, className = '' }: SidebarProps) {
           </button>
           <button
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-muted transition-colors hover:bg-white/[0.06] hover:text-primary lg:hidden"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--text-muted)] transition-colors hover:bg-[var(--color-raised)] hover:text-[var(--text-primary)] lg:hidden"
             aria-label="Close menu"
           >
             <X className="h-5 w-5" />
@@ -116,7 +116,7 @@ export function Sidebar({ isOpen, onClose, className = '' }: SidebarProps) {
                   'group relative flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200',
                   isActive
                     ? 'bg-accent-gradient text-white shadow-glow'
-                    : 'text-secondary hover:bg-raised hover:text-primary'
+                    : 'text-[var(--text-secondary)] hover:bg-[var(--color-raised)] hover:text-[var(--text-primary)]'
                 )
               }
             >
@@ -147,9 +147,9 @@ export function Sidebar({ isOpen, onClose, className = '' }: SidebarProps) {
           {user?.role === 'ADMIN' && (
             <>
               <div className="mx-3 my-4 flex items-center gap-3">
-                <div className="h-px flex-1 bg-white/[0.06]" />
-                <span className="text-[10px] font-bold uppercase tracking-widest text-muted">Admin</span>
-                <div className="h-px flex-1 bg-white/[0.06]" />
+                <div className="h-px flex-1 bg-[var(--color-border)]" />
+                <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Admin</span>
+                <div className="h-px flex-1 bg-[var(--color-border)]" />
               </div>
               {ADMIN_ITEMS.map(({ to, label, icon: Icon }) => (
                 <NavLink
@@ -192,13 +192,13 @@ export function Sidebar({ isOpen, onClose, className = '' }: SidebarProps) {
         </nav>
 
         {/* User footer */}
-        <div className="border-t border-white/[0.06] p-4">
+        <div className="border-t border-[var(--color-border)] p-4">
           {user ? (
-            <div className="flex items-center gap-3 rounded-xl border border-white/[0.08] bg-surface-2 p-3">
+            <div className="flex items-center gap-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-2)] p-3">
               <Avatar name={user.fullName} src={user.profilePhotoUrl} size="md" />
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold text-primary">{user.fullName}</p>
-                <p className="truncate text-[11px] capitalize text-muted">
+                <p className="truncate text-sm font-semibold text-[var(--text-primary)]">{user.fullName}</p>
+                <p className="truncate text-[11px] capitalize text-[var(--text-muted)]">
                   {user.role?.toLowerCase() ?? 'member'}
                   {user.city ? ` · ${user.city}` : ''}
                 </p>
@@ -206,7 +206,7 @@ export function Sidebar({ isOpen, onClose, className = '' }: SidebarProps) {
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onClick={() => void logout()}
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-muted transition-colors hover:bg-rose-400/10 hover:text-rose-400"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[var(--text-muted)] transition-colors hover:bg-[var(--error)]/10 hover:text-[var(--error)]"
                 aria-label="Log out"
                 title="Log out"
               >
@@ -214,7 +214,7 @@ export function Sidebar({ isOpen, onClose, className = '' }: SidebarProps) {
               </motion.button>
             </div>
           ) : (
-            <p className="px-2 py-1 text-xs text-muted">Signing in…</p>
+            <p className="px-2 py-1 text-xs text-[var(--text-muted)]">Signing in…</p>
           )}
         </div>
       </motion.aside>

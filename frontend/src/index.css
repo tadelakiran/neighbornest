@@ -50,7 +50,10 @@
     --shadow-md: 0 4px 20px rgba(2,6,23,0.5), 0 2px 8px rgba(0,0,0,0.4);
     --shadow-lg: 0 8px 32px rgba(2,6,23,0.6), 0 4px 12px rgba(0,0,0,0.45);
     --shadow-xl: 0 16px 48px rgba(2,6,23,0.7), 0 8px 20px rgba(0,0,0,0.5);
+    --shadow-card: 0 2px 8px rgba(2,6,23,0.35);
+    --shadow-card-hover: 0 8px 32px rgba(14,165,233,0.18), 0 4px 12px rgba(2,6,23,0.5);
     --shadow-glow: 0 0 0 3px rgba(14,165,233,0.18), 0 4px 20px rgba(14,165,233,0.28);
+    --shadow-glow-sm: 0 0 12px rgba(14,165,233,0.22);
 
     /* Gradients */
     --grad-primary: linear-gradient(135deg, #0284c7 0%, #0ea5e9 50%, #38bdf8 100%);
@@ -125,7 +128,10 @@
     --shadow-md: 0 4px 20px rgba(2, 132, 199, 0.14), 0 2px 8px rgba(0,0,0,0.06);
     --shadow-lg: 0 8px 32px rgba(2, 132, 199, 0.18), 0 4px 12px rgba(0,0,0,0.08);
     --shadow-xl: 0 16px 48px rgba(2, 132, 199, 0.22), 0 8px 20px rgba(0,0,0,0.10);
+    --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.05);
+    --shadow-card-hover: 0 8px 24px rgba(2, 132, 199, 0.14), 0 2px 6px rgba(0,0,0,0.06);
     --shadow-glow: 0 0 0 3px rgba(14,165,233,0.2), 0 4px 20px rgba(14,165,233,0.3);
+    --shadow-glow-sm: 0 0 10px rgba(14,165,233,0.2);
 
     /* ── NEW: Light-mode accent tokens ── */
     --accent-300: #0ea5e9;
@@ -179,11 +185,14 @@
     border-radius: 6px;
   }
 
-  ::-webkit-scrollbar       { width: 5px; height: 5px; }
+  ::-webkit-scrollbar       { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: #1e2d5f; border-radius: 99px; }
   ::-webkit-scrollbar-thumb:hover { background: #27406f; }
+  html.light ::-webkit-scrollbar-thumb { background: #c7d2e0; }
+  html.light ::-webkit-scrollbar-thumb:hover { background: #a9b8cc; }
   * { scrollbar-width: thin; scrollbar-color: #1e2d5f transparent; }
+  html.light * { scrollbar-color: #c7d2e0 transparent; }
 }
 
 /* ============================================================
@@ -349,6 +358,11 @@
     background-clip: text;
     color: transparent;
   }
+  html.light .text-gradient {
+    background: linear-gradient(135deg, #0369a1 0%, #0284c7 50%, #0ea5e9 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
 
   /* ── Warm gradient text (anchor / milestone moments) ── */
   .text-gradient-gold {
@@ -356,6 +370,11 @@
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
+  }
+  html.light .text-gradient-gold {
+    background: linear-gradient(135deg, #b45309 0%, #d97706 50%, #f59e0b 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
   }
 
   /* ── No scrollbar ── */
@@ -375,7 +394,7 @@
 
   /* ── NEW: Glow shadow variants ── */
   .shadow-glow-sm {
-    box-shadow: 0 0 12px rgba(14, 165, 233, 0.15);
+    box-shadow: var(--shadow-glow-sm);
   }
   .shadow-gold {
     box-shadow: 0 0 20px rgba(251, 191, 36, 0.15);

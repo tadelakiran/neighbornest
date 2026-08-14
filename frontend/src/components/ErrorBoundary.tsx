@@ -23,7 +23,6 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   }
 
   componentDidCatch(error: Error, info: ErrorInfo): void {
-    // Log the full error details for diagnostics.
     console.error('NeighborNest UI error:', error, info.componentStack);
   }
 
@@ -39,15 +38,17 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     return (
       <div className="mesh-gradient flex min-h-screen items-center justify-center px-4">
         <div className="w-full max-w-md text-center">
-          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-lg border border-rose-500/30 bg-rose-500/10">
-            <AlertTriangle className="h-8 w-8 text-rose-400" aria-hidden="true" />
+          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-[var(--radius-lg)] border border-[var(--error)]/30 bg-[var(--error)]/10">
+            <AlertTriangle className="h-8 w-8 text-[var(--error)]" aria-hidden="true" />
           </div>
-          <h1 className="font-display text-2xl font-bold text-primary">Something went wrong</h1>
-          <p className="mt-2 text-sm text-muted">
+          <h1 className="font-['Space_Grotesk'] text-2xl font-bold text-[var(--text-primary)]">
+            Something went wrong
+          </h1>
+          <p className="mt-2 text-sm text-[var(--text-muted)]">
             An unexpected error occurred while rendering this page. Reload to continue.
           </p>
           {this.state.error && (
-            <p className="mt-4 break-words rounded-md border border-[var(--color-border)] bg-[var(--color-deep)] px-4 py-3 font-mono text-xs text-muted">
+            <p className="mt-4 break-words rounded-[var(--radius)] border border-[var(--color-border)] bg-[var(--color-deep)] px-4 py-3 font-mono text-xs text-[var(--text-muted)]">
               {this.state.error.message}
             </p>
           )}

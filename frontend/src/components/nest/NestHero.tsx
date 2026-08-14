@@ -6,12 +6,12 @@ import type { NestResponse, NestStatus } from '@/types/nest.types';
 
 /** Per-status badge styling: ACTIVE pings fast, VIBE_CHECK pulses slowly, GRADUATED glows. */
 const BADGE_STYLES: Record<NestStatus, { chip: string; dot: string; ping: boolean; slow: boolean }> = {
-  ACTIVE: { chip: 'border-emerald-500/30 bg-emerald-500/20 text-emerald-300', dot: 'bg-emerald-400', ping: true, slow: false },
-  VIBE_CHECK: { chip: 'border-amber-500/30 bg-amber-500/20 text-amber-300', dot: 'bg-amber-400', ping: false, slow: true },
-  GRADUATED: { chip: 'border-gold-500/40 bg-gold-500/20 text-gold-300 shadow-glow', dot: 'bg-gold-400', ping: false, slow: false },
-  FORMING: { chip: 'border-white/10 bg-white/[0.05] text-secondary', dot: 'bg-slate-400', ping: false, slow: false },
-  RE_MATCHING: { chip: 'border-fuchsia-500/30 bg-fuchsia-500/20 text-fuchsia-300', dot: 'bg-fuchsia-400', ping: false, slow: true },
-  DISBANDED: { chip: 'border-rose-500/30 bg-rose-500/20 text-rose-300', dot: 'bg-rose-400', ping: false, slow: false },
+  ACTIVE: { chip: 'border-[var(--success)]/30 bg-[var(--success)]/20 text-[var(--success)]', dot: 'bg-[var(--success)]', ping: true, slow: false },
+  VIBE_CHECK: { chip: 'border-[var(--warning)]/30 bg-[var(--warning)]/20 text-[var(--warning)]', dot: 'bg-[var(--warning)]', ping: false, slow: true },
+  GRADUATED: { chip: 'border-[var(--gold-500)]/40 bg-[var(--gold-500)]/20 text-[var(--gold-300)] shadow-glow', dot: 'bg-[var(--gold-400)]', ping: false, slow: false },
+  FORMING: { chip: 'border-[var(--color-border)] bg-[var(--color-raised)]/40 text-[var(--text-secondary)]', dot: 'bg-[var(--text-muted)]', ping: false, slow: false },
+  RE_MATCHING: { chip: 'border-[var(--accent-400)]/30 bg-[var(--accent-400)]/20 text-[var(--accent-300)]', dot: 'bg-[var(--accent-400)]', ping: false, slow: true },
+  DISBANDED: { chip: 'border-[var(--error)]/30 bg-[var(--error)]/20 text-[var(--error)]', dot: 'bg-[var(--error)]', ping: false, slow: false },
 };
 
 /**
@@ -54,9 +54,9 @@ export function NestHero({ nest }: { nest: NestResponse }) {
             >
               <span className="relative flex h-2 w-2">
                 {badge.ping && (
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" style={{ animationDuration: '1s' }} aria-hidden="true" />
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--success)] opacity-75" style={{ animationDuration: '1s' }} aria-hidden="true" />
                 )}
-                <span className={cn('relative inline-flex h-2 w-2 rounded-full', badge.dot, badge.slow && 'animate-pulse', badge.ping && 'bg-emerald-400')} style={badge.slow ? { animationDuration: '2s' } : undefined} aria-hidden="true" />
+                <span className={cn('relative inline-flex h-2 w-2 rounded-full', badge.dot, badge.slow && 'animate-pulse', badge.ping && 'bg-[var(--success)]')} style={badge.slow ? { animationDuration: '2s' } : undefined} aria-hidden="true" />
               </span>
               {nest.status.replace('_', ' ')}
             </motion.span>
@@ -68,9 +68,9 @@ export function NestHero({ nest }: { nest: NestResponse }) {
             transition={{ delay: 0.2, duration: 0.4 }}
             className="mt-2 flex items-center gap-1.5 text-sm text-secondary"
           >
-            <MapPin className="h-4 w-4 text-accent-400" aria-hidden="true" />
+            <MapPin className="h-4 w-4 text-[var(--accent-400)]" aria-hidden="true" />
             {nest.city}
-            <span className="text-white/10">•</span>
+            <span className="text-[var(--text-subtle)]">•</span>
             {nest.members.length} member{nest.members.length === 1 ? '' : 's'}
           </motion.p>
 
@@ -100,7 +100,7 @@ export function NestHero({ nest }: { nest: NestResponse }) {
                       'h-2 flex-1 rounded-full transition-colors',
                       filled && 'bg-accent-gradient shadow-[0_0_8px_rgba(14,165,233,0.5)]',
                       current && 'animate-pulse',
-                      !filled && 'bg-white/10'
+                      !filled && 'bg-[var(--color-border)]'
                     )}
                   />
                 );
@@ -114,7 +114,7 @@ export function NestHero({ nest }: { nest: NestResponse }) {
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.28, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="shrink-0 rounded-2xl border border-white/[0.08] bg-deep/70 px-6 py-4 text-center backdrop-blur-xl"
+          className="shrink-0 rounded-2xl border border-[var(--color-border)] bg-[var(--color-deep)]/70 px-6 py-4 text-center backdrop-blur-xl"
         >
           {graduated ? (
             <>

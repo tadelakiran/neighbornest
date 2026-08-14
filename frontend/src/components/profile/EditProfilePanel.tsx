@@ -132,12 +132,12 @@ export function EditProfilePanel({ profile, open, onClose, onSave }: EditProfile
             transition={{ type: 'spring', stiffness: 320, damping: 32 }}
             className={cn(
               'absolute inset-y-0 right-0 flex w-full flex-col',
-              'border-l border-white/[0.08] bg-deep/95 shadow-2xl backdrop-blur-2xl',
+              'border-l border-[var(--color-border)] bg-[var(--color-deep)]/95 shadow-2xl backdrop-blur-2xl',
               'sm:w-[480px]'
             )}
           >
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-white/[0.06] px-6 py-4">
+            <div className="flex items-center justify-between border-b border-[var(--color-border)] px-6 py-4">
               <div className="flex items-center gap-3">
                 <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent-400/10 ring-1 ring-accent-400/20">
                   <User className="h-4 w-4 text-accent-400" aria-hidden="true" />
@@ -149,7 +149,7 @@ export function EditProfilePanel({ profile, open, onClose, onSave }: EditProfile
                 type="button"
                 onClick={onClose}
                 aria-label="Close edit panel"
-                className="rounded-xl p-2 text-muted transition-colors hover:bg-white/[0.06] hover:text-primary"
+                className="rounded-xl p-2 text-[var(--text-muted)] transition-colors hover:bg-[var(--color-raised)] hover:text-[var(--text-primary)]"
               >
                 <X className="h-5 w-5" />
               </motion.button>
@@ -162,21 +162,21 @@ export function EditProfilePanel({ profile, open, onClose, onSave }: EditProfile
                   id="ep-fullName"
                   label="Full name"
                   error={errors.fullName?.message}
-                  className="rounded-xl border-white/[0.08] bg-surface-2 transition-all focus-within:border-accent-400/40 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.1)]"
+                  className="rounded-xl border-[var(--color-border)] bg-[var(--color-surface-2)] transition-all focus-within:border-[var(--accent-400)]/40 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.1)]"
                   {...register('fullName')}
                 />
                 <Input
                   id="ep-city"
                   label="City"
                   error={errors.city?.message}
-                  className="rounded-xl border-white/[0.08] bg-surface-2 transition-all focus-within:border-accent-400/40 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.1)]"
+                  className="rounded-xl border-[var(--color-border)] bg-[var(--color-surface-2)] transition-all focus-within:border-[var(--accent-400)]/40 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.1)]"
                   {...register('city')}
                 />
                 <Input
                   id="ep-neighborhood"
                   label="Neighborhood"
                   error={errors.neighborhood?.message}
-                  className="rounded-xl border-white/[0.08] bg-surface-2 transition-all focus-within:border-accent-400/40 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.1)]"
+                  className="rounded-xl border-[var(--color-border)] bg-[var(--color-surface-2)] transition-all focus-within:border-[var(--accent-400)]/40 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.1)]"
                   {...register('neighborhood')}
                 />
                 <Input
@@ -184,14 +184,14 @@ export function EditProfilePanel({ profile, open, onClose, onSave }: EditProfile
                   type="number"
                   label="Years in city"
                   error={errors.yearsInCity?.message}
-                  className="rounded-xl border-white/[0.08] bg-surface-2 transition-all focus-within:border-accent-400/40 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.1)]"
+                  className="rounded-xl border-[var(--color-border)] bg-[var(--color-surface-2)] transition-all focus-within:border-[var(--accent-400)]/40 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.1)]"
                   {...register('yearsInCity')}
                 />
                 <Input
                   id="ep-occupation"
                   label="Occupation"
                   error={errors.occupation?.message}
-                  className="rounded-xl border-white/[0.08] bg-surface-2 transition-all focus-within:border-accent-400/40 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.1)]"
+                  className="rounded-xl border-[var(--color-border)] bg-[var(--color-surface-2)] transition-all focus-within:border-[var(--accent-400)]/40 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.1)]"
                   {...register('occupation')}
                 />
 
@@ -263,7 +263,7 @@ export function EditProfilePanel({ profile, open, onClose, onSave }: EditProfile
               </div>
 
               {/* Footer */}
-              <div className="flex items-center justify-end gap-3 border-t border-white/[0.06] px-6 py-4">
+              <div className="flex items-center justify-end gap-3 border-t border-[var(--color-border)] px-6 py-4">
                 <Button variant="ghost" onClick={onClose} className="rounded-xl">
                   Cancel
                 </Button>

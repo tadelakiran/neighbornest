@@ -1,21 +1,37 @@
 package com.neighbornest.auth.service;
 
+import com.neighbornest.auth.client.NotificationEmailClient;
 import com.neighbornest.auth.dto.request.LoginRequest;
 import com.neighbornest.auth.dto.request.LogoutRequest;
 import com.neighbornest.auth.dto.request.RefreshTokenRequest;
 import com.neighbornest.auth.dto.request.RegisterRequest;
+import com.neighbornest.auth.dto.request.ResetPasswordRequest;
+import com.neighbornest.auth.dto.request.SendOtpRequest;
+import com.neighbornest.auth.dto.request.VerifyOtpRequest;
 import com.neighbornest.auth.dto.response.AuthResponse;
+import com.neighbornest.auth.dto.response.OtpSendResponse;
+import com.neighbornest.auth.dto.response.OtpVerifyResponse;
 import com.neighbornest.auth.dto.response.UserResponse;
 import com.neighbornest.auth.entity.Role;
+import com.neighbornest.auth.enums.OtpPurpose;
+import com.neighbornest.auth.exception.BadRequestException;
 import com.neighbornest.auth.exception.InvalidCredentialsException;
 import com.neighbornest.auth.exception.TokenExpiredException;
 import com.neighbornest.auth.exception.UserAlreadyExistsException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -41,9 +57,30 @@ class AuthServiceTest {
     @Autowired
     private AuthService authService;
 
+    @Autowired
+    private PasswordService passwordService;
+
+    /** Mocks the email service so OTP checks always pass unless a test overrides. */
+    @MockitoBean
+    private NotificationEmailClient notificationEmailClient;
+
     private static final String TEST_EMAIL = "john.doe@example.com";
     private static final String TEST_PASSWORD = "Pass@123";
     private static final String TEST_FULL_NAME = "John Doe";
+    private static final String TEST_OTP = "123456";
+
+    @BeforeEach
+    void stubEmailClient() {
+        when(notificationEmailClient.verifyOtp(any(VerifyOtpRequest.class)))
+                .thenReturn(OtpVerifyResponse.builder().valid(true).build());
+        when(notificationEmailClient.sendOtp(any(SendOtpRequest.class)))
+                .thenReturn(OtpSendResponse.builder()
+                        .email(TEST_EMAIL)
+                        .purpose(OtpPurpose.EMAIL_VERIFICATION)
+                        .expiresInSeconds(600)
+                        .resendAfterSeconds(60)
+                        .build());
+    }
 
     @Nested
     @DisplayName("Register method")
@@ -59,6 +96,7 @@ class AuthServiceTest {
                     .fullName(TEST_FULL_NAME)
                     .email(TEST_EMAIL)
                     .password(TEST_PASSWORD)
+                    .otp(TEST_OTP)
                     .build();
 
             final UserResponse response = authService.register(request);
@@ -81,6 +119,7 @@ class AuthServiceTest {
                     .fullName(TEST_FULL_NAME)
                     .email("duplicate." + TEST_EMAIL)
                     .password(TEST_PASSWORD)
+                    .otp(TEST_OTP)
                     .build();
             authService.register(firstRequest);
 
@@ -88,6 +127,7 @@ class AuthServiceTest {
                     .fullName("Jane Doe")
                     .email("duplicate." + TEST_EMAIL)
                     .password("Test@1234")
+                    .otp(TEST_OTP)
                     .build();
 
             assertThatThrownBy(() -> authService.register(duplicateRequest))
@@ -105,6 +145,7 @@ class AuthServiceTest {
                     .fullName(TEST_FULL_NAME)
                     .email("weak." + TEST_EMAIL)
                     .password("weak")
+                    .otp(TEST_OTP)
                     .build();
 
             assertThatThrownBy(() -> authService.register(request))
@@ -128,6 +169,7 @@ class AuthServiceTest {
                     .fullName(TEST_FULL_NAME)
                     .email(email)
                     .password(TEST_PASSWORD)
+                    .otp(TEST_OTP)
                     .build());
 
             final LoginRequest request = LoginRequest.builder()
@@ -155,6 +197,7 @@ class AuthServiceTest {
                     .fullName(TEST_FULL_NAME)
                     .email(email)
                     .password(TEST_PASSWORD)
+                    .otp(TEST_OTP)
                     .build());
 
             final LoginRequest request = LoginRequest.builder()
@@ -199,6 +242,7 @@ class AuthServiceTest {
                     .fullName(TEST_FULL_NAME)
                     .email(email)
                     .password(TEST_PASSWORD)
+                    .otp(TEST_OTP)
                     .build());
 
             final AuthResponse loginResponse = authService.login(
@@ -248,6 +292,7 @@ class AuthServiceTest {
                     .fullName(TEST_FULL_NAME)
                     .email(email)
                     .password(TEST_PASSWORD)
+                    .otp(TEST_OTP)
                     .build());
 
             final AuthResponse loginResponse = authService.login(
@@ -276,6 +321,7 @@ class AuthServiceTest {
                     .fullName(TEST_FULL_NAME)
                     .email(email)
                     .password(TEST_PASSWORD)
+                    .otp(TEST_OTP)
                     .build());
 
             // Should not throw any exception
@@ -285,6 +331,103 @@ class AuthServiceTest {
             final AuthResponse response = authService.login(
                     LoginRequest.builder().email(email).password(TEST_PASSWORD).build());
             assertThat(response).isNotNull();
+        }
+    }
+
+    @Nested
+    @DisplayName("Password recovery methods")
+    class PasswordRecoveryTests {
+
+        /**
+         * Tests that forgotPassword dispatches a PASSWORD_RESET code for an
+         * existing account and stays silent for an unknown one.
+         */
+        @Test
+        @DisplayName("Should request a reset code for an existing account")
+        void shouldRequestResetCodeForExistingAccount() {
+            final String email = "reset.existing@example.com";
+            authService.register(RegisterRequest.builder()
+                    .fullName(TEST_FULL_NAME)
+                    .email(email)
+                    .password(TEST_PASSWORD)
+                    .otp(TEST_OTP)
+                    .build());
+
+            passwordService.forgotPassword(email);
+
+            verify(notificationEmailClient).sendOtp(argThat(request ->
+                    request.getEmail().equals(email)
+                            && request.getPurpose() == OtpPurpose.PASSWORD_RESET));
+        }
+
+        /**
+         * Tests that forgotPassword never dispatches a code for an unknown
+         * email (avoids leaking which addresses are registered).
+         */
+        @Test
+        @DisplayName("Should not request a reset code for an unknown email")
+        void shouldNotRequestResetCodeForUnknownEmail() {
+            passwordService.forgotPassword("nobody@example.com");
+
+            verify(notificationEmailClient, never()).sendOtp(any(SendOtpRequest.class));
+        }
+
+        /**
+         * Tests a successful password reset: the code is verified and the
+         * password hash changes so the new password works and the old one does not.
+         */
+        @Test
+        @DisplayName("Should reset the password with a verified code")
+        void shouldResetPasswordWithVerifiedCode() {
+            final String email = "reset.success@example.com";
+            final String newPassword = "NewPass@456";
+            authService.register(RegisterRequest.builder()
+                    .fullName(TEST_FULL_NAME)
+                    .email(email)
+                    .password(TEST_PASSWORD)
+                    .otp(TEST_OTP)
+                    .build());
+
+            passwordService.resetPassword(ResetPasswordRequest.builder()
+                    .email(email)
+                    .otp(TEST_OTP)
+                    .newPassword(newPassword)
+                    .build());
+
+            // Old password rejected, new password accepted.
+            assertThatThrownBy(() -> authService.login(LoginRequest.builder()
+                    .email(email)
+                    .password(TEST_PASSWORD)
+                    .build()))
+                    .isInstanceOf(InvalidCredentialsException.class);
+            final AuthResponse response = authService.login(LoginRequest.builder()
+                    .email(email)
+                    .password(newPassword)
+                    .build());
+            assertThat(response.getAccessToken()).isNotNull();
+        }
+
+        /**
+         * Tests that a weak new password is rejected before any OTP check.
+         */
+        @Test
+        @DisplayName("Should reject a weak new password")
+        void shouldRejectWeakNewPassword() {
+            final String email = "reset.weak@example.com";
+            authService.register(RegisterRequest.builder()
+                    .fullName(TEST_FULL_NAME)
+                    .email(email)
+                    .password(TEST_PASSWORD)
+                    .otp(TEST_OTP)
+                    .build());
+
+            assertThatThrownBy(() -> passwordService.resetPassword(ResetPasswordRequest.builder()
+                    .email(email)
+                    .otp(TEST_OTP)
+                    .newPassword("weak")
+                    .build()))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("Password validation failed");
         }
     }
 }

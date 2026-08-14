@@ -40,6 +40,10 @@ public class SecurityConfig {
             "/api/auth/login",
             "/api/auth/refresh",
             "/api/auth/validate",
+            // Email-verification and password-recovery flows run pre-auth.
+            "/api/auth/otp/send",
+            "/api/auth/password/forgot",
+            "/api/auth/password/reset",
             "/swagger-ui/**",
             "/swagger-ui.html",
             "/v3/api-docs/**",

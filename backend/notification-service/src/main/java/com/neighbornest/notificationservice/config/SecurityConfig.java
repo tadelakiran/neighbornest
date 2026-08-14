@@ -34,6 +34,10 @@ public class SecurityConfig {
 
     /** Endpoints accessible without authentication. */
     private static final String[] PUBLIC_ENDPOINTS = {
+            // OTP send/verify run before the user has any credentials.
+            "/api/notifications/email/**",
+            // Service-to-service routes — gated by InternalApiKeyFilter.
+            "/api/notifications/internal/**",
             "/swagger-ui/**",
             "/swagger-ui.html",
             "/v3/api-docs/**",

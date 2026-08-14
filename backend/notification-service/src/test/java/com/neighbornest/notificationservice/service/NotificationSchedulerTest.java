@@ -11,6 +11,7 @@ import com.neighbornest.notificationservice.client.VibeCheckStatusResponse;
 import com.neighbornest.notificationservice.config.NotificationServiceProperties;
 import com.neighbornest.notificationservice.constants.AppConstants;
 import com.neighbornest.notificationservice.enums.NotificationType;
+import com.neighbornest.notificationservice.repository.EmailOtpRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -52,6 +53,9 @@ class NotificationSchedulerTest {
 
     @Mock
     private NotificationServiceProperties properties;
+
+    @Mock
+    private EmailOtpRepository emailOtpRepository;
 
     @InjectMocks
     private NotificationScheduler scheduler;
@@ -272,13 +276,14 @@ class NotificationSchedulerTest {
     class CleanupTests {
 
         @Test
-        @DisplayName("Should delegate to the notification service")
+        @DisplayName("Should delegate to the notification service and purge expired OTPs")
         void shouldDelegateCleanup() {
             when(notificationService.purgeOldNotifications()).thenReturn(3L);
 
             scheduler.purgeOldNotifications();
 
             verify(notificationService).purgeOldNotifications();
+            verify(emailOtpRepository).deleteExpiredBefore(any());
         }
     }
 }

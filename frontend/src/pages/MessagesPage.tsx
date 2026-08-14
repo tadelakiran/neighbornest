@@ -54,13 +54,10 @@ export function MessagesPage() {
   const [typingUsers, setTypingUsers] = useState<Record<number, string>>({});
   const [showNewDm, setShowNewDm] = useState(false);
   const [startingDm, setStartingDm] = useState(false);
-  // Auto-scroll (WhatsApp-style): pinned to the bottom while the user is near
-  // the latest message; shows a "jump to latest" button once they scroll up.
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const stickToBottomRef = useRef(true);
   const [showJumpToLatest, setShowJumpToLatest] = useState(false);
 
-  // Refs mirror latest state for websocket callbacks (avoid stale closures).
   const roomListRef = useRef<ChatRoom[]>([]);
   roomListRef.current = rooms;
   const activeRoomRef = useRef<string | null>(null);
@@ -74,7 +71,6 @@ export function MessagesPage() {
     [rooms, activeRoomId]
   );
 
-  // ── Auto-scroll helpers ──
   const handleScroll = useCallback(() => {
     const el = scrollContainerRef.current;
     if (!el) return;
@@ -91,9 +87,6 @@ export function MessagesPage() {
     setShowJumpToLatest(false);
   }, []);
 
-  // Keep the view pinned to the newest message (only when already near the
-  // bottom, so reading older history is never yanked away). Runs after the
-  // DOM commits, so the container already includes the newest messages.
   useEffect(() => {
     if (historyLoading) return;
     if (stickToBottomRef.current) {
@@ -102,17 +95,14 @@ export function MessagesPage() {
     }
   }, [messages, activeRoomId, historyLoading]);
 
-  // ── Patch helpers for the room list ──
   const patchRoom = useCallback((roomId: string, patch: Partial<ChatRoom>) => {
     setRooms((prev) => prev.map((r) => (r.id === roomId ? { ...r, ...patch } : r)));
   }, []);
 
-  // ── Live message arrival (routed by the subscription site) ──
   const handleIncoming = useCallback(
     (message: ChatMessageResponse, room: ChatRoom | undefined) => {
       if (!room) return;
       if (activeRoomRef.current === room.id) {
-        // The sender's own echo also arrives here; dedupe by id.
         setMessages((prev) => (prev.some((m) => m.id === message.id) ? prev : [...prev, message]));
         void markMessagesRead([message.id]).catch(() => undefined);
       } else {
@@ -127,7 +117,6 @@ export function MessagesPage() {
     [patchRoom]
   );
 
-  // ── Typing indicator bookkeeping ──
   const handleTyping = useCallback((senderId: number, senderName: string, typing: boolean) => {
     if (senderId === myIdRef.current) return;
     setTypingUsers((prev) => {
@@ -141,7 +130,6 @@ export function MessagesPage() {
     });
   }, []);
 
-  // ── Socket lifecycle: connect once, subscribe to my DM + typing queues ──
   useEffect(() => {
     if (!myId) return;
     let dmSub: StompSubscription | undefined;
@@ -152,14 +140,15 @@ export function MessagesPage() {
       .then(() => {
         if (cancelled) return;
         dmSub = subscribeToDm(myId, (message) => {
-          // Route the DM to its room via the other participant's id.
           const room =
             message.senderId === myIdRef.current
               ? roomListRef.current.find((r) => r.id === activeRoomRef.current && r.kind === 'dm')
               : roomListRef.current.find((r) => r.kind === 'dm' && r.participantId === message.senderId);
           handleIncoming(message, room);
         });
-        dmTypingSub = subscribeToDmTyping(myId, (event) => handleTyping(event.senderId, event.senderName, event.typing));
+        dmTypingSub = subscribeToDmTyping(myId, (event) =>
+          handleTyping(event.senderId, event.senderName, event.typing)
+        );
       })
       .catch(() => undefined);
 
@@ -171,15 +160,12 @@ export function MessagesPage() {
     };
   }, [myId, handleIncoming, handleTyping]);
 
-  // ── Initial room list: my Nests (group chats) + DM conversations ──
   useEffect(() => {
     if (!myId) return;
     let cancelled = false;
 
     (async () => {
       try {
-        // allSettled: a failing fetch (e.g. notifications service hiccup) must
-        // not blank the entire room list — show whatever did load.
         const [nestsResult, convsResult] = await Promise.allSettled([getMyNests(), getConversations()]);
         if (cancelled) return;
         const nests = nestsResult.status === 'fulfilled' ? nestsResult.value : [];
@@ -199,10 +185,11 @@ export function MessagesPage() {
         ];
         setRooms(sortRooms(list));
 
-        // Auto-open from ?conversation=id, else the first room.
         const param = searchParams.get('conversation');
         const target =
-          (param ? list.find((r) => r.conversationId === Number(param)) : undefined) ?? list[0] ?? null;
+          (param ? list.find((r) => r.conversationId === Number(param)) : undefined) ??
+          list[0] ??
+          null;
         setActiveRoomId(target?.id ?? null);
       } catch {
         if (!cancelled) setRooms([]);
@@ -216,7 +203,6 @@ export function MessagesPage() {
     };
   }, [myId, searchParams]);
 
-  // ── Room content: history + live subscription ──
   useEffect(() => {
     const room = roomListRef.current.find((r) => r.id === activeRoomId);
     if (!room) {
@@ -227,7 +213,6 @@ export function MessagesPage() {
 
     let cancelled = false;
     const subs: StompSubscription[] = [];
-    // New room → start pinned to the bottom (WhatsApp-style).
     stickToBottomRef.current = true;
     setShowJumpToLatest(false);
     setHistoryLoading(true);
@@ -256,14 +241,14 @@ export function MessagesPage() {
         if (!cancelled) setHistoryLoading(false);
       }
 
-      // Live subscription (group rooms broadcast per-room; DMs come via the
-      // global queue subscribed above).
       await connectChat().catch(() => undefined);
       if (cancelled) return;
       if (room.kind === 'nest' && room.nestId) {
         subs.push(
           subscribeToNestMessages(room.nestId, (message) => handleIncoming(message, room)),
-          subscribeToNestTyping(room.nestId, (event) => handleTyping(event.senderId, event.senderName, event.typing))
+          subscribeToNestTyping(room.nestId, (event) =>
+            handleTyping(event.senderId, event.senderName, event.typing)
+          )
         );
       }
     })();
@@ -275,7 +260,6 @@ export function MessagesPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeRoomId, myId]);
 
-  // ── Send typing indicator (throttled) ──
   const publishTyping = useCallback(
     (value: boolean) => {
       const now = Date.now();
@@ -290,7 +274,6 @@ export function MessagesPage() {
     [activeRoom]
   );
 
-  // ── Send ──
   const handleSend = useCallback(() => {
     const text = input.trim();
     if (!text || !activeRoom || historyLoading) return;
@@ -314,7 +297,6 @@ export function MessagesPage() {
     }
   };
 
-  // ── Start a DM with a fellow Nest member ──
   const handleStartDm = async (participantId: number, participantName: string) => {
     setStartingDm(true);
     try {
@@ -338,24 +320,22 @@ export function MessagesPage() {
     async (participantId: number, participantName: string) => {
       await handleStartDm(participantId, participantName);
     },
-    // handleStartDm is recreated each render; fine for a click handler.
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 
-  // ── Render ──
   return (
-    <div className="flex h-[calc(100dvh-8.5rem)] min-h-[480px] overflow-hidden rounded-3xl border border-[var(--color-border)] bg-deep/60 backdrop-blur-xl">
+    <div className="flex h-[calc(100dvh-8.5rem)] min-h-[480px] overflow-hidden rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-deep)]/60 backdrop-blur-xl">
       {/* Room list */}
       <aside
         className={cn(
-          'flex w-full flex-col border-r border-[var(--color-border)] bg-deep/40 sm:w-72 md:w-80',
+          'flex w-full flex-col border-r border-[var(--color-border)] bg-[var(--color-deep)]/40 sm:w-72 md:w-80',
           activeRoomId ? 'hidden sm:flex' : 'flex'
         )}
       >
         <div className="flex items-center justify-between px-4 py-3.5">
-          <h2 className="flex items-center gap-2 font-display text-sm font-bold uppercase tracking-widest text-muted">
-            <MessageSquare className="h-4 w-4 text-accent-400" aria-hidden="true" />
+          <h2 className="flex items-center gap-2 font-['Space_Grotesk'] text-sm font-bold uppercase tracking-widest text-[var(--text-muted)]">
+            <MessageSquare className="h-4 w-4 text-[var(--accent-400)]" aria-hidden="true" />
             Messages
           </h2>
           <Button
@@ -375,11 +355,11 @@ export function MessagesPage() {
             Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-14 rounded-xl" />)
           ) : rooms.length === 0 ? (
             <div className="flex flex-col items-center gap-2 px-4 py-10 text-center">
-              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-400/10">
-                <Users className="h-6 w-6 text-accent-300" aria-hidden="true" />
+              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--accent-400)]/10">
+                <Users className="h-6 w-6 text-[var(--accent-300)]" aria-hidden="true" />
               </span>
-              <p className="text-sm font-medium text-primary">No conversations yet</p>
-              <p className="text-xs text-muted">Message a Nest member to get started.</p>
+              <p className="text-sm font-medium text-[var(--text-primary)]">No conversations yet</p>
+              <p className="text-xs text-[var(--text-muted)]">Message a Nest member to get started.</p>
             </div>
           ) : (
             rooms.map((room) => (
@@ -389,24 +369,29 @@ export function MessagesPage() {
                 className={cn(
                   'flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors',
                   room.id === activeRoomId
-                    ? 'bg-accent-400/10 ring-1 ring-accent-400/25'
+                    ? 'bg-[var(--accent-400)]/10 ring-1 ring-[var(--accent-400)]/25'
                     : 'hover:bg-[var(--color-raised)]'
                 )}
               >
                 <Avatar name={room.title} size="md" />
                 <span className="min-w-0 flex-1">
                   <span className="flex items-center justify-between gap-2">
-                    <span className="truncate text-sm font-semibold text-primary">{room.title}</span>
+                    <span className="truncate text-sm font-semibold text-[var(--text-primary)]">
+                      {room.title}
+                    </span>
                     {room.lastMessageAt && (
-                      <span className="shrink-0 text-[10px] text-muted">{formatMessageTime(room.lastMessageAt)}</span>
+                      <span className="shrink-0 text-[10px] text-[var(--text-muted)]">
+                        {formatMessageTime(room.lastMessageAt)}
+                      </span>
                     )}
                   </span>
                   <span className="flex items-center justify-between gap-2">
-                    <span className="truncate text-xs text-muted">
-                      {room.lastMessageContent ?? (room.kind === 'nest' ? 'Group chat' : room.subtitle)}
+                    <span className="truncate text-xs text-[var(--text-muted)]">
+                      {room.lastMessageContent ??
+                        (room.kind === 'nest' ? 'Group chat' : room.subtitle)}
                     </span>
                     {room.unreadCount > 0 && (
-                      <span className="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-accent-400 px-1.5 text-[10px] font-bold text-white">
+                      <span className="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-[var(--accent-400)] px-1.5 text-[10px] font-bold text-white">
                         {room.unreadCount}
                       </span>
                     )}
@@ -425,7 +410,7 @@ export function MessagesPage() {
             {/* Header */}
             <header className="flex items-center gap-3 border-b border-[var(--color-border)] px-4 py-3">
               <button
-                className="text-muted transition-colors hover:text-primary sm:hidden"
+                className="text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)] sm:hidden"
                 onClick={() => setActiveRoomId(null)}
                 aria-label="Back to conversations"
               >
@@ -433,13 +418,17 @@ export function MessagesPage() {
               </button>
               <Avatar name={activeRoom.title} size="sm" />
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-bold text-primary">{activeRoom.title}</p>
-                <p className="truncate text-[11px] capitalize text-muted">
-                  {activeRoom.kind === 'nest' ? `${activeRoom.subtitle} · Nest group` : activeRoom.subtitle}
+                <p className="truncate text-sm font-bold text-[var(--text-primary)]">
+                  {activeRoom.title}
+                </p>
+                <p className="truncate text-[11px] capitalize text-[var(--text-muted)]">
+                  {activeRoom.kind === 'nest'
+                    ? `${activeRoom.subtitle} · Nest group`
+                    : activeRoom.subtitle}
                 </p>
               </div>
               {Object.keys(typingUsers).length > 0 && (
-                <span className="animate-pulse text-[11px] font-medium text-accent-300">
+                <span className="animate-pulse text-[11px] font-medium text-[var(--accent-300)]">
                   {Object.values(typingUsers)[0]} is typing…
                 </span>
               )}
@@ -452,79 +441,84 @@ export function MessagesPage() {
                 onScroll={handleScroll}
                 className="h-full space-y-3 overflow-y-auto px-4 py-4"
               >
-              {historyLoading ? (
-                <div className="space-y-3">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Skeleton key={i} className={cn('h-10 rounded-2xl', i % 2 ? 'ml-auto w-2/3' : 'w-2/3')} />
-                  ))}
-                </div>
-              ) : messages.length === 0 ? (
-                <div className="flex h-full flex-col items-center justify-center gap-2 text-center">
-                  <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-accent-400/10">
-                    <MessageSquare className="h-7 w-7 text-accent-300" aria-hidden="true" />
-                  </span>
-                  <p className="text-sm font-semibold text-primary">Say hello 👋</p>
-                  <p className="max-w-xs text-xs text-muted">
-                    This is the start of your {activeRoom.kind === 'nest' ? 'Nest group' : 'conversation'}.
-                  </p>
-                </div>
-              ) : (
-                messages.map((message, i) => {
-                  const mine = message.senderId === myId;
-                  const showName = !mine && activeRoom.kind === 'nest';
-                  const prev = messages[i - 1];
-                  const grouped = !mine && !!prev && prev.senderId === message.senderId;
-                  return (
-                    <motion.div
-                      key={message.id}
-                      initial={{ opacity: 0, y: 6 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className={cn('flex items-end gap-2', mine && 'flex-row-reverse')}
-                    >
-                      {!mine && !grouped && (
-                        <Avatar name={message.senderName} size="sm" className="mb-5 shrink-0" />
-                      )}
-                      <div className={cn('max-w-[75%]', !mine && !grouped && 'ml-1')}>
-                        {showName && (
-                          <p className="mb-0.5 px-1 text-[10px] font-semibold text-accent-300">{message.senderName}</p>
+                {historyLoading ? (
+                  <div className="space-y-3">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Skeleton
+                        key={i}
+                        className={cn('h-10 rounded-2xl', i % 2 ? 'ml-auto w-2/3' : 'w-2/3')}
+                      />
+                    ))}
+                  </div>
+                ) : messages.length === 0 ? (
+                  <div className="flex h-full flex-col items-center justify-center gap-2 text-center">
+                    <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--accent-400)]/10">
+                      <MessageSquare className="h-7 w-7 text-[var(--accent-300)]" aria-hidden="true" />
+                    </span>
+                    <p className="text-sm font-semibold text-[var(--text-primary)]">Say hello 👋</p>
+                    <p className="max-w-xs text-xs text-[var(--text-muted)]">
+                      This is the start of your {activeRoom.kind === 'nest' ? 'Nest group' : 'conversation'}.
+                    </p>
+                  </div>
+                ) : (
+                  messages.map((message, i) => {
+                    const mine = message.senderId === myId;
+                    const showName = !mine && activeRoom.kind === 'nest';
+                    const prev = messages[i - 1];
+                    const grouped = !mine && !!prev && prev.senderId === message.senderId;
+                    return (
+                      <motion.div
+                        key={message.id}
+                        initial={{ opacity: 0, y: 6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className={cn('flex items-end gap-2', mine && 'flex-row-reverse')}
+                      >
+                        {!mine && !grouped && (
+                          <Avatar name={message.senderName} size="sm" className="mb-5 shrink-0" />
                         )}
-                        <div
-                          className={cn(
-                            'whitespace-pre-wrap break-words rounded-2xl px-3.5 py-2 text-sm leading-relaxed shadow-sm',
-                            mine
-                              ? 'rounded-br-md bg-accent-gradient text-white'
-                              : 'rounded-bl-md border border-white/[0.06] bg-surface text-primary'
+                        <div className={cn('max-w-[75%]', !mine && !grouped && 'ml-1')}>
+                          {showName && (
+                            <p className="mb-0.5 px-1 text-[10px] font-semibold text-[var(--accent-300)]">
+                              {message.senderName}
+                            </p>
                           )}
-                        >
-                          {message.content}
+                          <div
+                            className={cn(
+                              'whitespace-pre-wrap break-words rounded-2xl px-3.5 py-2 text-sm leading-relaxed shadow-[var(--shadow-sm)]',
+                              mine
+                                ? 'rounded-br-md bg-[var(--grad-primary)] text-white'
+                                : 'rounded-bl-md border border-[var(--text-primary)]/[0.06] bg-[var(--color-surface)] text-[var(--text-primary)]'
+                            )}
+                          >
+                            {message.content}
+                          </div>
+                          <p className={cn('mt-0.5 px-1 text-[9px] text-[var(--text-muted)]', mine && 'text-right')}>
+                            {formatMessageTime(message.createdAt)}
+                            {mine && (message.isReadByMe ? ' · read' : ' · sent')}
+                          </p>
                         </div>
-                        <p className={cn('mt-0.5 px-1 text-[9px] text-muted', mine && 'text-right')}>
-                          {formatMessageTime(message.createdAt)}
-                          {mine && (message.isReadByMe ? ' · read' : ' · sent')}
-                        </p>
-                      </div>
-                    </motion.div>
-                  );
-                })
-              )}
-            </div>
+                      </motion.div>
+                    );
+                  })
+                )}
+              </div>
 
-            {/* Jump-to-latest (shown once the user scrolls up) */}
-            {showJumpToLatest && !historyLoading && messages.length > 0 && (
-              <button
-                onClick={() => scrollToBottom('smooth')}
-                className="absolute bottom-4 right-4 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-[var(--color-border)] bg-surface text-secondary shadow-lg transition-colors hover:text-primary"
-                aria-label="Scroll to latest message"
-                title="Scroll to latest"
-              >
-                <ChevronDown className="h-4 w-4" aria-hidden="true" />
-              </button>
-            )}
+              {/* Jump-to-latest */}
+              {showJumpToLatest && !historyLoading && messages.length > 0 && (
+                <button
+                  onClick={() => scrollToBottom('smooth')}
+                  className="absolute bottom-4 right-4 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--text-secondary)] shadow-[var(--shadow-lg)] transition-colors hover:text-[var(--text-primary)]"
+                  aria-label="Scroll to latest message"
+                  title="Scroll to latest"
+                >
+                  <ChevronDown className="h-4 w-4" aria-hidden="true" />
+                </button>
+              )}
             </div>
 
             {/* Composer */}
             <footer className="border-t border-[var(--color-border)] p-3">
-              <div className="flex items-end gap-2 rounded-2xl border border-[var(--color-border)] bg-surface/70 p-2 focus-within:border-accent-400/40">
+              <div className="flex items-end gap-2 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)]/70 p-2 focus-within:border-[var(--accent-400)]/40">
                 <textarea
                   value={input}
                   onChange={(e) => {
@@ -535,7 +529,7 @@ export function MessagesPage() {
                   onKeyDown={handleKeyDown}
                   rows={1}
                   placeholder={`Message ${activeRoom.title}…`}
-                  className="max-h-32 min-h-[40px] flex-1 resize-none bg-transparent px-2 py-2 text-sm text-primary placeholder:text-muted focus:outline-none"
+                  className="max-h-32 min-h-[40px] flex-1 resize-none bg-transparent px-2 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none"
                 />
                 <Button
                   onClick={handleSend}
@@ -550,11 +544,13 @@ export function MessagesPage() {
           </>
         ) : (
           <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center">
-            <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-accent-gradient shadow-glow">
+            <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--grad-primary)] shadow-[0_0_24px_rgba(14,165,233,0.3)]">
               <MessageSquare className="h-8 w-8 text-white" aria-hidden="true" />
             </span>
-            <h2 className="font-display text-xl font-bold text-primary">Select a conversation</h2>
-            <p className="max-w-sm text-sm text-secondary">
+            <h2 className="font-['Space_Grotesk'] text-xl font-bold text-[var(--text-primary)]">
+              Select a conversation
+            </h2>
+            <p className="max-w-sm text-sm text-[var(--text-secondary)]">
               Pick a Nest to chat with your group, or start a direct message with any member.
             </p>
             <Button variant="primary" className="mt-2" onClick={() => setShowNewDm(true)}>
@@ -654,7 +650,7 @@ function NewDmModal({
             ))}
           </div>
         ) : members.length === 0 ? (
-          <p className="py-8 text-center text-sm text-muted">
+          <p className="py-8 text-center text-sm text-[var(--text-muted)]">
             You're not in any Nests yet — join a Nest to message your members.
           </p>
         ) : (
@@ -667,10 +663,14 @@ function NewDmModal({
             >
               <Avatar name={m.fullName} size="md" />
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-sm font-semibold text-primary">{m.fullName}</span>
-                <span className="block text-[11px] capitalize text-muted">{m.roleInNest.toLowerCase()}</span>
+                <span className="block truncate text-sm font-semibold text-[var(--text-primary)]">
+                  {m.fullName}
+                </span>
+                <span className="block text-[11px] capitalize text-[var(--text-muted)]">
+                  {m.roleInNest.toLowerCase()}
+                </span>
               </span>
-              <MessageSquare className="h-4 w-4 text-accent-400" aria-hidden="true" />
+              <MessageSquare className="h-4 w-4 text-[var(--accent-400)]" aria-hidden="true" />
             </button>
           ))
         )}
@@ -678,4 +678,3 @@ function NewDmModal({
     </Modal>
   );
 }
-

@@ -38,7 +38,7 @@ export function MemberCard({ member, index = 0, onMessage }: MemberCardProps) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
       whileHover={{ y: -4 }}
-      className="group flex w-24 shrink-0 flex-col items-center gap-2.5 rounded-2xl border border-white/[0.06] bg-deep/60 p-4 backdrop-blur-xl transition-colors duration-300 hover:border-accent-400/30 hover:bg-deep"
+      className="group flex w-24 shrink-0 flex-col items-center gap-2.5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-deep)]/60 p-4 backdrop-blur-xl transition-colors duration-300 hover:border-[var(--accent-400)]/30 hover:bg-[var(--color-deep)]"
     >
       <div className="relative">
         {/* Role ring */}
@@ -90,7 +90,7 @@ export function MemberCard({ member, index = 0, onMessage }: MemberCardProps) {
           }}
           title={`Message ${member.fullName}`}
           aria-label={`Message ${member.fullName}`}
-          className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.08] bg-surface text-muted transition-all duration-200 hover:border-accent-400/40 hover:bg-accent-400/10 hover:text-accent-300"
+          className="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--text-muted)] transition-all duration-200 hover:border-[var(--accent-400)]/40 hover:bg-[var(--accent-400)]/10 hover:text-[var(--accent-300)]"
         >
           <MessageSquare className="h-3.5 w-3.5" aria-hidden="true" />
         </button>

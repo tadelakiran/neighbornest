@@ -22,13 +22,24 @@ export function OnboardingPage() {
 
   useEffect(() => {
     let active = true;
-    if (user?.isOnboarded) { setLoading(false); return; }
+    if (user?.isOnboarded) {
+      setLoading(false);
+      return;
+    }
     userService
       .getMyProfile()
-      .then((p)  => { if (active) setInitialProfile(p); })
-      .catch(()  => { if (active) setInitialProfile(null); })
-      .finally(() => { if (active) setLoading(false); });
-    return () => { active = false; };
+      .then((p) => {
+        if (active) setInitialProfile(p);
+      })
+      .catch(() => {
+        if (active) setInitialProfile(null);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
   }, [user?.isOnboarded]);
 
   if (user?.isOnboarded) return <Navigate to={ROUTES.DASHBOARD} replace />;
@@ -58,12 +69,12 @@ export function OnboardingPage() {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="relative w-full max-w-5xl overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] p-6 shadow-xl sm:p-10 theme-transition"
+          className="relative w-full max-w-5xl overflow-hidden rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-deep)] p-6 shadow-[var(--shadow-xl)] sm:p-10 theme-transition"
         >
           {/* Accent hairline at top */}
           <div
             aria-hidden="true"
-            className="absolute inset-x-0 top-0 h-0.5 rounded-t-xl bg-accent-gradient"
+            className="absolute inset-x-0 top-0 h-0.5 rounded-t-[var(--radius-xl)] bg-[var(--grad-primary)]"
           />
 
           {loading ? (

@@ -2,16 +2,17 @@ import { forwardRef, type InputHTMLAttributes, type ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
-  label?:    string;
-  error?:    string;
-  hint?:     string;
-  icon?:     ReactNode;
+  label?: string;
+  error?: string;
+  hint?: string;
+  icon?: ReactNode;
   trailing?: ReactNode;
 }
 
 /**
- * Minimal text input — white background, blue accent focus ring in light mode;
- * dark surface + accent ring in dark mode. Forwards its ref for react-hook-form.
+ * Minimal text input — elevated surface background, blue accent focus ring.
+ * Dark mode: deep surface + accent ring.
+ * Forwards its ref for react-hook-form.
  */
 export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   { label, error, hint, icon, trailing, className, id, ...props },
@@ -28,9 +29,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         </label>
       )}
 
-      <div className="relative">
+      <div className="relative group">
         {icon && (
-          <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-[var(--text-subtle)]">
+          <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-[var(--text-subtle)] transition-colors group-focus-within:text-[var(--accent-400)]">
             {icon}
           </span>
         )}
@@ -39,16 +40,16 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
           ref={ref}
           id={id}
           className={cn(
-            'h-11 w-full rounded-md border px-3.5 text-sm',
-            'bg-[var(--color-bg)] text-[var(--text-primary)]',
+            'h-11 w-full rounded-[var(--radius)] border px-3.5 text-sm',
+            'bg-[var(--color-surface-2)] text-[var(--text-primary)]',
             'border-[var(--color-border)] placeholder:text-[var(--text-subtle)]',
             'outline-none transition-all duration-200',
-            'focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20',
-            'hover:border-accent-300',
+            'focus:border-[var(--accent-400)] focus:ring-2 focus:ring-[var(--accent-400)]/15',
+            'hover:border-[var(--color-border-2)]',
             'disabled:cursor-not-allowed disabled:opacity-60',
-            icon     && 'pl-10',
+            icon && 'pl-10',
             trailing && 'pr-10',
-            error    && 'border-rose-400 focus:border-rose-500 focus:ring-rose-400/20',
+            error && 'border-[var(--error)] focus:border-[var(--error)] focus:ring-[var(--error)]/15',
             className
           )}
           aria-invalid={error ? true : undefined}
@@ -66,9 +67,14 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         <p
           key={error}
           role="alert"
-          className="error-shake mt-1.5 flex items-center gap-1.5 text-xs text-rose-500"
+          className="error-shake mt-1.5 flex items-center gap-1.5 text-xs text-[var(--error)]"
         >
-          <svg viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5 shrink-0" aria-hidden="true">
+          <svg
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            className="h-3.5 w-3.5 shrink-0"
+            aria-hidden="true"
+          >
             <path
               fillRule="evenodd"
               d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z"
