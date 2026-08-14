@@ -142,7 +142,7 @@ export function AnchorApplicationForm() {
                 placeholder="5"
                 icon={<CalendarDays className="h-4 w-4 text-muted" aria-hidden="true" />}
                 error={errors.yearsInCity?.message}
-                className="h-12 rounded-xl border-white/[0.08] bg-surface-2 text-primary transition-all focus-within:border-accent-400/40 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.1)]"
+                className="h-12 rounded-xl border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--text-primary)] transition-all focus-within:border-[var(--accent-400)]/40 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.1)]"
                 {...register('yearsInCity')}
               />
             </motion.div>
@@ -176,7 +176,7 @@ export function AnchorApplicationForm() {
                 placeholder="Tell us about your time in the city — events you've hosted, groups you're part of, hidden gems you know…"
                 rows={4}
                 error={errors.experience?.message}
-                className="rounded-xl border-white/[0.08] bg-surface-2 text-primary transition-all focus-within:border-accent-400/40 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.1)]"
+                className="rounded-xl border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--text-primary)] transition-all focus-within:border-[var(--accent-400)]/40 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.1)]"
                 {...register('experience')}
               />
             </motion.div>
@@ -188,7 +188,7 @@ export function AnchorApplicationForm() {
                 placeholder="e.g. Evenings and weekends"
                 rows={3}
                 error={errors.availability?.message}
-                className="rounded-xl border-white/[0.08] bg-surface-2 text-primary transition-all focus-within:border-accent-400/40 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.1)]"
+                className="rounded-xl border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--text-primary)] transition-all focus-within:border-[var(--accent-400)]/40 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.1)]"
                 {...register('availability')}
               />
             </motion.div>
@@ -239,7 +239,7 @@ export function AnchorApplicationForm() {
           <PendingBadge />
 
           {/* Process steps */}
-          <div className="w-full space-y-3 rounded-xl border border-white/[0.06] bg-surface/50 p-4 text-left">
+          <div className="w-full space-y-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]/50 p-4 text-left">
             <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted">What happens next</p>
             <ol className="space-y-3">
               {[

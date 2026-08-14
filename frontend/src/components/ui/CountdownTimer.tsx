@@ -32,10 +32,15 @@ function getTimeParts(expiresAt: string): TimeParts {
 }
 
 /**
- * Auto-updating countdown — "Expires in 3 days". Re-renders every 60 seconds
- * and flips to "Expired" once the deadline passes.
+ * Auto-updating countdown — "Expires in 3 days".
+ * Re-renders every 60 seconds and flips to "Expired" once the deadline passes.
+ * Uses semantic colors: muted (safe), accent (urgent), error (expired).
  */
-export function CountdownTimer({ expiresAt, prefix = 'Expires in', className }: CountdownTimerProps) {
+export function CountdownTimer({
+  expiresAt,
+  prefix = 'Expires in',
+  className,
+}: CountdownTimerProps) {
   const [parts, setParts] = useState<TimeParts>(() => getTimeParts(expiresAt));
 
   useEffect(() => {
@@ -54,14 +59,16 @@ export function CountdownTimer({ expiresAt, prefix = 'Expires in', className }: 
         ? `${hours}h ${minutes}m`
         : `${minutes}m`;
 
+  // Semantic color mapping
+  const isUrgent = !expired && days === 0 && hours < 6;
+  const colorClass = expired
+    ? 'text-[var(--error)]'
+    : isUrgent
+      ? 'text-[var(--warning)]'
+      : 'text-[var(--text-muted)]';
+
   return (
-    <span
-      className={cn(
-        'inline-flex items-center gap-1.5 text-xs font-medium text-muted',
-        expired && 'text-rose-400',
-        className
-      )}
-    >
+    <span className={cn('inline-flex items-center gap-1.5 text-xs font-medium', colorClass, className)}>
       <Clock className="h-3.5 w-3.5" aria-hidden="true" />
       {prefix} {label}
     </span>

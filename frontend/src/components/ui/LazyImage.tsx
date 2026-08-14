@@ -3,8 +3,8 @@ import { cn } from '@/lib/utils';
 import { ImageOff } from 'lucide-react';
 
 interface LazyImageProps extends ImgHTMLAttributes<HTMLImageElement> {
-  src:         string;
-  alt:         string;
+  src: string;
+  alt: string;
   /** Forces a fixed aspect ratio wrapper to prevent layout shift. */
   aspectRatio?: '1/1' | '4/3' | '16/9' | '16/7' | '2/1' | '3/2';
   /** Shown while the image loads. */
@@ -15,12 +15,12 @@ interface LazyImageProps extends ImgHTMLAttributes<HTMLImageElement> {
 }
 
 const ASPECT_MAP: Record<string, string> = {
-  '1/1':  'aspect-square',
-  '4/3':  'aspect-[4/3]',
+  '1/1': 'aspect-square',
+  '4/3': 'aspect-[4/3]',
   '16/9': 'aspect-video',
   '16/7': 'aspect-[16/7]',
-  '2/1':  'aspect-[2/1]',
-  '3/2':  'aspect-[3/2]',
+  '2/1': 'aspect-[2/1]',
+  '3/2': 'aspect-[3/2]',
 };
 
 /**
@@ -42,8 +42,8 @@ export function LazyImage({
   loading = 'lazy',
   ...props
 }: LazyImageProps) {
-  const [status, setStatus]     = useState<'idle' | 'loading' | 'loaded' | 'error'>('idle');
-  const [realSrc, setRealSrc]   = useState<string>('');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'loaded' | 'error'>('idle');
+  const [realSrc, setRealSrc] = useState<string>('');
   const imgRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
@@ -56,8 +56,6 @@ export function LazyImage({
     const el = imgRef.current;
     if (!el) return;
 
-    // jsdom (tests) and very old browsers have no IntersectionObserver —
-    // fall back to loading the image immediately.
     if (typeof IntersectionObserver === 'undefined') {
       setRealSrc(src);
       setStatus('loading');
@@ -78,7 +76,7 @@ export function LazyImage({
     return () => observer.disconnect();
   }, [src, loading]);
 
-  const handleLoad  = () => setStatus('loaded');
+  const handleLoad = () => setStatus('loaded');
   const handleError = () => {
     if (fallbackSrc && realSrc !== fallbackSrc) {
       setRealSrc(fallbackSrc);
@@ -87,13 +85,18 @@ export function LazyImage({
     }
   };
 
-  const wrapper = aspectRatio ? cn('relative overflow-hidden', ASPECT_MAP[aspectRatio], wrapperClassName) : wrapperClassName;
+  const wrapper = aspectRatio
+    ? cn('relative overflow-hidden', ASPECT_MAP[aspectRatio], wrapperClassName)
+    : wrapperClassName;
 
   const imgEl = (
     <>
       {/* Placeholder skeleton */}
       {placeholder === 'shimmer' && status !== 'loaded' && status !== 'error' && (
-        <div className={cn('absolute inset-0 skeleton-shimmer', !aspectRatio && 'rounded-lg')} aria-hidden="true" />
+        <div
+          className={cn('absolute inset-0 skeleton-shimmer', !aspectRatio && 'rounded-lg')}
+          aria-hidden="true"
+        />
       )}
 
       {/* The actual image — ref used for IntersectionObserver */}
@@ -110,7 +113,7 @@ export function LazyImage({
           aspectRatio && 'absolute inset-0 h-full w-full object-cover',
           placeholder === 'blur' && status !== 'loaded' && status !== 'error' && 'blur-sm scale-[1.04]',
           status === 'loaded' && 'blur-0 scale-100',
-          status === 'error'  && 'hidden',
+          status === 'error' && 'hidden',
           className
         )}
         {...props}

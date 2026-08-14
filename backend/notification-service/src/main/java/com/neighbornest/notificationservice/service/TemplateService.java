@@ -43,6 +43,10 @@ public class TemplateService {
     /** Matches HTML tags so they can be stripped for plain-text fallbacks. */
     private static final String HTML_TAG_PATTERN = "<[^>]+>";
 
+    /** Matches an anchor (across newlines) so its href can be preserved in plain text. */
+    private static final String ANCHOR_PATTERN =
+            "(?s)<a[^>]*href=\"([^\"]*)\"[^>]*>(.*?)</a>";
+
     /**
      * Renders the HTML body for a template key with the given variables.
      *
@@ -102,11 +106,16 @@ public class TemplateService {
 
     /**
      * Strips HTML tags and collapses whitespace for plain-text fallbacks.
+     * <p>
+     * Anchor tags are rewritten as {@code label (href)} so plain-text readers
+     * (and spam filters) still see the destination URL instead of losing it.
+     * </p>
      *
      * @param html the rendered HTML
      * @return a plain-text approximation
      */
     private String stripTags(final String html) {
-        return html.replaceAll(HTML_TAG_PATTERN, " ").replaceAll("\\s+", " ").trim();
+        final String withLinks = html.replaceAll(ANCHOR_PATTERN, "$2 ($1)");
+        return withLinks.replaceAll(HTML_TAG_PATTERN, " ").replaceAll("\\s+", " ").trim();
     }
 }

@@ -2,5 +2,8 @@ C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\notificati
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\notification-service\src\test\java\com\neighbornest\notificationservice\listener\ChatEventListenerTest.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\notification-service\src\test\java\com\neighbornest\notificationservice\listener\NestEventListenerTest.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\notification-service\src\test\java\com\neighbornest\notificationservice\repository\NotificationRepositoryTest.java
+C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\notification-service\src\test\java\com\neighbornest\notificationservice\service\EmailServiceTest.java
+C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\notification-service\src\test\java\com\neighbornest\notificationservice\service\EmailTemplatesTest.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\notification-service\src\test\java\com\neighbornest\notificationservice\service\NotificationSchedulerTest.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\notification-service\src\test\java\com\neighbornest\notificationservice\service\NotificationServiceTest.java
+C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\notification-service\src\test\java\com\neighbornest\notificationservice\service\OtpServiceTest.java

@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: com.neighbornest.notificationservice.service.NotificationServiceTest$CleanupTests
--------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.330 s -- in com.neighbornest.notificationservice.service.NotificationServiceTest$CleanupTests

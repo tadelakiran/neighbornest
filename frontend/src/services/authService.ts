@@ -2,11 +2,15 @@ import { api, cachedGet } from '@/services/api';
 import type {
   AuthResponse,
   AuthUserResponse,
+  ForgotPasswordRequest,
   LoginRequest,
   LogoutRequest,
+  OtpSendResponse,
   ProfileResponse,
   RefreshTokenRequest,
   RegisterRequest,
+  ResetPasswordRequest,
+  SendOtpRequest,
   User,
 } from '@/types/auth.types';
 
@@ -61,10 +65,26 @@ export const authService = {
     return data;
   },
 
-  /** POST /api/auth/register — creates the account and returns the new user. */
+  /** POST /api/auth/register — creates the account (email pre-verified via OTP) and returns the new user. */
   async register(payload: RegisterRequest): Promise<User> {
     const { data } = await api.post<AuthUserResponse>('/api/auth/register', payload);
     return mapAuthUserToUser(data);
+  },
+
+  /** POST /api/auth/otp/send — emails a 6-digit code to prove email ownership. */
+  async sendOtp(payload: SendOtpRequest): Promise<OtpSendResponse> {
+    const { data } = await api.post<OtpSendResponse>('/api/auth/otp/send', payload);
+    return data;
+  },
+
+  /** POST /api/auth/password/forgot — requests a password-reset code by email. */
+  async forgotPassword(payload: ForgotPasswordRequest): Promise<void> {
+    await api.post('/api/auth/password/forgot', payload);
+  },
+
+  /** POST /api/auth/password/reset — redeems the code and sets a new password. */
+  async resetPassword(payload: ResetPasswordRequest): Promise<void> {
+    await api.post('/api/auth/password/reset', payload);
   },
 
   /** POST /api/auth/refresh — exchanges a refresh token for new tokens. */

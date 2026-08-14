@@ -28,10 +28,19 @@ public final class AppConstants {
     /** Retention window for notifications before the cleanup job purges them. */
     public static final int MAX_NOTIFICATION_AGE_DAYS = 30;
 
-    /** Sender address used on all outgoing email. */
-    public static final String EMAIL_FROM = "noreply@neighbornest.com";
+    /** Brand name used in email copy. */
+    public static final String APP_NAME = "NeighborNest";
+
+    /** Support address used in email footers. */
+    public static final String SUPPORT_EMAIL = "support@neighbornest.com";
+
+    /** HTTP header carrying the service-to-service API key. */
+    public static final String INTERNAL_API_KEY_HEADER = "X-Internal-Key";
 
     /** Classpath email template keys. */
+    public static final String TEMPLATE_OTP_VERIFICATION = "otp-verification";
+    public static final String TEMPLATE_PASSWORD_RESET = "password-reset";
+    public static final String TEMPLATE_WELCOME = "welcome";
     public static final String TEMPLATE_NEST_WELCOME = "nest-welcome";
     public static final String TEMPLATE_NEST_GRADUATE = "nest-graduate";
     public static final String TEMPLATE_NEST_DISBANDED = "nest-disbanded";
@@ -49,6 +58,9 @@ public final class AppConstants {
     public static final String SUBJECT_EXPENSE_ALERT = "Settle up: {{description}}";
     public static final String SUBJECT_VIBE_CHECK_REMINDER = "Vibe check due for {{nestName}}";
     public static final String SUBJECT_CHAT_OFFLINE = "New message from {{senderName}}";
+    public static final String SUBJECT_OTP_VERIFICATION = "Your " + APP_NAME + " verification code";
+    public static final String SUBJECT_PASSWORD_RESET = "Reset your " + APP_NAME + " password";
+    public static final String SUBJECT_WELCOME = "Welcome to " + APP_NAME + "!";
 
     /** Related-entity type values. */
     public static final String RELATED_ENTITY_NEST = "NEST";
@@ -101,6 +113,12 @@ public final class AppConstants {
     public static final String VAR_AMOUNT = "amount";
     public static final String VAR_SENDER_NAME = "senderName";
     public static final String VAR_MESSAGE_PREVIEW = "messagePreview";
+    public static final String VAR_OTP_CODE = "otpCode";
+    public static final String VAR_OTP_EXPIRY_MINUTES = "expiryMinutes";
+    public static final String VAR_APP_NAME = "appName";
+    public static final String VAR_SUPPORT_EMAIL = "supportEmail";
+    public static final String VAR_FULL_NAME = "fullName";
+    public static final String VAR_DASHBOARD_LINK = "dashboardLink";
 
     /** Scheduled cleanup job cron (03:00 daily). */
     public static final String CLEANUP_CRON = "0 0 3 * * *";

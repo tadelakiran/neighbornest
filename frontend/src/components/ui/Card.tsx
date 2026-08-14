@@ -34,10 +34,10 @@ export function Card({ padded = true, flat = false, hairline = false, className,
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       className={cn(
-        'group/card relative overflow-hidden rounded-2xl',
-        'bg-surface border border-white/[0.08]',
+        'group/card relative overflow-hidden rounded-[var(--radius-lg)]',
+        'bg-[var(--color-surface)] border border-[var(--color-border)]',
         'shadow-card transition-all duration-300',
-        !flat && 'hover:border-accent-400/20 hover:shadow-card-hover',
+        !flat && 'hover:border-[var(--accent-400)]/25 hover:shadow-card-hover',
         padded && 'p-6',
         className
       )}

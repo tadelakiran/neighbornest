@@ -22,6 +22,7 @@ import { CircularScore } from '@/components/matching/CircularScore';
 import { MemberAvatarStack } from '@/components/matching/MemberAvatarStack';
 import { Button } from '@/components/ui/Button';
 import { LazyImage } from '@/components/ui/LazyImage';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useAuth } from '@/hooks/useAuth';
 import { useTypewriter } from '@/hooks/useTypewriter';
@@ -179,41 +180,37 @@ export function DashboardPage() {
   return (
     <div className="mx-auto max-w-6xl space-y-8">
       {/* ── Welcome header ── */}
-      <motion.div
-        initial={{ opacity: 0, y: -12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4"
-      >
-        <div className="space-y-2">
-          <h1 className="font-display text-3xl font-bold tracking-tight text-primary md:text-4xl">
+      <PageHeader
+        title={
+          <>
             {typedGreeting}
             <motion.span
               animate={{ opacity: [0.4, 1, 0.4] }}
               transition={{ repeat: Infinity, duration: 2.5, ease: 'easeInOut' }}
-              className="text-accent-400"
+              className="text-[var(--accent-400)]"
             >
               .
             </motion.span>
-          </h1>
-          <p className="text-secondary">Let's find your people.</p>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
-          {user?.city && (
-            <span className="inline-flex items-center gap-2 rounded-xl border border-white/[0.08] bg-surface px-3 py-1.5 text-xs font-medium text-secondary">
-              <MapPin className="h-3.5 w-3.5 text-accent-400" aria-hidden="true" />
-              {user.city}
-            </span>
-          )}
-          {user?.role && (
-            <span className="inline-flex items-center gap-1.5 rounded-xl border border-gold-500/20 bg-gold-500/10 px-3 py-1.5 text-xs font-semibold capitalize text-gold-300">
-              <Sprout className="h-3.5 w-3.5" aria-hidden="true" />
-              {user.role.toLowerCase()}
-            </span>
-          )}
-        </div>
-      </motion.div>
+          </>
+        }
+        description="Let's find your people."
+        actions={
+          <>
+            {user?.city && (
+              <span className="inline-flex items-center gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)]">
+                <MapPin className="h-3.5 w-3.5 text-[var(--accent-400)]" aria-hidden="true" />
+                {user.city}
+              </span>
+            )}
+            {user?.role && (
+              <span className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--gold-500)]/20 bg-[var(--gold-500)]/10 px-3 py-1.5 text-xs font-semibold capitalize text-[var(--gold-300)]">
+                <Sprout className="h-3.5 w-3.5" aria-hidden="true" />
+                {user.role.toLowerCase()}
+              </span>
+            )}
+          </>
+        }
+      />
 
       {/* ── Bento Grid ── */}
       <motion.div
@@ -413,7 +410,7 @@ export function DashboardPage() {
             ) : (
               <button
                 onClick={() => navigate(ROUTES.MY_NEST)}
-                className="flex flex-1 flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-white/[0.08] p-4 text-center transition-all duration-300 hover:border-accent-400/30 hover:bg-accent-400/[0.03]"
+                className="flex flex-1 flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-[var(--color-border)] p-4 text-center transition-all duration-300 hover:border-[var(--accent-400)]/30 hover:bg-[var(--accent-400)]/[0.03]"
               >
                 <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-surface-2">
                   <CalendarDays className="h-5 w-5 text-accent-400" aria-hidden="true" />
@@ -483,7 +480,7 @@ export function DashboardPage() {
             ) : (
               <button
                 onClick={() => navigate(ROUTES.DISCOVER)}
-                className="flex flex-1 flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-white/[0.08] p-4 text-center transition-all duration-300 hover:border-gold-400/30 hover:bg-gold-400/[0.03]"
+                className="flex flex-1 flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-[var(--color-border)] p-4 text-center transition-all duration-300 hover:border-[var(--gold-400)]/30 hover:bg-[var(--gold-400)]/[0.03]"
               >
                 <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-surface-2">
                   <Sprout className="h-5 w-5 text-gold-400" aria-hidden="true" />

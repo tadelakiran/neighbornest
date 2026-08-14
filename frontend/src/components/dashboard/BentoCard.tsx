@@ -29,10 +29,10 @@ export function BentoCard({ children, size = '1x1', className }: BentoCardProps)
       <SpotlightWrapper className="h-full">
         <div
           className={cn(
-            'relative flex h-full flex-col overflow-hidden rounded-2xl p-5',
-            'border border-white/[0.07] bg-card-gradient backdrop-blur-xl',
+            'relative flex h-full flex-col overflow-hidden rounded-[var(--radius-lg)] p-5',
+            'border border-[var(--color-border)] bg-card-gradient backdrop-blur-xl',
             'shadow-card transition-all duration-300',
-            'hover:shadow-card-hover hover:border-accent-400/20',
+            'hover:shadow-card-hover hover:border-[var(--accent-400)]/25',
             'group/bento'
           )}
         >

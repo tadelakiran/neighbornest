@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Outlet, useLocation } from 'react-router-dom';
 import { Navbar } from './Navbar';
 import { Sidebar } from './Sidebar';
+import { MobileTabBar } from './MobileTabBar';
 import { pageEnter, pageExit } from '@/lib/motion';
 import { ROUTES } from '@/lib/constants';
 
@@ -58,12 +59,14 @@ export function AppLayout() {
             initial="hidden"
             animate="show"
             exit="exit"
-            className="relative mx-auto w-full max-w-7xl flex-1 px-4 py-6 md:px-8 md:py-8"
+            className="relative mx-auto w-full max-w-7xl flex-1 px-4 pb-24 pt-6 md:px-8 md:py-8 md:pb-10"
           >
             <Outlet />
           </motion.main>
         </AnimatePresence>
       </div>
+
+      <MobileTabBar />
     </div>
   );
 }

@@ -41,7 +41,7 @@ export function Timeline({ steps, className }: TimelineProps) {
                   'absolute left-[17px] top-10 h-[calc(100%-2.5rem)] w-0.5 rounded-full',
                   step.status === 'completed'
                     ? 'bg-accent-gradient shadow-[0_0_8px_rgba(14,165,233,0.5)]'
-                    : 'border-l-2 border-dashed border-white/10'
+                    : 'border-l-2 border-dashed border-[var(--text-primary)]/10'
                 )}
               />
             )}
@@ -53,9 +53,12 @@ export function Timeline({ steps, className }: TimelineProps) {
               transition={{ delay: i * 0.1, duration: 0.3 }}
               className={cn(
                 'relative z-10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border transition-colors',
-                step.status === 'completed' && 'border-accent-400/40 bg-accent-500/15 text-accent-300 shadow-glow-sm',
-                step.status === 'current' && 'border-accent-400/60 bg-accent-500/25 text-accent-200 shadow-glow',
-                step.status === 'upcoming' && 'border-white/10 bg-deep text-muted'
+                step.status === 'completed' &&
+                  'border-[var(--accent-400)]/40 bg-[var(--accent-500)]/15 text-[var(--accent-300)] shadow-glow-sm',
+                step.status === 'current' &&
+                  'border-[var(--accent-400)]/60 bg-[var(--accent-500)]/25 text-[var(--accent-300)] shadow-glow',
+                step.status === 'upcoming' &&
+                  'border-[var(--text-primary)]/10 bg-[var(--color-deep)] text-[var(--text-muted)]'
               )}
             >
               {step.status === 'completed' ? (
@@ -66,7 +69,7 @@ export function Timeline({ steps, className }: TimelineProps) {
               {step.status === 'current' && (
                 <span
                   aria-hidden="true"
-                  className="absolute inset-0 -m-1.5 animate-ping rounded-full bg-accent-400/20"
+                  className="absolute inset-0 -m-1.5 animate-ping rounded-full bg-[var(--accent-400)]/20"
                   style={{ animationDuration: '2s' }}
                 />
               )}
@@ -82,15 +85,15 @@ export function Timeline({ steps, className }: TimelineProps) {
               <p
                 className={cn(
                   'text-sm font-semibold transition-colors',
-                  step.status === 'completed' && 'text-accent-300',
-                  step.status === 'current' && 'text-primary',
-                  step.status === 'upcoming' && 'text-muted'
+                  step.status === 'completed' && 'text-[var(--accent-300)]',
+                  step.status === 'current' && 'text-[var(--text-primary)]',
+                  step.status === 'upcoming' && 'text-[var(--text-muted)]'
                 )}
               >
                 {step.title}
               </p>
               {step.description && (
-                <p className="mt-0.5 text-xs text-muted">{step.description}</p>
+                <p className="mt-0.5 text-xs text-[var(--text-muted)]">{step.description}</p>
               )}
             </motion.div>
           </li>

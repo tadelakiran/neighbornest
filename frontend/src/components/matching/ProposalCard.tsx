@@ -30,7 +30,7 @@ export function ProposalCard({ proposal, onAccept, onDecline, busy = false, clas
       layout
       whileHover={{ y: -3, transition: { duration: 0.2 } }}
       className={cn(
-        'group relative overflow-hidden rounded-2xl border border-white/[0.07] bg-deep/70 p-6 backdrop-blur-xl',
+        'group relative overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-deep)]/70 p-6 backdrop-blur-xl',
         'shadow-lg shadow-black/20 transition-all duration-300',
         'hover:border-accent-400/20 hover:shadow-xl hover:shadow-black/30',
         className
@@ -103,7 +103,7 @@ export function ProposalCard({ proposal, onAccept, onDecline, busy = false, clas
           disabled={busy}
           leftIcon={<X className="h-4 w-4" aria-hidden="true" />}
           onClick={() => onDecline?.(proposal)}
-          className="h-11 rounded-xl border-white/[0.1] text-secondary hover:border-rose-400/30 hover:bg-rose-400/10 hover:text-rose-400"
+          className="h-11 rounded-xl border-[var(--color-border)] text-[var(--text-secondary)] hover:border-[var(--error)]/30 hover:bg-[var(--error)]/10 hover:text-[var(--error)]"
         >
           Decline
         </Button>

@@ -48,4 +48,11 @@ public class RegisterRequest {
             example = "Pass@123",
             requiredMode = Schema.RequiredMode.REQUIRED)
     private String password;
+
+    @NotBlank(message = "Verification code is required")
+    @Pattern(regexp = "^\\d{6}$", message = "Verification code must be exactly 6 digits")
+    @Schema(description = "6-digit code emailed to the user to prove they own the address",
+            example = "482913",
+            requiredMode = Schema.RequiredMode.REQUIRED)
+    private String otp;
 }

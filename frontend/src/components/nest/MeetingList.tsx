@@ -30,7 +30,7 @@ export function MeetingList({ meetings, onSchedule, onComplete, onCancel }: Meet
   }, [meetings]);
 
   return (
-    <section className="rounded-2xl border border-white/[0.08] bg-deep/60 p-6 backdrop-blur-xl">
+    <section className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-deep)]/60 p-6 backdrop-blur-xl">
       <div className="mb-4 flex items-center justify-between gap-3">
         <h2 className="font-display text-lg font-bold text-primary">Upcoming Meetings</h2>
         <Button variant="primary" size="sm" leftIcon={<CalendarPlus className="h-4 w-4" aria-hidden="true" />} onClick={onSchedule}>
@@ -39,8 +39,8 @@ export function MeetingList({ meetings, onSchedule, onComplete, onCancel }: Meet
       </div>
 
       {sorted.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-white/10 px-6 py-10 text-center">
-          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/[0.04]">
+        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-[var(--color-border)] px-6 py-10 text-center">
+          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--color-raised)]/40">
             <CalendarDays className="h-7 w-7 text-muted" aria-hidden="true" />
           </span>
           <div>

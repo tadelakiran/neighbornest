@@ -39,7 +39,7 @@ export function VibeCheckResultsModal({ open, onClose, status, totalMembers }: V
         </div>
 
         {/* Participation */}
-        <div className="rounded-xl border border-white/[0.06] bg-surface/60 p-4">
+        <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]/60 p-4">
           <p className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-muted">
             <Users className="h-3.5 w-3.5 text-accent-400" aria-hidden="true" />
             {count} of {Math.max(totalMembers, count)} members checked in
@@ -53,7 +53,7 @@ export function VibeCheckResultsModal({ open, onClose, status, totalMembers }: V
             <h4 className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted">Individual responses</h4>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
               {submissions.map((s) => (
-                <div key={s.userId} className="rounded-xl border border-white/[0.06] bg-surface/60 p-3 text-center">
+                <div key={s.userId} className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]/60 p-3 text-center">
                   <p className="font-display text-xl font-bold text-primary">{s.connectionScore}<span className="text-xs text-muted">/{s.comfortScore}</span></p>
                   <p className="mt-0.5 text-[10px] uppercase tracking-wider text-muted">connection / comfort</p>
                 </div>
@@ -67,7 +67,7 @@ export function VibeCheckResultsModal({ open, onClose, status, totalMembers }: V
           <div className="space-y-2">
             <h4 className="text-xs font-semibold uppercase tracking-widest text-muted">What members shared</h4>
             {quotes.map((quote, i) => (
-              <blockquote key={i} className="rounded-xl border-l-2 border-accent-400/50 bg-white/[0.03] px-4 py-3 text-sm italic leading-relaxed text-secondary">
+              <blockquote key={i} className="rounded-xl border-l-2 border-[var(--accent-400)]/50 bg-[var(--color-raised)]/30 px-4 py-3 text-sm italic leading-relaxed text-[var(--text-secondary)]">
                 <Quote className="mb-1 inline h-3.5 w-3.5 text-accent-400/70" aria-hidden="true" />
                 {quote}
               </blockquote>

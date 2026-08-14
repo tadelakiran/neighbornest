@@ -33,14 +33,14 @@ export function MemberGallery({ members, onMessage }: MemberGalleryProps) {
           ))}
 
           {/* Invite placeholder */}
-          <div className="group relative flex w-24 shrink-0 cursor-not-allowed flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-white/10 p-4 opacity-60 transition-opacity hover:opacity-80">
-            <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white/[0.04]">
+          <div className="group relative flex w-24 shrink-0 cursor-not-allowed flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-[var(--color-border)] p-4 opacity-60 transition-opacity hover:opacity-80">
+            <span className="flex h-16 w-16 items-center justify-center rounded-full bg-[var(--color-raised)]/40">
               <Plus className="h-6 w-6 text-muted" aria-hidden="true" />
             </span>
             <p className="text-xs font-medium text-muted">Invite</p>
             <span
               role="tooltip"
-              className="pointer-events-none absolute -top-9 whitespace-nowrap rounded-lg border border-white/10 bg-raised px-3 py-1.5 text-xs text-secondary opacity-0 shadow-lg transition-opacity duration-200 group-hover:opacity-100"
+              className="pointer-events-none absolute -top-9 whitespace-nowrap rounded-lg border border-[var(--color-border)] bg-[var(--color-raised)] px-3 py-1.5 text-xs text-[var(--text-secondary)] opacity-0 shadow-lg transition-opacity duration-200 group-hover:opacity-100"
             >
               Coming soon
             </span>

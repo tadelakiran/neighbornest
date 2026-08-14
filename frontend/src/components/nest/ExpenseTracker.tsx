@@ -47,7 +47,7 @@ export function ExpenseTracker({ expenses, members, currentUserId, onAdd, onSett
   }, [expenses]);
 
   return (
-    <section className="rounded-2xl border border-white/[0.08] bg-deep/60 p-6 backdrop-blur-xl">
+    <section className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-deep)]/60 p-6 backdrop-blur-xl">
       <div className="mb-4 flex items-center justify-between gap-3">
         <h2 className="font-display text-lg font-bold text-primary">Shared Expenses</h2>
         <Button variant="primary" size="sm" leftIcon={<Plus className="h-4 w-4" aria-hidden="true" />} onClick={onAdd}>
@@ -69,8 +69,8 @@ export function ExpenseTracker({ expenses, members, currentUserId, onAdd, onSett
       </div>
 
       {expenses.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-white/10 px-6 py-10 text-center">
-          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/[0.04]">
+        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-[var(--color-border)] px-6 py-10 text-center">
+          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--color-raised)]/40">
             <ReceiptText className="h-7 w-7 text-muted" aria-hidden="true" />
           </span>
           <div>
@@ -82,7 +82,7 @@ export function ExpenseTracker({ expenses, members, currentUserId, onAdd, onSett
         <div className="-mx-6 max-h-96 space-y-4 overflow-y-auto px-6">
           {groups.map(([month, list]) => (
             <div key={month}>
-              <h3 className="sticky top-0 z-10 -mx-6 border-b border-white/[0.06] bg-deep/95 px-6 py-2 text-xs font-semibold uppercase tracking-widest text-muted backdrop-blur-xl">
+              <h3 className="sticky top-0 z-10 -mx-6 border-b border-[var(--color-border)] bg-[var(--color-deep)]/95 px-6 py-2 text-xs font-semibold uppercase tracking-widest text-[var(--text-muted)] backdrop-blur-xl">
                 {month}
               </h3>
               <AnimatePresence initial={false}>

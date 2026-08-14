@@ -36,8 +36,8 @@ const PERIOD_OPTIONS = [
 export function TimePicker({ value, onChange, label }: TimePickerProps) {
   return (
     <div>
-      <span className="mb-2 flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-muted">
-        <Clock className="h-3.5 w-3.5 text-accent-400" aria-hidden="true" />
+      <span className="mb-2 flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-[var(--text-muted)]">
+        <Clock className="h-3.5 w-3.5 text-[var(--accent-400)]" aria-hidden="true" />
         {label ?? 'Time'}
       </span>
       <div className="flex gap-2">

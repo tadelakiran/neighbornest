@@ -55,7 +55,7 @@ export function LoginForm() {
           autoComplete="email"
           icon={<Mail className="h-4 w-4 text-muted" aria-hidden="true" />}
           error={errors.email?.message}
-          className="h-12 rounded-xl border-white/[0.08] bg-surface-2 text-primary shadow-sm transition-all duration-200 focus-within:border-accent-400/50 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.12)]"
+          className="h-12 rounded-xl border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--text-primary)] shadow-sm transition-all duration-200 focus-within:border-[var(--accent-400)]/50 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.12)]"
           {...register('email')}
         />
       </motion.div>
@@ -73,13 +73,13 @@ export function LoginForm() {
           autoComplete="current-password"
           icon={<Lock className="h-4 w-4 text-muted" aria-hidden="true" />}
           error={errors.password?.message}
-          className="h-12 rounded-xl border-white/[0.08] bg-surface-2 text-primary shadow-sm transition-all duration-200 focus-within:border-accent-400/50 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.12)]"
+          className="h-12 rounded-xl border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--text-primary)] shadow-sm transition-all duration-200 focus-within:border-[var(--accent-400)]/50 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.12)]"
           trailing={
             <motion.button
               type="button"
               whileTap={{ scale: 0.85 }}
               onClick={() => setShowPassword((v) => !v)}
-              className="rounded-lg p-1.5 text-muted transition-colors hover:bg-white/[0.06] hover:text-primary"
+              className="rounded-lg p-1.5 text-[var(--text-muted)] transition-colors hover:bg-[var(--color-raised)] hover:text-[var(--text-primary)]"
               aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
               <AnimatePresence mode="wait" initial={false}>
@@ -109,6 +109,20 @@ export function LoginForm() {
           }
           {...register('password')}
         />
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.25 }}
+        className="flex justify-end"
+      >
+        <Link
+          to={ROUTES.FORGOT_PASSWORD}
+          className="text-xs font-semibold text-accent-400 transition-colors hover:text-accent-300"
+        >
+          Forgot password?
+        </Link>
       </motion.div>
 
       <motion.div

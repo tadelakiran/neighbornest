@@ -122,7 +122,7 @@ export function NestBuilderModal({
         </div>
 
         {/* Status footer */}
-        <div className="space-y-3 rounded-xl border border-white/[0.07] bg-surface/60 p-4">
+        <div className="space-y-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]/60 p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-sm">
               <Users className="h-4 w-4 text-muted" />
@@ -215,7 +215,7 @@ function MemberRow({
         'flex items-center gap-3 rounded-xl border px-3.5 py-2.5 transition-all duration-200',
         isAnchor
           ? 'border-amber-400/30 bg-amber-400/[0.08] shadow-[0_0_12px_rgba(251,191,36,0.08)]'
-          : 'border-white/[0.06] bg-surface/40 hover:bg-surface/70'
+          : 'border-[var(--color-border)] bg-[var(--color-surface)]/40 hover:bg-[var(--color-surface)]/70'
       )}
     >
       <Avatar name={name} size="md" />
@@ -234,7 +234,7 @@ function MemberRow({
           'flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-all duration-200',
           isAnchor
             ? 'border-amber-400/40 bg-amber-400/15 text-amber-300 shadow-[0_0_8px_rgba(251,191,36,0.15)]'
-            : 'border-white/10 text-muted hover:border-amber-400/25 hover:text-secondary'
+            : 'border-[var(--color-border)] text-[var(--text-muted)] hover:border-[var(--warning)]/25 hover:text-[var(--text-secondary)]'
         )}
       >
         <Crown className={cn('h-3.5 w-3.5 transition-colors', isAnchor && 'fill-amber-400 text-amber-400')} />

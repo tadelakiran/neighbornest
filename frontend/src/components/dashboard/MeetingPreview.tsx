@@ -38,7 +38,7 @@ export function MeetingPreview({ meeting, className }: MeetingPreviewProps) {
       whileHover={{ y: -2, transition: { duration: 0.2 } }}
       className={cn(
         'group flex items-center gap-3 rounded-xl border p-3',
-        'border-white/[0.06] bg-surface/60',
+        'border-[var(--color-border)] bg-[var(--color-surface)]/60',
         'transition-all duration-200',
         'hover:border-accent-400/25 hover:bg-surface hover:shadow-md',
         className

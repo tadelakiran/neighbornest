@@ -1,5 +1,6 @@
 package com.neighbornest.notificationservice;
 
+import com.neighbornest.notificationservice.config.EmailJsProperties;
 import com.neighbornest.notificationservice.config.NotificationServiceProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -11,10 +12,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * Entry point for the Notification Service.
  * <p>
  * Event-driven notifications for NeighborNest: consumes Nest lifecycle events
- * from RabbitMQ, sends transactional email (Thymeleaf templates with a plain
- * text fallback), exposes a user notification inbox and preferences, admin
- * template/stats endpoints, and scheduled meeting / expense / vibe-check
- * reminders.
+ * from RabbitMQ, sends transactional email through the EmailJS REST API
+ * (templates are managed in the EmailJS dashboard), exposes a user
+ * notification inbox and preferences, admin template/stats endpoints, and
+ * scheduled meeting / expense / vibe-check reminders.
  * </p>
  *
  * @author NeighborNest Team
@@ -22,7 +23,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  */
 @SpringBootApplication
 @EnableFeignClients
-@EnableConfigurationProperties(NotificationServiceProperties.class)
+@EnableConfigurationProperties({NotificationServiceProperties.class, EmailJsProperties.class})
 @EnableScheduling
 public class NotificationServiceApplication {
 

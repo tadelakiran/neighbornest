@@ -69,8 +69,14 @@ export function LandingPage() {
   return (
     <div className="relative min-h-screen overflow-hidden">
       {/* Ambient warmth */}
-      <div className="pointer-events-none absolute -top-40 left-1/4 h-[480px] w-[640px] rounded-full bg-accent-500/[0.08] blur-3xl" aria-hidden="true" />
-      <div className="pointer-events-none absolute right-[8%] top-[30%] h-[420px] w-[420px] rounded-full bg-gold-400/[0.06] blur-3xl" aria-hidden="true" />
+      <div
+        className="pointer-events-none absolute -top-40 left-1/4 h-[480px] w-[640px] rounded-full bg-[var(--accent-500)]/[0.08] blur-3xl"
+        aria-hidden="true"
+      />
+      <div
+        className="pointer-events-none absolute right-[8%] top-[30%] h-[420px] w-[420px] rounded-full bg-[var(--gold-400)]/[0.06] blur-3xl"
+        aria-hidden="true"
+      />
 
       {/* ── Top nav ── */}
       <header className="relative z-10 mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-8">
@@ -79,7 +85,11 @@ export function LandingPage() {
           <Button variant="ghost" size="sm" onClick={secondaryAction}>
             {isAuthenticated ? 'My profile' : 'Sign in'}
           </Button>
-          <Button size="sm" rightIcon={<ArrowRight className="h-4 w-4" aria-hidden="true" />} onClick={primaryAction}>
+          <Button
+            size="sm"
+            rightIcon={<ArrowRight className="h-4 w-4" aria-hidden="true" />}
+            onClick={primaryAction}
+          >
             {isAuthenticated ? 'Dashboard' : 'Get started'}
           </Button>
         </div>
@@ -90,22 +100,27 @@ export function LandingPage() {
         <motion.div variants={staggerContainer} initial="hidden" animate="show">
           <motion.span
             variants={cardRise}
-            className="inline-flex items-center gap-1.5 rounded-full border border-gold-500/30 bg-gold-500/10 px-3 py-1.5 text-xs font-semibold text-gold-300"
+            className="inline-flex items-center gap-1.5 rounded-full border border-[var(--gold-500)]/30 bg-[var(--gold-500)]/10 px-3 py-1.5 text-xs font-semibold text-[var(--gold-300)]"
           >
-            <Star className="h-3.5 w-3.5 fill-gold-400 text-gold-400" aria-hidden="true" />
+            <Star
+              className="h-3.5 w-3.5 fill-[var(--gold-400)] text-[var(--gold-400)]"
+              aria-hidden="true"
+            />
             New to the city? You&apos;re in the right place.
           </motion.span>
 
           <motion.h1
             variants={cardRise}
-            className="mt-5 font-display text-4xl font-bold leading-[1.08] tracking-tight text-primary sm:text-5xl lg:text-6xl"
+            className="mt-5 font-['Space_Grotesk'] text-4xl font-bold leading-[1.08] tracking-tight text-[var(--text-primary)] sm:text-5xl lg:text-6xl"
           >
-            Find your people in a{' '}
-            <span className="text-gradient">new city</span>
-            <span className="text-gold-400">.</span>
+            Find your people in a <span className="text-gradient">new city</span>
+            <span className="text-[var(--gold-400)]">.</span>
           </motion.h1>
 
-          <motion.p variants={cardRise} className="mt-5 max-w-lg text-base leading-relaxed text-secondary sm:text-lg">
+          <motion.p
+            variants={cardRise}
+            className="mt-5 max-w-lg text-base leading-relaxed text-[var(--text-secondary)] sm:text-lg"
+          >
             {APP_NAME} matches you into small curated groups with local Anchors —
             real friendships, zero awkward networking.
           </motion.p>
@@ -113,7 +128,7 @@ export function LandingPage() {
           <motion.div variants={cardRise} className="mt-8 flex flex-wrap items-center gap-3">
             <Button
               size="lg"
-              className="shadow-glow"
+              className="shadow-[0_0_24px_rgba(14,165,233,0.25)]"
               rightIcon={<ArrowRight className="h-4 w-4" aria-hidden="true" />}
               onClick={primaryAction}
             >
@@ -127,8 +142,12 @@ export function LandingPage() {
           <motion.dl variants={cardRise} className="mt-10 flex flex-wrap gap-x-10 gap-y-4">
             {STATS.map((stat) => (
               <div key={stat.label} className="flex flex-col">
-                <dt className="order-last text-xs uppercase tracking-widest text-muted">{stat.label}</dt>
-                <dd className="order-first font-display text-2xl font-bold text-gradient-gold">{stat.value}</dd>
+                <dt className="order-last text-xs uppercase tracking-widest text-[var(--text-muted)]">
+                  {stat.label}
+                </dt>
+                <dd className="order-first font-['Space_Grotesk'] text-2xl font-bold text-gradient-gold">
+                  {stat.value}
+                </dd>
               </div>
             ))}
           </motion.dl>
@@ -141,7 +160,7 @@ export function LandingPage() {
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           className="relative mx-auto w-full max-w-lg"
         >
-          <div className="relative overflow-hidden rounded-3xl border border-white/[0.08] shadow-xl">
+          <div className="relative overflow-hidden rounded-[var(--radius-xl)] border border-[var(--text-primary)]/[0.08] shadow-[var(--shadow-xl)]">
             <LazyImage
               src={IMAGES.community}
               alt="Friends spending time together"
@@ -150,7 +169,10 @@ export function LandingPage() {
               className="h-full w-full object-cover"
               loading="eager"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-void/60 via-transparent to-transparent" aria-hidden="true" />
+            <div
+              className="absolute inset-0 bg-gradient-to-t from-[var(--color-bg)]/60 via-transparent to-transparent"
+              aria-hidden="true"
+            />
           </div>
 
           {/* Floating accent cards */}
@@ -158,7 +180,7 @@ export function LandingPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.35, duration: 0.6 }}
-            className="absolute -left-6 top-8 hidden w-40 overflow-hidden rounded-2xl border border-white/[0.08] shadow-lg sm:block"
+            className="absolute -left-6 top-8 hidden w-40 overflow-hidden rounded-2xl border border-[var(--text-primary)]/[0.08] shadow-[var(--shadow-lg)] sm:block"
           >
             <LazyImage
               src={IMAGES.coffee}
@@ -172,7 +194,7 @@ export function LandingPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.6 }}
-            className="absolute -right-4 bottom-10 hidden w-44 overflow-hidden rounded-2xl border border-white/[0.08] shadow-lg sm:block"
+            className="absolute -right-4 bottom-10 hidden w-44 overflow-hidden rounded-2xl border border-[var(--text-primary)]/[0.08] shadow-[var(--shadow-lg)] sm:block"
           >
             <LazyImage
               src={IMAGES.park}
@@ -187,14 +209,14 @@ export function LandingPage() {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.6, type: 'spring', stiffness: 300, damping: 18 }}
-            className="absolute -bottom-4 left-8 flex items-center gap-2.5 rounded-2xl border border-white/[0.08] bg-deep/85 px-4 py-3 shadow-lg backdrop-blur-xl"
+            className="absolute -bottom-4 left-8 flex items-center gap-2.5 rounded-2xl border border-[var(--text-primary)]/[0.08] bg-[var(--color-deep)]/85 px-4 py-3 shadow-[var(--shadow-lg)] backdrop-blur-xl"
           >
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gold-gradient shadow-glow-sm">
               <MapPin className="h-4 w-4 text-white" aria-hidden="true" />
             </span>
             <div>
-              <p className="text-xs font-semibold text-primary">Your Nest is waiting</p>
-              <p className="text-[10px] text-muted">Matched · Anchored · Welcomed</p>
+              <p className="text-xs font-semibold text-[var(--text-primary)]">Your Nest is waiting</p>
+              <p className="text-[10px] text-[var(--text-muted)]">Matched · Anchored · Welcomed</p>
             </div>
           </motion.div>
         </motion.div>
@@ -202,11 +224,23 @@ export function LandingPage() {
 
       {/* ── How it works ── */}
       <section className="relative z-10 mx-auto max-w-7xl px-6 py-16 lg:px-8">
-        <motion.div variants={staggerContainer} initial="hidden" whileInView="show" viewport={{ once: true, margin: '-80px' }} className="text-center">
-          <motion.p variants={cardRise} className="text-xs font-bold uppercase tracking-[0.2em] text-gold-400">
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: '-80px' }}
+          className="text-center"
+        >
+          <motion.p
+            variants={cardRise}
+            className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--gold-400)]"
+          >
             How it works
           </motion.p>
-          <motion.h2 variants={cardRise} className="mt-3 font-display text-3xl font-bold tracking-tight text-primary md:text-4xl">
+          <motion.h2
+            variants={cardRise}
+            className="mt-3 font-['Space_Grotesk'] text-3xl font-bold tracking-tight text-[var(--text-primary)] md:text-4xl"
+          >
             From newcomer to neighbor in three steps
           </motion.h2>
         </motion.div>
@@ -222,7 +256,7 @@ export function LandingPage() {
             <motion.article
               key={title}
               variants={cardRise}
-              className="group relative overflow-hidden rounded-3xl border border-[var(--color-border)] bg-deep/60 p-6 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover"
+              className="group relative overflow-hidden rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-deep)]/60 p-6 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-lg)]"
             >
               <div className="pointer-events-none absolute inset-0" aria-hidden="true">
                 <LazyImage
@@ -234,14 +268,16 @@ export function LandingPage() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[var(--color-deep)]/90" />
               </div>
-              <span className="relative flex h-11 w-11 items-center justify-center rounded-xl bg-accent-gradient shadow-glow-sm">
+              <span className="relative flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--grad-primary)] shadow-glow-sm">
                 <Icon className="h-5 w-5 text-white" aria-hidden="true" />
               </span>
-              <p className="relative mt-5 font-display text-xs font-bold uppercase tracking-widest text-gold-400">
+              <p className="relative mt-5 font-['Space_Grotesk'] text-xs font-bold uppercase tracking-widest text-[var(--gold-400)]">
                 Step {index + 1}
               </p>
-              <h3 className="relative mt-1 font-display text-lg font-bold text-primary">{title}</h3>
-              <p className="relative mt-2 text-sm leading-relaxed text-secondary">{text}</p>
+              <h3 className="relative mt-1 font-['Space_Grotesk'] text-lg font-bold text-[var(--text-primary)]">
+                {title}
+              </h3>
+              <p className="relative mt-2 text-sm leading-relaxed text-[var(--text-secondary)]">{text}</p>
             </motion.article>
           ))}
         </motion.div>
@@ -261,7 +297,7 @@ export function LandingPage() {
               <motion.div
                 key={title}
                 variants={cardRise}
-                className="group flex items-start gap-4 rounded-2xl border border-[var(--color-border)] bg-deep/50 p-4 backdrop-blur-xl transition-all duration-300 hover:border-gold-500/30 hover:bg-deep/80"
+                className="group flex items-start gap-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-deep)]/50 p-4 backdrop-blur-xl transition-all duration-300 hover:border-[var(--gold-500)]/30 hover:bg-[var(--color-deep)]/80"
               >
                 <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl">
                   <LazyImage
@@ -273,16 +309,20 @@ export function LandingPage() {
                   />
                 </div>
                 <div>
-                  <h3 className="font-display text-base font-bold text-primary">{title}</h3>
-                  <p className="mt-1 text-sm leading-relaxed text-secondary">{text}</p>
+                  <h3 className="font-['Space_Grotesk'] text-base font-bold text-[var(--text-primary)]">
+                    {title}
+                  </h3>
+                  <p className="mt-1 text-sm leading-relaxed text-[var(--text-secondary)]">{text}</p>
                 </div>
-                <span className="ml-auto font-display text-3xl font-bold text-white/5">{String(index + 1).padStart(2, '0')}</span>
+                <span className="ml-auto font-['Space_Grotesk'] text-3xl font-bold text-[var(--text-primary)]/5">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
               </motion.div>
             ))}
           </motion.div>
 
           <motion.div variants={cardRise} className="relative order-1 lg:order-2">
-            <div className="overflow-hidden rounded-3xl border border-white/[0.08] shadow-xl">
+            <div className="overflow-hidden rounded-[var(--radius-xl)] border border-[var(--text-primary)]/[0.08] shadow-[var(--shadow-xl)]">
               <LazyImage
                 src={IMAGES.dinner}
                 alt="A Nest gathering over dinner"
@@ -291,13 +331,13 @@ export function LandingPage() {
                 className="h-full w-full object-cover"
               />
             </div>
-            <div className="absolute -bottom-5 left-6 flex items-center gap-2 rounded-2xl border border-white/[0.08] bg-deep/90 px-4 py-3 shadow-lg backdrop-blur-xl">
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent-gradient shadow-glow-sm">
+            <div className="absolute -bottom-5 left-6 flex items-center gap-2 rounded-2xl border border-[var(--text-primary)]/[0.08] bg-[var(--color-deep)]/90 px-4 py-3 shadow-[var(--shadow-lg)] backdrop-blur-xl">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--grad-primary)] shadow-glow-sm">
                 <Users className="h-4 w-4 text-white" aria-hidden="true" />
               </span>
               <div>
-                <p className="text-xs font-semibold text-primary">A Nest night out</p>
-                <p className="text-[10px] text-muted">Planned by your Anchor</p>
+                <p className="text-xs font-semibold text-[var(--text-primary)]">A Nest night out</p>
+                <p className="text-[10px] text-[var(--text-muted)]">Planned by your Anchor</p>
               </div>
             </div>
           </motion.div>
@@ -311,7 +351,7 @@ export function LandingPage() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-60px' }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="relative overflow-hidden rounded-3xl border border-gold-500/25 bg-gradient-to-br from-accent-900/60 via-deep to-deep p-10 text-center md:p-16"
+          className="relative overflow-hidden rounded-[var(--radius-xl)] border border-[var(--gold-500)]/25 bg-gradient-to-br from-[var(--accent-500)]/10 via-[var(--color-deep)] to-[var(--color-deep)] p-10 text-center md:p-16"
         >
           <div className="pointer-events-none absolute inset-0" aria-hidden="true">
             <LazyImage
@@ -324,15 +364,16 @@ export function LandingPage() {
             <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-deep)]/85 via-[var(--color-deep)]/70 to-[var(--color-deep)]/90" />
           </div>
           <div className="relative">
-            <h2 className="mx-auto max-w-2xl font-display text-3xl font-bold tracking-tight text-primary md:text-4xl">
+            <h2 className="mx-auto max-w-2xl font-['Space_Grotesk'] text-3xl font-bold tracking-tight text-[var(--text-primary)] md:text-4xl">
               Ready to find your <span className="text-gradient-gold">people</span>?
             </h2>
-            <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-secondary">
-              Join {APP_NAME} today — answer a few questions and we&apos;ll introduce you to neighbors who share your vibe.
+            <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-[var(--text-secondary)]">
+              Join {APP_NAME} today — answer a few questions and we&apos;ll introduce you to neighbors
+              who share your vibe.
             </p>
             <Button
               size="lg"
-              className="mt-8 shadow-glow"
+              className="mt-8 shadow-[0_0_24px_rgba(14,165,233,0.25)]"
               rightIcon={<ArrowRight className="h-4 w-4" aria-hidden="true" />}
               onClick={primaryAction}
             >
@@ -345,7 +386,9 @@ export function LandingPage() {
       {/* ── Footer ── */}
       <footer className="relative z-10 mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 border-t border-[var(--color-border)] px-6 py-8 sm:flex-row lg:px-8">
         <BrandLogo />
-        <p className="text-xs text-muted">© {new Date().getFullYear()} {APP_NAME} — small groups, big friendships.</p>
+        <p className="text-xs text-[var(--text-muted)]">
+          © {new Date().getFullYear()} {APP_NAME} — small groups, big friendships.
+        </p>
       </footer>
     </div>
   );

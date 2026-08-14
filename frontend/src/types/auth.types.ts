@@ -72,11 +72,42 @@ export interface LoginRequest {
   password: string;
 }
 
+/** Why a one-time passcode is being requested/verified. */
+export type OtpPurpose = 'EMAIL_VERIFICATION' | 'PASSWORD_RESET';
+
 /** Body for `POST /api/auth/register`. */
 export interface RegisterRequest {
   fullName: string;
   email: string;
   password: string;
+  /** 6-digit code emailed to the user to prove they own the address. */
+  otp: string;
+}
+
+/** Body for `POST /api/auth/otp/send`. */
+export interface SendOtpRequest {
+  email: string;
+  purpose: OtpPurpose;
+}
+
+/** Wire shape returned by `POST /api/auth/otp/send`. */
+export interface OtpSendResponse {
+  email: string;
+  purpose: OtpPurpose;
+  expires_in_seconds: number;
+  resend_after_seconds: number;
+}
+
+/** Body for `POST /api/auth/password/forgot`. */
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+/** Body for `POST /api/auth/password/reset`. */
+export interface ResetPasswordRequest {
+  email: string;
+  otp: string;
+  newPassword: string;
 }
 
 /** Wire shape returned by `POST /api/auth/login` and `POST /api/auth/refresh`. */

@@ -25,7 +25,11 @@ export function Avatar({ name, src, size = 'md', className }: AvatarProps) {
       <img
         src={src}
         alt={name}
-        className={cn('rounded-full object-cover ring-1 ring-white/10', SIZE_CLASSES[size], className)}
+        className={cn(
+          'rounded-full object-cover ring-1 ring-[var(--color-border)] ring-offset-2 ring-offset-[var(--color-bg)]',
+          SIZE_CLASSES[size],
+          className
+        )}
       />
     );
   }
@@ -36,8 +40,9 @@ export function Avatar({ name, src, size = 'md', className }: AvatarProps) {
       aria-label={name}
       className={cn(
         'inline-flex shrink-0 items-center justify-center rounded-full font-bold',
-        'bg-gradient-to-br from-accent-500 to-accent-700 text-white',
-        'ring-1 ring-white/10 shadow-lg shadow-accent-500/20',
+        'bg-gradient-to-br from-[var(--accent-400)] to-[var(--accent-500)] text-white',
+        'ring-1 ring-[var(--color-border)] ring-offset-2 ring-offset-[var(--color-bg)]',
+        'shadow-[var(--shadow-sm)]',
         SIZE_CLASSES[size],
         className
       )}

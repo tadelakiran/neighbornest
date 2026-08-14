@@ -15,10 +15,12 @@ export default {
         // active theme (see index.css). Making them variables is what makes
         // the dark/light toggle actually restyle every component that uses
         // these tokens (text-primary, bg-void, …) without per-file work.
-        void:    'var(--color-bg)',
-        deep:    'var(--color-deep)',
-        surface: 'var(--color-surface)',
-        raised:  'var(--color-raised)',
+        void:     'var(--color-bg)',
+        deep:     'var(--color-deep)',
+        surface:  'var(--color-surface)',
+        surface2: 'var(--color-surface-2)',
+        'surface-2': 'var(--color-surface-2)',
+        raised:   'var(--color-raised)',
 
         // ── Blue Dynasty accent (sky-based, accent-400 is the primary) ──
         accent: {
@@ -53,6 +55,13 @@ export default {
         primary:   'var(--text-primary)',
         secondary: 'var(--text-secondary)',
         muted:     'var(--text-muted)',
+        subtle:    'var(--text-subtle)',
+
+        // ── Semantic status (theme-aware via CSS variables) ──
+        success: 'var(--success)',
+        warning: 'var(--warning)',
+        danger:  'var(--error)',
+        error:   'var(--error)',
 
         // ── Legacy palettes kept for compatibility with existing components ──
         blue: {
@@ -86,15 +95,17 @@ export default {
         '3xl':'32px',
       },
       boxShadow: {
-        xs:   '0 1px 2px rgba(2,6,23,0.4)',
-        sm:   '0 2px 8px rgba(2,6,23,0.45), 0 1px 3px rgba(0,0,0,0.4)',
-        md:   '0 4px 20px rgba(2,6,23,0.5), 0 2px 8px rgba(0,0,0,0.4)',
-        lg:   '0 8px 32px rgba(2,6,23,0.6), 0 4px 12px rgba(0,0,0,0.45)',
-        xl:   '0 16px 48px rgba(2,6,23,0.7), 0 8px 20px rgba(0,0,0,0.5)',
-        card: '0 2px 8px rgba(2,6,23,0.35)',
-        'card-hover': '0 8px 32px rgba(14,165,233,0.18), 0 4px 12px rgba(2,6,23,0.5)',
-        glow: '0 0 0 3px rgba(14,165,233,0.18), 0 4px 20px rgba(14,165,233,0.28)',
-        'glow-sm': '0 0 12px rgba(14,165,233,0.22)',
+        // Theme-aware: resolve through CSS variables so light mode gets soft,
+        // low-opacity shadows instead of the dark-mode navy depths.
+        xs:   'var(--shadow-xs)',
+        sm:   'var(--shadow-sm)',
+        md:   'var(--shadow-md)',
+        lg:   'var(--shadow-lg)',
+        xl:   'var(--shadow-xl)',
+        card: 'var(--shadow-card)',
+        'card-hover': 'var(--shadow-card-hover)',
+        glow: 'var(--shadow-glow)',
+        'glow-sm': 'var(--shadow-glow-sm)',
         'inner-top': 'inset 0 1px 0 rgba(255,255,255,0.06)',
       },
       backgroundImage: {

@@ -33,7 +33,7 @@ export function ProfileInfoTab({ profile, onEdit }: ProfileInfoTabProps) {
           size="sm"
           leftIcon={<Pencil className="h-3.5 w-3.5" aria-hidden="true" />}
           onClick={onEdit}
-          className="rounded-xl border border-white/[0.08] bg-surface-2 text-secondary hover:border-accent-400/30 hover:text-primary"
+          className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--text-secondary)] hover:border-[var(--accent-400)]/30 hover:text-[var(--text-primary)]"
         >
           Edit profile
         </Button>
@@ -78,7 +78,7 @@ export function ProfileInfoTab({ profile, onEdit }: ProfileInfoTabProps) {
               return (
                 <span
                   key={answer.questionKey}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-surface-2 px-3 py-1.5 text-xs text-secondary"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-2)] px-3 py-1.5 text-xs text-[var(--text-secondary)]"
                 >
                   <span className="text-muted">{question.label}:</span>
                   <span className="font-bold text-accent-400">{answer.answerValue}/5</span>
@@ -94,7 +94,7 @@ export function ProfileInfoTab({ profile, onEdit }: ProfileInfoTabProps) {
 
 function InfoGroup({ title, icon: Icon, children }: { title: string; icon: React.ElementType; children: React.ReactNode }) {
   return (
-    <Card className="rounded-2xl border border-white/[0.08] bg-surface/50 p-5 backdrop-blur-sm shadow-lg shadow-black/5">
+    <Card className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)]/50 p-5 backdrop-blur-sm shadow-lg shadow-black/5">
       <div className="mb-4 flex items-center gap-2">
         <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent-400/10 text-accent-400">
           <Icon className="h-3.5 w-3.5" aria-hidden="true" />
@@ -108,7 +108,7 @@ function InfoGroup({ title, icon: Icon, children }: { title: string; icon: React
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="group flex items-center justify-between gap-4 rounded-lg px-2 py-2 transition-colors hover:bg-white/[0.03]">
+    <div className="group flex items-center justify-between gap-4 rounded-lg px-2 py-2 transition-colors hover:bg-[var(--color-raised)]/40">
       <dt className="text-xs text-muted">{label}</dt>
       <dd className="truncate text-sm font-semibold text-primary">{value}</dd>
     </div>

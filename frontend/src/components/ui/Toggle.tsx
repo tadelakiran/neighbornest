@@ -2,12 +2,12 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 interface ToggleProps {
-  checked:      boolean;
-  onChange:     (checked: boolean) => void;
-  label:        string;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  label: string;
   description?: string;
-  id?:          string;
-  disabled?:    boolean;
+  id?: string;
+  disabled?: boolean;
 }
 
 /**
@@ -40,12 +40,12 @@ export function Toggle({ checked, onChange, label, description, id, disabled }: 
         className={cn(
           'relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors duration-200',
           checked
-            ? 'bg-accent-500'
+            ? 'bg-[var(--accent-500)]'
             : 'bg-[var(--color-surface-2)] border border-[var(--color-border)]'
         )}
       >
         <motion.span
-          className="absolute left-1 top-1 h-4 w-4 rounded-full bg-white shadow-sm"
+          className="absolute left-1 top-1 h-4 w-4 rounded-full bg-white shadow-[var(--shadow-sm)]"
           animate={{ x: checked ? 20 : 0 }}
           transition={{ type: 'spring', stiffness: 500, damping: 30 }}
         />

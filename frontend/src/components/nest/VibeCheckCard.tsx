@@ -72,13 +72,13 @@ export function VibeCheckCard({ nest, status, currentUserId, isAnchor, onSubmit,
     const unlock = addWeeks(nest.startDate, 2);
     const unlockInPast = unlock ? new Date(`${unlock}T00:00:00`).getTime() <= Date.now() : false;
     return (
-      <section className="rounded-2xl border border-white/[0.08] bg-deep/60 p-6 backdrop-blur-xl">
+      <section className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-deep)]/60 p-6 backdrop-blur-xl">
         <h2 className="flex items-center gap-2 font-display text-lg font-bold text-primary">
           <Heart className="h-5 w-5 text-muted" aria-hidden="true" />
           Vibe Check
         </h2>
-        <div className="mt-4 flex flex-col items-center gap-3 rounded-xl border border-dashed border-white/10 px-6 py-8 text-center">
-          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/[0.04]">
+        <div className="mt-4 flex flex-col items-center gap-3 rounded-xl border border-dashed border-[var(--color-border)] px-6 py-8 text-center">
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--color-raised)]/40">
             <Lock className="h-5 w-5 text-muted" aria-hidden="true" />
           </span>
           <div>
@@ -163,7 +163,7 @@ export function VibeCheckCard({ nest, status, currentUserId, isAnchor, onSubmit,
             </h2>
             <p className="mt-1 text-xs text-secondary">Your Nest’s pulse, at a glance.</p>
 
-            <div className="mt-4 space-y-3 rounded-xl border border-white/[0.06] bg-surface/60 p-4">
+            <div className="mt-4 space-y-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]/60 p-4">
               <div>
                 <div className="mb-1.5 flex items-center justify-between text-xs">
                   <span className="text-secondary">Group average — connection</span>

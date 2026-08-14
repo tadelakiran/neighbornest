@@ -34,7 +34,7 @@ export function CompatibilityCard({ user, onInvite, onSkip, invited = false, bus
       whileHover={{ y: -5, transition: { duration: 0.25, ease: [0.22, 1, 0.36, 1] } }}
       className={cn(
         'group relative flex flex-col overflow-hidden rounded-2xl',
-        'border border-white/[0.07] bg-deep/70 backdrop-blur-xl',
+        'border border-[var(--color-border)] bg-[var(--color-deep)]/70 backdrop-blur-xl',
         'shadow-lg shadow-black/20 transition-all duration-300',
         'hover:border-accent-400/20 hover:shadow-xl hover:shadow-black/30',
         className
@@ -101,7 +101,7 @@ export function CompatibilityCard({ user, onInvite, onSkip, invited = false, bus
               <span className="w-[3.25rem] text-[10px] font-semibold uppercase tracking-wider text-muted">
                 {bar.label}
               </span>
-              <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/[0.06]">
+              <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-[var(--color-raised)]/50">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${breakdown[i]}%` }}
@@ -122,13 +122,13 @@ export function CompatibilityCard({ user, onInvite, onSkip, invited = false, bus
             {user.interests.slice(0, 4).map((interest) => (
               <span
                 key={interest}
-                className="rounded-full border border-white/[0.06] bg-surface px-3 py-1 text-[11px] font-medium text-secondary transition-colors duration-200 hover:border-accent-400/20 hover:text-primary"
+                className="rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-1 text-[11px] font-medium text-[var(--text-secondary)] transition-colors duration-200 hover:border-[var(--accent-400)]/20 hover:text-[var(--text-primary)]"
               >
                 {interest}
               </span>
             ))}
             {user.interests.length > 4 && (
-              <span className="rounded-full border border-white/[0.06] bg-surface px-3 py-1 text-[11px] font-medium text-muted">
+              <span className="rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-1 text-[11px] font-medium text-[var(--text-muted)]">
                 +{user.interests.length - 4}
               </span>
             )}
@@ -165,7 +165,7 @@ export function CompatibilityCard({ user, onInvite, onSkip, invited = false, bus
             disabled={busy}
             leftIcon={<X className="h-4 w-4" aria-hidden="true" />}
             onClick={() => onSkip?.(user)}
-            className="rounded-xl text-muted hover:bg-rose-400/10 hover:text-rose-400"
+            className="rounded-xl text-[var(--text-muted)] hover:bg-[var(--error)]/10 hover:text-[var(--error)]"
             aria-label={`Skip ${user.fullName}`}
           >
             Skip

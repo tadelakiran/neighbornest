@@ -60,7 +60,7 @@ export function TagInput({
           'flex flex-wrap items-center gap-2 rounded-xl border bg-surface-2 px-4 py-3 transition-all duration-200',
           error
             ? 'border-rose-500/40 shadow-[0_0_0_3px_rgba(244,63,94,0.1)]'
-            : 'border-white/[0.08] focus-within:border-accent-400/40 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.1)]'
+            : 'border-[var(--color-border)] focus-within:border-[var(--accent-400)]/40 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.1)]'
         )}
       >
         <AnimatePresence mode="popLayout">

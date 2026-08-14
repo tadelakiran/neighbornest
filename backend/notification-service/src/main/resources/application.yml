@@ -39,20 +39,6 @@ spring:
     port: ${RABBITMQ_PORT:5672}
     username: ${RABBITMQ_USER:guest}
     password: ${RABBITMQ_PASSWORD:guest}
-  mail:
-    # Mailtrap for development; swap to Gmail/SendGrid for production.
-    host: ${MAIL_HOST:smtp.mailtrap.io}
-    port: ${MAIL_PORT:2525}
-    username: ${MAIL_USERNAME:}
-    password: ${MAIL_PASSWORD:}
-    protocol: smtp
-    default-encoding: UTF-8
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
   thymeleaf:
     cache: false
 
@@ -72,6 +58,15 @@ eureka:
 app:
   jwt:
     secret: ${JWT_SECRET:VGhpcyBpcyBhIHNlY3JldCBrZXkgZm9yIE5laWdoYm9yTmVzdCBKV1QgdG9rZW4gc2lnbmluZyAtIGRldmVsb3BtZW50IG9ubHk=}
+  # One-time passcode (email verification / password reset) policy.
+  otp:
+    expiry-minutes: ${OTP_EXPIRY_MINUTES:10}
+    resend-after-seconds: ${OTP_RESEND_AFTER_SECONDS:60}
+    max-attempts: ${OTP_MAX_ATTEMPTS:5}
+  # Shared secret for service-to-service endpoints (/api/notifications/internal/**).
+  # Must match the value configured in the auth-service. Fails closed when empty.
+  internal:
+    api-key: ${INTERNAL_API_KEY:}
   notification:
     # Base URL used to build deep links in emails (the API gateway in prod).
     base-url: ${NOTIFICATION_BASE_URL:http://localhost:8080}
@@ -90,6 +85,27 @@ app:
       disbanded-routing-key: nest.disbanded
       chat-routing-key: chat.message.sent
       anchor-routing-key: user.anchor.reviewed
+
+# Email delivery via EmailJS (https://www.emailjs.com) — templates are defined
+# in the EmailJS dashboard, not in this repository. The template keys below
+# must match the EmailJS template ids you create there. Set the Subject field
+# of each template to {{subject}} and the To Email field to {{to_email}}.
+emailjs:
+  public-key: ${EMAILJS_PUBLIC_KEY:ZgCz14aXMuiPcMgHp}
+  private-key: ${EMAILJS_PRIVATE_KEY:0F-beqBI2TQuefr07BHDQ}
+  service-id: ${EMAILJS_SERVICE_ID:service_tcw88r9}
+  templates:
+    otp-verification: ${EMAILJS_TEMPLATE_OTP_VERIFICATION:template_ab5ej2h}
+    password-reset: ${EMAILJS_TEMPLATE_PASSWORD_RESET:template_c4rrzz8}
+    welcome: ${EMAILJS_TEMPLATE_WELCOME:}
+    nest-welcome: ${EMAILJS_TEMPLATE_NEST_WELCOME:}
+    nest-graduate: ${EMAILJS_TEMPLATE_NEST_GRADUATE:}
+    nest-disbanded: ${EMAILJS_TEMPLATE_NEST_DISBANDED:}
+    meeting-reminder: ${EMAILJS_TEMPLATE_MEETING_REMINDER:}
+    expense-alert: ${EMAILJS_TEMPLATE_EXPENSE_ALERT:}
+    vibe-check-reminder: ${EMAILJS_TEMPLATE_VIBE_CHECK_REMINDER:}
+    chat-offline: ${EMAILJS_TEMPLATE_CHAT_OFFLINE:}
+    raw-email: ${EMAILJS_TEMPLATE_RAW_EMAIL:}
 
 # Generous Feign timeouts: Spring Cloud OpenFeign's circuit breaker applies a
 # 1s TimeLimiter by default, which kills legitimate cold-start calls (first

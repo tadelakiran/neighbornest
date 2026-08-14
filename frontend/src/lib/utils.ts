@@ -82,6 +82,24 @@ export function formatCurrency(value: number): string {
 }
 
 /**
+ * Masks an email address for "code sent to" confirmations, e.g.
+ * `jane.doe@example.com` -> `j***@example.com`. Keeps the first character of
+ * the local part (or just the local part when it is a single character) so
+ * the user can still recognize their own address.
+ *
+ * @param email - the raw address
+ * @returns a partially masked address, or the original when unparseable
+ */
+export function maskEmail(email: string): string {
+  const at = email.indexOf('@');
+  if (at <= 0) return email;
+  const local = email.slice(0, at);
+  const domain = email.slice(at);
+  const maskedLocal = local.length <= 1 ? local : `${local[0]}***`;
+  return `${maskedLocal}${domain}`;
+}
+
+/**
  * Derives up to two initials from a person's full name for avatar fallbacks.
  *
  * @param name - the person's full name (may be null/undefined)

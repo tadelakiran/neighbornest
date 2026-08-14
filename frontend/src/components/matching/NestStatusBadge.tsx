@@ -8,13 +8,13 @@ interface NestStatusBadgeProps {
 
 const STATUS_META: Record<NestStatus, { style: string; dot: string; pulse?: boolean }> = {
   ACTIVE: {
-    style: 'border-emerald-400/25 bg-emerald-400/10 text-emerald-300 shadow-[0_0_16px_rgba(52,211,153,0.2)]',
-    dot: 'bg-emerald-400',
+    style: 'border-[var(--success)]/25 bg-[var(--success)]/10 text-[var(--success)] shadow-[0_0_16px_rgba(52,211,153,0.2)]',
+    dot: 'bg-[var(--success)]',
     pulse: true,
   },
   VIBE_CHECK: {
-    style: 'border-amber-400/25 bg-amber-400/10 text-amber-300 shadow-[0_0_16px_rgba(251,191,36,0.2)]',
-    dot: 'bg-amber-400',
+    style: 'border-[var(--warning)]/25 bg-[var(--warning)]/10 text-[var(--warning)] shadow-[0_0_16px_rgba(251,191,36,0.2)]',
+    dot: 'bg-[var(--warning)]',
     pulse: true,
   },
   RE_MATCHING: {
@@ -27,12 +27,12 @@ const STATUS_META: Record<NestStatus, { style: string; dot: string; pulse?: bool
     dot: 'bg-accent-300',
   },
   FORMING: {
-    style: 'border-white/10 bg-white/[0.04] text-secondary',
+    style: 'border-[var(--color-border)] bg-[var(--color-raised)]/40 text-[var(--text-secondary)]',
     dot: 'bg-muted',
   },
   DISBANDED: {
-    style: 'border-rose-400/20 bg-rose-400/8 text-rose-300',
-    dot: 'bg-rose-400',
+    style: 'border-[var(--error)]/20 bg-[var(--error)]/10 text-[var(--error)]',
+    dot: 'bg-[var(--error)]',
   },
 };
 

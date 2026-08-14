@@ -51,6 +51,10 @@ app:
     secret: ${JWT_SECRET:VGhpcyBpcyBhIHNlY3JldCBrZXkgZm9yIE5laWdoYm9yTmVzdCBKV1QgdG9rZW4gc2lnbmluZyAtIGRldmVsb3BtZW50IG9ubHk=}
     expiration-ms: ${JWT_EXPIRATION_MS:900000}       # 15 minutes
     refresh-expiration-ms: ${JWT_REFRESH_EXPIRATION_MS:604800000}  # 7 days
+  # Shared secret for the notification-service's internal email endpoints.
+  # Must match INTERNAL_API_KEY configured in the notification-service.
+  internal:
+    api-key: ${INTERNAL_API_KEY:}
 
 logging:
   level:

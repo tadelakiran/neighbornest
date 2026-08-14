@@ -50,7 +50,7 @@ export function StepReview({ data, onNext, onBack, onEdit, isSubmitting }: StepR
       <Section title="Interests" onEdit={() => onEdit(3)}>
         <div className="flex flex-wrap gap-2">
           {data.interests.length === 0 ? (
-            <span className="text-sm text-muted">None selected</span>
+            <span className="text-sm text-[var(--text-muted)]">None selected</span>
           ) : (
             data.interests.map((interest) => (
               <span
@@ -99,7 +99,7 @@ function Section({ title, onEdit, children }: SectionProps) {
   return (
     <motion.div
       variants={fadeUpItem}
-      className="rounded-md border border-white/10 bg-surface/50 p-4"
+      className="rounded-md border border-[var(--color-border)] bg-[var(--color-surface)]/50 p-4"
     >
       <div className="mb-3 flex items-center justify-between">
         <h3 className="text-xs font-medium uppercase tracking-widest text-muted">{title}</h3>

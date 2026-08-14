@@ -9,9 +9,9 @@ import type { UserRole } from '@/types/auth.types';
 import type { UserProfile } from '@/types/user.types';
 
 const ROLE_META: Record<UserRole, { variant: 'success' | 'warning' | 'neutral'; label: string; icon: LucideIcon; accent: string }> = {
-  NEWCOMER: { variant: 'neutral', label: 'Newcomer', icon: MapPin, accent: 'text-muted' },
-  ANCHOR:   { variant: 'success', label: 'Anchor',   icon: Shield, accent: 'text-emerald-400' },
-  ADMIN:    { variant: 'warning', label: 'Admin',    icon: Shield, accent: 'text-amber-400' },
+  NEWCOMER: { variant: 'neutral', label: 'Newcomer', icon: MapPin, accent: 'text-[var(--text-muted)]' },
+  ANCHOR:   { variant: 'success', label: 'Anchor',   icon: Shield, accent: 'text-[var(--success)]' },
+  ADMIN:    { variant: 'warning', label: 'Admin',    icon: Shield, accent: 'text-[var(--warning)]' },
 };
 
 interface ProfileHeaderProps {
@@ -70,8 +70,8 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
             variant={meta.variant}
             className={cn(
               'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wider',
-              profile.role === 'ANCHOR' && 'border-emerald-400/25 bg-emerald-400/10 text-emerald-300 shadow-[0_0_12px_rgba(52,211,153,0.15)]',
-              profile.role === 'ADMIN' && 'border-amber-400/25 bg-amber-400/10 text-amber-300 shadow-[0_0_12px_rgba(251,191,36,0.15)]'
+              profile.role === 'ANCHOR' && 'border-[var(--success)]/25 bg-[var(--success)]/10 text-[var(--success)] shadow-[0_0_12px_rgba(52,211,153,0.15)]',
+              profile.role === 'ADMIN' && 'border-[var(--warning)]/25 bg-[var(--warning)]/10 text-[var(--warning)] shadow-[0_0_12px_rgba(251,191,36,0.15)]'
             )}
           >
             <meta.icon className={cn('h-3 w-3', meta.accent)} aria-hidden="true" />
@@ -89,7 +89,7 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
       </div>
 
       {/* Details */}
-      <dl className="mt-6 space-y-2.5 border-t border-white/[0.06] pt-5 text-left">
+      <dl className="mt-6 space-y-2.5 border-t border-[var(--color-border)] pt-5 text-left">
         <DetailRow
           icon={<MapPin className="h-4 w-4 text-accent-400" />}
           label="City"
@@ -107,13 +107,13 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
 
 function DetailRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
-    <div className="group flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-white/[0.03]">
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/[0.06] bg-surface/60">
+    <div className="group flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-[var(--color-raised)]/40">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]/60">
         {icon}
       </span>
       <div className="min-w-0 flex-1">
-        <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted">{label}</p>
-        <p className="truncate text-sm font-semibold text-primary">{value}</p>
+        <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--text-muted)]">{label}</p>
+        <p className="truncate text-sm font-semibold text-[var(--text-primary)]">{value}</p>
       </div>
     </div>
   );

@@ -14,7 +14,7 @@ export function MyNestsPlaceholder() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       className={cn(
-        'flex flex-col items-center gap-6 rounded-2xl border border-dashed border-white/[0.1]',
+        'flex flex-col items-center gap-6 rounded-2xl border border-dashed border-[var(--color-border)]',
         'bg-deep/50 px-8 py-20 text-center backdrop-blur-sm',
         'shadow-lg shadow-black/10'
       )}
@@ -28,7 +28,7 @@ export function MyNestsPlaceholder() {
         >
           <Users className="h-9 w-9 text-accent-300" aria-hidden="true" />
         </motion.span>
-        <span className="absolute -bottom-2 -right-2 flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.1] bg-deep shadow-lg">
+        <span className="absolute -bottom-2 -right-2 flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--color-border)] bg-[var(--color-deep)] shadow-lg">
           <MapPin className="h-5 w-5 text-secondary" aria-hidden="true" />
         </span>
         {/* Orbiting dot */}

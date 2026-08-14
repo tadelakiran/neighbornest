@@ -18,8 +18,8 @@ interface ActivityTimelineProps {
 }
 
 const CATEGORY_META: Record<TimelineCategory, { icon: LucideIcon; accent: string; glow: string }> = {
-  nest:     { icon: Home,        accent: 'text-emerald-400 bg-emerald-400/10 border-emerald-400/25', glow: 'shadow-[0_0_12px_rgba(52,211,153,0.25)]' },
-  proposal: { icon: Handshake,   accent: 'text-amber-400 bg-amber-400/10 border-amber-400/25',       glow: 'shadow-[0_0_12px_rgba(251,191,36,0.25)]' },
+  nest:     { icon: Home,        accent: 'text-[var(--success)] bg-[var(--success)]/10 border-[var(--success)]/25', glow: 'shadow-[0_0_12px_rgba(52,211,153,0.25)]' },
+  proposal: { icon: Handshake,   accent: 'text-[var(--warning)] bg-[var(--warning)]/10 border-[var(--warning)]/25',       glow: 'shadow-[0_0_12px_rgba(251,191,36,0.25)]' },
   meeting:  { icon: CalendarDays, accent: 'text-violet-400 bg-violet-400/10 border-violet-400/25',  glow: 'shadow-[0_0_12px_rgba(167,139,250,0.25)]' },
   system:   { icon: Sparkles,    accent: 'text-accent-400 bg-accent-400/10 border-accent-400/25',   glow: 'shadow-[0_0_12px_rgba(14,165,233,0.3)]' },
 };
@@ -67,12 +67,12 @@ export function ActivityTimeline({ events, className }: ActivityTimelineProps) {
               {/* Content card */}
               <div className={cn(
                 'flex-1 rounded-xl border p-3.5 transition-all duration-200',
-                'border-white/[0.06] bg-surface/50',
+                'border-[var(--color-border)] bg-[var(--color-surface)]/50',
                 'group-hover:border-accent-400/20 group-hover:bg-surface group-hover:shadow-md'
               )}>
                 <div className="flex items-start justify-between gap-3">
                   <h4 className="text-sm font-semibold text-primary">{event.title}</h4>
-                  <span className="shrink-0 rounded-full bg-white/[0.04] px-2 py-0.5 text-[10px] font-semibold text-muted">
+                  <span className="shrink-0 rounded-full bg-[var(--color-raised)]/40 px-2 py-0.5 text-[10px] font-semibold text-[var(--text-muted)]">
                     {event.time}
                   </span>
                 </div>
