@@ -148,12 +148,12 @@ Notes baked into the types:
 - **Settings**: notification toggles (localStorage), change-password form, and a delete-account
   danger zone — password change and deletion are UI-only until the backend endpoints land.
 
-## 🎨 Design System — Blue Dynasty
+## 🎨 Design System — Azure Dynasty
 
 - Backgrounds: `bg-void` (#0a0f1c, main) · `bg-deep` (#0f172e, cards) · `bg-surface` (#162044, inputs) · `bg-raised` (#1e2d5f, hover)
 - Accent: `accent-400` (#0ea5e9, primary) · `accent-300` (#38bdf8, highlights) · `accent-500` (#0284c7)
 - Text: `text-primary` (#f8fafc) · `text-secondary` (#94a3b8) · `text-muted` (#64748b)
-- Shadows: `shadow-card` / `shadow-card-hover` / `shadow-glow` · Errors: `rose-500` · Admin: `amber-400`
+- Shadows: `shadow-card` / `shadow-card-hover` / `shadow-glow` · Errors: `royal-500` · Admin: `royal-400`
 - Fonts: Inter (UI) + Space Grotesk (headings via `font-display`) — loaded in `index.html`
 - Signature elements: animated mesh gradient background (`GradientBackground`), cursor spotlight cards (`SpotlightWrapper`/`Card`), magnetic buttons, bento grids, shimmering skeletons, glowing onboarding timeline
 

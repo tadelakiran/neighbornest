@@ -1,8 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
-  // Dark mode via class on <html> — most reliable approach
-  darkMode: 'class',
   theme: {
     extend: {
       fontFamily: {
@@ -10,7 +8,7 @@ export default {
         display: ['Space Grotesk', 'Inter', 'system-ui', 'sans-serif'],
       },
       colors: {
-        // ── Blue Dynasty surfaces ──
+        // ── Azure Dynasty surfaces ──
         // Theme-aware: these resolve to CSS variables that flip with the
         // active theme (see index.css). Making them variables is what makes
         // the dark/light toggle actually restyle every component that uses
@@ -22,49 +20,8 @@ export default {
         'surface-2': 'var(--color-surface-2)',
         raised:   'var(--color-raised)',
 
-        // ── Blue Dynasty accent (sky-based, accent-400 is the primary) ──
+        // ── Accent — light blue (primary) ──
         accent: {
-          50:  '#f0f9ff',
-          100: '#e0f2fe',
-          200: '#bae6fd',
-          300: '#38bdf8',
-          400: '#0ea5e9',
-          500: '#0284c7',
-          600: '#0369a1',
-          700: '#075985',
-          800: '#0c4a6e',
-          900: '#082f49',
-          950: '#062441',
-        },
-
-        // ── Warm gold (anchors, graduations, milestones) ──
-        gold: {
-          50:  '#fffbeb',
-          100: '#fef3c7',
-          200: '#fde68a',
-          300: '#fcd34d',
-          400: '#fbbf24',
-          500: '#f59e0b',
-          600: '#d97706',
-          700: '#b45309',
-          800: '#92400e',
-          900: '#78350f',
-        },
-
-        // ── Text hierarchy (theme-aware via CSS variables) ──
-        primary:   'var(--text-primary)',
-        secondary: 'var(--text-secondary)',
-        muted:     'var(--text-muted)',
-        subtle:    'var(--text-subtle)',
-
-        // ── Semantic status (theme-aware via CSS variables) ──
-        success: 'var(--success)',
-        warning: 'var(--warning)',
-        danger:  'var(--error)',
-        error:   'var(--error)',
-
-        // ── Legacy palettes kept for compatibility with existing components ──
-        blue: {
           50:  '#f0f9ff',
           100: '#e0f2fe',
           200: '#bae6fd',
@@ -77,12 +34,54 @@ export default {
           900: '#0c4a6e',
           950: '#082f49',
         },
+
+        // ── Royal — saturated dark blue (secondary emphasis, danger states) ──
+        royal: {
+          100: '#dbeafe',
+          200: '#bfdbfe',
+          300: '#93c5fd',
+          400: '#60a5fa',
+          500: '#3b82f6',
+          600: '#2563eb',
+          700: '#1d4ed8',
+          800: '#1e40af',
+          900: '#1e3a8a',
+        },
+
+        // ── Text hierarchy (theme-aware via CSS variables) ──
+        primary:   'var(--text-primary)',
+        secondary: 'var(--text-secondary)',
+        muted:     'var(--text-muted)',
+        subtle:    'var(--text-subtle)',
+
+        // ── Semantic status — all blues (theme-aware via CSS variables) ──
+        success: 'var(--success)',
+        warning: 'var(--warning)',
+        danger:  'var(--error)',
+        error:   'var(--error)',
+
+        // ── Sky — light blue, directly usable without var indirection ──
+        sky: {
+          50:  '#f0f9ff',
+          100: '#e0f2fe',
+          200: '#bae6fd',
+          300: '#7dd3fc',
+          400: '#38bdf8',
+          500: '#0ea5e9',
+          600: '#0284c7',
+          700: '#0369a1',
+          800: '#075985',
+          900: '#0c4a6e',
+          950: '#082f49',
+        },
+
+        // ── Navy — dark blue surfaces ──
         navy: {
-          950: '#0a0f1c',
-          900: '#0f172e',
-          800: '#162044',
-          700: '#1e2d5f',
-          600: '#27406f',
+          950: '#060b18',
+          900: '#0a1226',
+          800: '#0e1830',
+          700: '#14203f',
+          600: '#1b2a52',
         },
       },
       borderRadius: {
@@ -109,12 +108,11 @@ export default {
         'inner-top': 'inset 0 1px 0 rgba(255,255,255,0.06)',
       },
       backgroundImage: {
-        'accent-gradient': 'linear-gradient(135deg, #0284c7 0%, #0ea5e9 50%, #38bdf8 100%)',
-        'gold-gradient':   'linear-gradient(135deg, #d97706 0%, #f59e0b 50%, #fbbf24 100%)',
-        'hero-gradient':   'linear-gradient(135deg, #082f49 0%, #0c4a6e 40%, #0ea5e9 100%)',
+        'accent-gradient': 'linear-gradient(135deg, #0369a1 0%, #0ea5e9 45%, #38bdf8 100%)',
+        'hero-gradient':   'linear-gradient(135deg, #060b18 0%, #0c4a6e 45%, #0ea5e9 100%)',
         'card-gradient':   'linear-gradient(145deg, var(--color-surface) 0%, var(--color-deep) 100%)',
         'button-gradient': 'linear-gradient(135deg, #0284c7 0%, #0ea5e9 50%, #38bdf8 100%)',
-        'glow-gradient':   'radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(14,165,233,0.12), transparent 40%)',
+        'glow-gradient':   'radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(56,189,248,0.14), transparent 40%)',
       },
       keyframes: {
         fadeUp:  { from: { opacity:'0', transform:'translateY(10px)' }, to: { opacity:'1', transform:'translateY(0)' } },
@@ -126,8 +124,8 @@ export default {
         shimmer: { from: { transform:'translateX(-100%)' },             to: { transform:'translateX(200%)' } },
         loadBar: { from: { transform:'translateX(-100%)' },             to: { transform:'translateX(200%)' } },
         pulseGlow: {
-          '0%,100%': { boxShadow:'0 0 0 0 rgba(14,165,233,0.45)' },
-          '50%':     { boxShadow:'0 0 0 8px rgba(14,165,233,0)'  },
+          '0%,100%': { boxShadow:'0 0 0 0 rgba(56,189,248,0.45)' },
+          '50%':     { boxShadow:'0 0 0 8px rgba(56,189,248,0)'  },
         },
         spinSlow: { to: { transform:'rotate(360deg)' } },
       },

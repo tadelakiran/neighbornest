@@ -115,19 +115,22 @@ public class OtpService {
 
         if (delivered) {
             log.info("OTP sent to {} for purpose {}", email, purpose);
-        } else {
-            // SMTP delivery failed (bad credentials, unverified sender, etc.) —
-            // surface the code in the logs so the flow stays usable during local dev.
-            log.warn("OTP email to {} (purpose {}) could not be delivered. Dev fallback code: {}",
-                    email, purpose, code);
+            return OtpSendResponse.builder()
+                    .email(email)
+                    .purpose(purpose)
+                    .expiresInSeconds(expiryMinutes * 60)
+                    .resendAfterSeconds(resendAfterSeconds)
+                    .build();
         }
 
-        return OtpSendResponse.builder()
-                .email(email)
-                .purpose(purpose)
-                .expiresInSeconds(expiryMinutes * 60)
-                .resendAfterSeconds(resendAfterSeconds)
-                .build();
+        // Delivery failed (EmailJS rejected the request, misconfigured template,
+        // bad credentials, ...). Fail the request instead of claiming the code
+        // was sent — a caller must never show a phantom "code sent" message when
+        // no email is on its way. The @Transactional rollback discards the
+        // pending code, so a retry is not blocked by the resend cooldown.
+        log.warn("OTP email to {} (purpose {}) could not be delivered", email, purpose);
+        throw new BadRequestException(
+                "We couldn't send the verification code. Please try again in a moment.");
     }
 
     /**
@@ -135,13 +138,20 @@ public class OtpService {
      * checked for expiry, attempt budget, and a hash match. Successful
      * verification marks the code consumed so it cannot be replayed.
      *
+     * <p>Deliberately <em>not</em> {@code @Transactional}: the failed-attempt
+     * counter must survive the {@link BadRequestException} thrown on a wrong
+     * code. Inside a transaction that exception would roll back the counter
+     * update (Spring rolls back on RuntimeException), silently disabling the
+     * brute-force lockout. Each repository write here is a single atomic
+     * statement committed by Spring Data itself, so no transaction is needed.
+     * </p>
+     *
      * @param rawEmail the recipient address (trimmed + lowercased)
      * @param purpose  the purpose the code was issued for
      * @param code     the 6-digit code to verify
      * @return the verification result
      * @throws BadRequestException if the code is missing, expired, or wrong
      */
-    @Transactional
     public OtpVerifyResponse verifyOtp(final String rawEmail, final OtpPurpose purpose, final String code) {
         final String email = normalize(rawEmail);
 

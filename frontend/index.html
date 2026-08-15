@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="en" class="dark">
+<html lang="en" class="light">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="NeighborNest — find your people in a new city. Small curated groups (Nests) with local Anchors." />
-    <meta name="theme-color" content="#070b14" />
+    <meta name="theme-color" content="#f4f7ff" />
 
     <!-- Social / share preview -->
     <meta property="og:type" content="website" />
@@ -15,26 +15,7 @@
     <meta name="twitter:title" content="NeighborNest" />
     <meta name="twitter:description" content="Find your people in a new city — matched into small curated Nests with local Anchors." />
 
-    <!-- Boot the persisted theme before first paint (avoids white flash / FOUC).
-         Dark is the default; a stored 'light' preference from the theme store
-         (zustand persist format: { state: { theme } }) is applied synchronously. -->
-    <script>
-      (function () {
-        var theme = 'dark';
-        try {
-          var raw = localStorage.getItem('neighbornest.theme.v2');
-          if (raw) {
-            var parsed = JSON.parse(raw);
-            if (parsed && parsed.state && parsed.state.theme === 'light') theme = 'light';
-          }
-        } catch (e) { /* ignore corrupt storage */ }
-        var el = document.documentElement;
-        if (theme === 'light') { el.classList.remove('dark'); } else { el.classList.add('dark'); }
-        el.setAttribute('data-theme', theme);
-        var meta = document.querySelector('meta[name="theme-color"]');
-        if (meta) meta.setAttribute('content', theme === 'light' ? '#f5f7fb' : '#070b14');
-      })();
-    </script>
+    <!-- Light theme (white + sky blue) is the fixed, only theme — no toggling. -->
 
     <!-- Fonts: loaded non-blocking (media=print swap trick) so the app shell
          paints immediately even if Google Fonts is slow or unreachable. -->
@@ -67,7 +48,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: #070b14;
+        background: #f4f7ff;
         transition: opacity 0.45s ease, visibility 0.45s ease;
       }
       #app-splash.is-done { opacity: 0; visibility: hidden; pointer-events: none; }
@@ -95,13 +76,13 @@
         font-size: 18px;
         font-weight: 700;
         letter-spacing: 0.02em;
-        color: #f8fafc;
+        color: #0c4a6e;
       }
       #app-splash .splash-bar {
         width: 180px;
         height: 3px;
         border-radius: 99px;
-        background: rgba(148, 163, 184, 0.15);
+        background: rgba(2, 132, 199, 0.12);
         overflow: hidden;
       }
       #app-splash .splash-bar i {

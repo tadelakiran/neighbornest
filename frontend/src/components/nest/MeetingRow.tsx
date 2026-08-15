@@ -15,8 +15,8 @@ interface MeetingRowProps {
 
 const STATUS_DOT: Record<MeetingResponse['status'], string> = {
   SCHEDULED: 'bg-accent-400 shadow-[0_0_8px_rgba(14,165,233,0.8)]',
-  COMPLETED: 'bg-emerald-400',
-  CANCELLED: 'bg-rose-400',
+  COMPLETED: 'bg-sky-400',
+  CANCELLED: 'bg-royal-400',
 };
 
 /**
@@ -73,7 +73,7 @@ export function MeetingRow({ meeting, index = 0, onComplete, onCancel }: Meeting
           <span
             className={cn(
               'text-[10px] font-bold uppercase tracking-wider',
-              meeting.status === 'COMPLETED' ? 'text-emerald-400' : 'text-rose-400'
+              meeting.status === 'COMPLETED' ? 'text-sky-400' : 'text-royal-400'
             )}
           >
             {meeting.status}
@@ -88,7 +88,7 @@ export function MeetingRow({ meeting, index = 0, onComplete, onCancel }: Meeting
               </Button>
             )}
             {onCancel && (
-              <Button size="sm" variant="ghost" className="h-6 px-2 text-[10px] text-rose-400 hover:bg-rose-500/10 hover:text-rose-300" onClick={() => onCancel(meeting.id)}>
+              <Button size="sm" variant="ghost" className="h-6 px-2 text-[10px] text-royal-400 hover:bg-royal-500/10 hover:text-royal-300" onClick={() => onCancel(meeting.id)}>
                 <X className="h-3 w-3" aria-hidden="true" />
               </Button>
             )}

@@ -59,7 +59,7 @@ export function TagInput({
         className={cn(
           'flex flex-wrap items-center gap-2 rounded-xl border bg-surface-2 px-4 py-3 transition-all duration-200',
           error
-            ? 'border-rose-500/40 shadow-[0_0_0_3px_rgba(244,63,94,0.1)]'
+            ? 'border-royal-500/40 shadow-[0_0_0_3px_rgba(59,130,246,0.1)]'
             : 'border-[var(--color-border)] focus-within:border-[var(--accent-400)]/40 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.1)]'
         )}
       >
@@ -105,7 +105,7 @@ export function TagInput({
 
         <span className={cn(
           'shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold',
-          value.length >= maxTags ? 'bg-rose-400/10 text-rose-400' : 'bg-surface text-muted'
+          value.length >= maxTags ? 'bg-royal-400/10 text-royal-400' : 'bg-surface text-muted'
         )}>
           {value.length}/{maxTags}
         </span>

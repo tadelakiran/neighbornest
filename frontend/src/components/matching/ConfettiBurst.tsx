@@ -5,7 +5,7 @@ interface ConfettiBurstProps {
   count?: number;
 }
 
-const COLORS = ['#38bdf8', '#0ea5e9', '#7dd3fc', '#fbbf24', '#fde68a', '#f8fafc'];
+const COLORS = ['#38bdf8', '#0ea5e9', '#7dd3fc', '#60a5fa', '#93c5fd', '#f8fafc'];
 
 export function ConfettiBurst({ count = 30 }: ConfettiBurstProps) {
   const pieces = useMemo(

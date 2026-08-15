@@ -203,7 +203,7 @@ export function DashboardPage() {
               </span>
             )}
             {user?.role && (
-              <span className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--gold-500)]/20 bg-[var(--gold-500)]/10 px-3 py-1.5 text-xs font-semibold capitalize text-[var(--gold-300)]">
+              <span className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--royal-500)]/20 bg-[var(--royal-500)]/10 px-3 py-1.5 text-xs font-semibold capitalize text-[var(--royal-300)]">
                 <Sprout className="h-3.5 w-3.5" aria-hidden="true" />
                 {user.role.toLowerCase()}
               </span>
@@ -221,49 +221,51 @@ export function DashboardPage() {
         <BentoGrid>
           {/* Hero — spans full width on lg */}
           <BentoCard size="2x1" className="lg:col-span-3">
-            <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-              <LazyImage
-                src={IMAGES.city}
-                alt=""
-                placeholder="shimmer"
-                wrapperClassName="absolute inset-0"
-                className="h-full w-full object-cover opacity-25"
-                loading="lazy"
-              />
-              <div className="absolute inset-0 bg-gradient-to-r from-void via-void/90 to-void/50" />
-              <div className="absolute inset-0 bg-gradient-to-t from-void/70 to-transparent" />
-            </div>
-
-            <div className="relative flex flex-1 flex-col justify-between gap-6 p-2 sm:flex-row sm:items-center">
-              <div className="flex items-center gap-4">
-                <motion.span
-                  animate={{ rotate: [0, 10, -10, 0] }}
-                  transition={{ repeat: Infinity, duration: 6, ease: 'easeInOut' }}
-                  className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-accent-gradient shadow-glow"
-                >
-                  <Compass className="h-7 w-7 text-white" aria-hidden="true" />
-                </motion.span>
-                <div>
-                  <h2 className="font-display text-xl font-bold text-primary">Find Your Nest</h2>
-                  <p className="mt-1 max-w-md text-sm leading-relaxed text-secondary">
-                    We match you with compatible neighbors, then place you in a small curated Nest
-                    with a local Anchor.
-                  </p>
+            <div className="relative flex flex-1 flex-col gap-6 md:flex-row md:items-stretch">
+              {/* Text + CTA on the card surface — separate from the photo */}
+              <div className="flex flex-1 flex-col items-start gap-6 sm:flex-row sm:items-center">
+                <div className="flex items-center gap-4">
+                  <motion.span
+                    animate={{ rotate: [0, 10, -10, 0] }}
+                    transition={{ repeat: Infinity, duration: 6, ease: 'easeInOut' }}
+                    className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-accent-gradient shadow-glow"
+                  >
+                    <Compass className="h-7 w-7 text-white" aria-hidden="true" />
+                  </motion.span>
+                  <div>
+                    <h2 className="font-display text-xl font-bold text-primary">Find Your Nest</h2>
+                    <p className="mt-1 max-w-md text-sm leading-relaxed text-secondary">
+                      We match you with compatible neighbors, then place you in a small curated Nest
+                      with a local Anchor.
+                    </p>
+                  </div>
                 </div>
+
+                <Button
+                  variant="primary"
+                  size="lg"
+                  isLoading={calculating}
+                  rightIcon={
+                    !calculating ? <ArrowRight className="h-4 w-4" aria-hidden="true" /> : undefined
+                  }
+                  onClick={() => void handleStartMatching()}
+                  className="shrink-0 shadow-glow"
+                >
+                  {calculating ? 'Calculating…' : 'Start Matching'}
+                </Button>
               </div>
 
-              <Button
-                variant="primary"
-                size="lg"
-                isLoading={calculating}
-                rightIcon={
-                  !calculating ? <ArrowRight className="h-4 w-4" aria-hidden="true" /> : undefined
-                }
-                onClick={() => void handleStartMatching()}
-                className="shrink-0 shadow-glow"
-              >
-                {calculating ? 'Calculating…' : 'Start Matching'}
-              </Button>
+              {/* City photo as its own separate block — clean, not overlapping text */}
+              <div className="relative h-36 shrink-0 overflow-hidden rounded-[var(--radius-lg)] md:h-full md:w-60 lg:w-72">
+                <LazyImage
+                  src={IMAGES.city}
+                  alt="A vibrant city neighborhood"
+                  placeholder="shimmer"
+                  className="h-full w-full object-cover"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
+              </div>
             </div>
 
             {calculating && (
@@ -427,7 +429,7 @@ export function DashboardPage() {
           {/* 6-Week Journey */}
           <BentoCard size="1x1" className="md:col-span-2 lg:col-span-1">
             <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-muted">
-              <Sprout className="h-4 w-4 text-gold-400" aria-hidden="true" />
+              <Sprout className="h-4 w-4 text-sky-400" aria-hidden="true" />
               6-Week Journey
             </h2>
             {nests === null ? (
@@ -440,11 +442,11 @@ export function DashboardPage() {
                 <div className="flex items-end justify-between gap-3">
                   <div>
                     <p className="font-display text-3xl font-bold text-primary">
-                      Week <span className="text-gradient-gold">{week}</span>
+                      Week <span className="text-gradient">{week}</span>
                     </p>
                     <p className="mt-0.5 text-xs text-muted">of 6 weeks</p>
                   </div>
-                  <span className="rounded-full border border-gold-500/20 bg-gold-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-gold-300">
+                  <span className="rounded-full border border-sky-500/20 bg-sky-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-sky-300">
                     {Math.round((week / 6) * 100)}%
                   </span>
                 </div>
@@ -461,7 +463,7 @@ export function DashboardPage() {
                     initial={{ width: 0 }}
                     animate={{ width: `${(week / 6) * 100}%` }}
                     transition={{ duration: 0.9, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                    className="h-full rounded-full bg-gold-gradient shadow-[0_0_12px_rgba(251,191,36,0.25)]"
+                    className="h-full rounded-full bg-accent-gradient shadow-[0_0_12px_rgba(56,189,248,0.25)]"
                   />
                 </div>
 
@@ -472,7 +474,7 @@ export function DashboardPage() {
 
                 <button
                   onClick={() => navigate(nestDetailPath(activeNest.id))}
-                  className="mt-auto inline-flex items-center gap-1 text-xs font-semibold text-gold-300 transition-colors hover:text-gold-200"
+                  className="mt-auto inline-flex items-center gap-1 text-xs font-semibold text-sky-300 transition-colors hover:text-sky-200"
                 >
                   Open Nest <ArrowRight className="h-3 w-3" aria-hidden="true" />
                 </button>
@@ -480,10 +482,10 @@ export function DashboardPage() {
             ) : (
               <button
                 onClick={() => navigate(ROUTES.DISCOVER)}
-                className="flex flex-1 flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-[var(--color-border)] p-4 text-center transition-all duration-300 hover:border-[var(--gold-400)]/30 hover:bg-[var(--gold-400)]/[0.03]"
+                className="flex flex-1 flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-[var(--color-border)] p-4 text-center transition-all duration-300 hover:border-[var(--royal-400)]/30 hover:bg-[var(--royal-400)]/[0.05]"
               >
                 <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-surface-2">
-                  <Sprout className="h-5 w-5 text-gold-400" aria-hidden="true" />
+                  <Sprout className="h-5 w-5 text-sky-400" aria-hidden="true" />
                 </span>
                 <p className="text-sm font-medium text-primary">Not in a Nest yet</p>
                 <p className="text-xs text-muted">Run a match to begin your journey.</p>

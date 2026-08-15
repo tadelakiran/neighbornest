@@ -67,7 +67,7 @@ export function CompatibilityCard({ user, onInvite, onSkip, invited = false, bus
           </span>
           {/* Online indicator */}
           <span
-            className="absolute bottom-1 right-1 h-3.5 w-3.5 rounded-full border-[2.5px] border-deep bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.6)]"
+            className="absolute bottom-1 right-1 h-3.5 w-3.5 rounded-full border-[2.5px] border-deep bg-sky-400 shadow-[0_0_6px_rgba(56,189,248,0.6)]"
             aria-hidden="true"
           />
         </div>

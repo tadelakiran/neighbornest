@@ -151,7 +151,7 @@ export function AddExpenseModal({ open, onClose, nestId, members, onAdded }: Add
                   />
                 </div>
               ))}
-              <p className={cn('text-xs', customValid ? 'text-emerald-400' : 'text-muted')}>
+              <p className={cn('text-xs', customValid ? 'text-sky-400' : 'text-muted')}>
                 Total: {formatCurrency(customTotal)} of {formatCurrency(total)}
               </p>
             </div>

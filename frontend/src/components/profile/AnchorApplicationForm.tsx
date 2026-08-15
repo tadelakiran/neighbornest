@@ -89,38 +89,38 @@ export function AnchorApplicationForm() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <Card className="relative overflow-hidden rounded-2xl border-gold-500/20 p-6">
-          <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-            <LazyImage
-              src={IMAGES.home}
-              alt=""
-              placeholder="shimmer"
-              wrapperClassName="absolute inset-0"
-              className="h-full w-full object-cover opacity-10"
-              loading="lazy"
-            />
-            <div className="absolute inset-0 bg-gradient-to-br from-gold-500/10 via-deep/90 to-deep" />
-            <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-gold-400/10 blur-3xl" />
-            <div className="absolute -left-10 bottom-0 h-32 w-32 rounded-full bg-accent-400/10 blur-2xl" />
-          </div>
-
-          <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center">
-            <motion.span
-              animate={{ rotate: [0, 8, -8, 0] }}
-              transition={{ repeat: Infinity, duration: 6, ease: 'easeInOut' }}
-              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gold-gradient shadow-gold"
-            >
-              <Home className="h-6 w-6 text-white" aria-hidden="true" />
-            </motion.span>
-            <div className="flex-1">
-              <h1 className="font-display text-xl font-bold tracking-tight text-primary">
-                Want to help others feel at home?
-              </h1>
-              <p className="mt-1 text-sm leading-relaxed text-muted">
-                Become an Anchor — a local who hosts and guides newcomers through their first months in the city.
-              </p>
+        <Card className="relative overflow-hidden rounded-2xl border-royal-500/20">
+          {/* Home photo as its own side panel — separate from the text */}
+          <div className="grid items-stretch md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+            <div className="flex flex-col gap-4 p-6 sm:flex-row sm:items-center md:p-8">
+              <motion.span
+                animate={{ rotate: [0, 8, -8, 0] }}
+                transition={{ repeat: Infinity, duration: 6, ease: 'easeInOut' }}
+                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-accent-gradient shadow-glow-sm"
+              >
+                <Home className="h-6 w-6 text-white" aria-hidden="true" />
+              </motion.span>
+              <div className="flex-1">
+                <h1 className="font-display text-xl font-bold tracking-tight text-primary">
+                  Want to help others feel at home?
+                </h1>
+                <p className="mt-1 text-sm leading-relaxed text-muted">
+                  Become an Anchor — a local who hosts and guides newcomers through their first months in the city.
+                </p>
+              </div>
+              <Sparkles className="hidden h-5 w-5 text-royal-300/50 sm:block" aria-hidden="true" />
             </div>
-            <Sparkles className="hidden h-5 w-5 text-gold-300/50 sm:block" aria-hidden="true" />
+
+            <div className="relative h-36 overflow-hidden md:h-auto">
+              <LazyImage
+                src={IMAGES.home}
+                alt=""
+                placeholder="shimmer"
+                className="absolute inset-0 h-full w-full object-cover"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-gradient-to-l from-transparent to-[var(--color-surface)]/30 md:bg-gradient-to-l" />
+            </div>
           </div>
         </Card>
       </motion.div>
@@ -268,10 +268,10 @@ export function AnchorApplicationForm() {
 
 function PendingBadge() {
   return (
-    <span className="inline-flex items-center gap-2 rounded-full border border-amber-400/25 bg-amber-400/10 px-4 py-1.5 text-xs font-bold text-amber-300 shadow-[0_0_12px_rgba(251,191,36,0.1)]">
+    <span className="inline-flex items-center gap-2 rounded-full border border-royal-400/25 bg-royal-400/10 px-4 py-1.5 text-xs font-bold text-royal-300 shadow-[0_0_12px_rgba(59,130,246,0.15)]">
       <span className="relative flex h-2 w-2">
-        <span className="absolute inset-0 animate-ping rounded-full bg-amber-400 opacity-60" />
-        <span className="relative h-2 w-2 rounded-full bg-amber-400" />
+        <span className="absolute inset-0 animate-ping rounded-full bg-royal-400 opacity-60" />
+        <span className="relative h-2 w-2 rounded-full bg-royal-400" />
       </span>
       Pending review
     </span>

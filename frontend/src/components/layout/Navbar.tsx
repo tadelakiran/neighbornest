@@ -3,7 +3,6 @@ import { Compass, LogOut, Menu } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Avatar } from '@/components/ui/Avatar';
 import { NotificationPanel } from '@/components/layout/NotificationPanel';
-import { DarkModeToggle } from '@/components/ui/DarkModeToggle';
 import { useAuth } from '@/hooks/useAuth';
 import { useAuthStore } from '@/stores/authStore';
 import { ROUTES } from '@/lib/constants';
@@ -66,7 +65,6 @@ export function Navbar({ onMenuClick, className = '' }: NavbarProps) {
         {/* Right */}
         <div className="flex items-center gap-2.5">
           {user ? <NotificationPanel /> : null}
-          <DarkModeToggle />
 
           {user ? (
             <div className="flex items-center gap-2 pl-1">

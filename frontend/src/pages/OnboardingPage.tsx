@@ -5,7 +5,6 @@ import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard';
 import { GradientBackground } from '@/components/ui/GradientBackground';
 import { Spinner } from '@/components/ui/Spinner';
 import { BrandLogo } from '@/components/ui/BrandLogo';
-import { DarkModeToggle } from '@/components/ui/DarkModeToggle';
 import { ROUTES } from '@/lib/constants';
 import { userService } from '@/services/userService';
 import { useAuthStore } from '@/stores/authStore';
@@ -47,11 +46,6 @@ export function OnboardingPage() {
   return (
     <div className="relative min-h-screen overflow-hidden bg-[var(--color-bg)] theme-transition">
       <GradientBackground />
-
-      {/* Dark mode toggle — top right */}
-      <div className="absolute right-4 top-4 z-10">
-        <DarkModeToggle variant="icon" />
-      </div>
 
       <div className="relative flex min-h-screen flex-col items-center justify-center px-4 py-10">
         {/* Brand mark */}

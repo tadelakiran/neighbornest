@@ -35,7 +35,7 @@ export function AppLayout() {
       <div className="pointer-events-none fixed inset-0 overflow-hidden" aria-hidden="true">
         <div className="absolute -top-40 left-[15%] h-[500px] w-[600px] rounded-full bg-accent-500/[0.06] blur-[100px]" />
         <div className="absolute right-[10%] top-[20%] h-[400px] w-[500px] rounded-full bg-accent-400/[0.04] blur-[90px]" />
-        <div className="absolute bottom-[-10%] left-[40%] h-[400px] w-[400px] rounded-full bg-gold-400/[0.03] blur-[80px]" />
+        <div className="absolute bottom-[-10%] left-[40%] h-[400px] w-[400px] rounded-full bg-sky-400/[0.06] blur-[80px]" />
         {/* Subtle grid texture */}
         <div
           className="absolute inset-0 opacity-[0.015]"

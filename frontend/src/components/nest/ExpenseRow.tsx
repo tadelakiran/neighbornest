@@ -17,7 +17,7 @@ interface ExpenseRowProps {
 /**
  * A single expense row. Shows the payer, amount and your share with a Settle
  * button that morphs into a checkmark, fires a small confetti burst, and
- * flashes the row emerald when the settlement succeeds.
+ * flashes the row blue when the settlement succeeds.
  */
 export function ExpenseRow({ expense, currentUserId, members, onSettle }: ExpenseRowProps) {
   const payer = members.find((m) => m.userId === expense.payerId);
@@ -58,7 +58,7 @@ export function ExpenseRow({ expense, currentUserId, members, onSettle }: Expens
             animate={{ opacity: [0, 1, 0] }}
             exit={{ opacity: 0 }}
             transition={{ duration: 1.6, ease: 'easeOut' }}
-            className="pointer-events-none absolute inset-0 bg-emerald-500/10"
+            className="pointer-events-none absolute inset-0 bg-sky-500/10"
             aria-hidden="true"
           />
         )}
@@ -80,17 +80,17 @@ export function ExpenseRow({ expense, currentUserId, members, onSettle }: Expens
       {/* Your share + settle */}
       <div className="relative mt-2 flex items-center justify-between pl-11">
         {isPayer && !mySplit ? (
-          <span className="text-xs font-medium text-emerald-400">Paid by you — all set</span>
+          <span className="text-xs font-medium text-sky-400">Paid by you — all set</span>
         ) : mySplit ? (
           settled ? (
-            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-400">
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-sky-400">
               <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
               Paid
             </span>
           ) : isPayer ? (
             <span className="text-xs text-secondary">You paid — settle your share to balance the books</span>
           ) : (
-            <span className="text-xs font-semibold text-rose-400">You owe {formatCurrency(mySplit.amountOwed)}</span>
+            <span className="text-xs font-semibold text-royal-400">You owe {formatCurrency(mySplit.amountOwed)}</span>
           )
         ) : (
           <span className="text-xs text-muted">Not in this split</span>

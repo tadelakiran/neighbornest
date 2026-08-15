@@ -8,18 +8,18 @@ interface NestStatusBadgeProps {
 
 const STATUS_META: Record<NestStatus, { style: string; dot: string; pulse?: boolean }> = {
   ACTIVE: {
-    style: 'border-[var(--success)]/25 bg-[var(--success)]/10 text-[var(--success)] shadow-[0_0_16px_rgba(52,211,153,0.2)]',
+    style: 'border-[var(--success)]/25 bg-[var(--success)]/10 text-[var(--success)] shadow-[0_0_16px_rgba(56,189,248,0.2)]',
     dot: 'bg-[var(--success)]',
     pulse: true,
   },
   VIBE_CHECK: {
-    style: 'border-[var(--warning)]/25 bg-[var(--warning)]/10 text-[var(--warning)] shadow-[0_0_16px_rgba(251,191,36,0.2)]',
+    style: 'border-[var(--warning)]/25 bg-[var(--warning)]/10 text-[var(--warning)] shadow-[0_0_16px_rgba(96,165,250,0.2)]',
     dot: 'bg-[var(--warning)]',
     pulse: true,
   },
   RE_MATCHING: {
-    style: 'border-fuchsia-400/25 bg-fuchsia-400/10 text-fuchsia-300 shadow-[0_0_16px_rgba(232,121,249,0.2)]',
-    dot: 'bg-fuchsia-400',
+    style: 'border-royal-400/25 bg-royal-400/10 text-royal-300 shadow-[0_0_16px_rgba(96,165,250,0.2)]',
+    dot: 'bg-royal-400',
     pulse: true,
   },
   GRADUATED: {

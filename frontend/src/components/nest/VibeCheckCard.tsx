@@ -112,13 +112,13 @@ export function VibeCheckCard({ nest, status, currentUserId, isAnchor, onSubmit,
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-      className="rounded-2xl border-2 border-amber-500/30 bg-deep/70 p-6 shadow-[0_0_32px_rgba(251,191,36,0.12)] backdrop-blur-xl"
+      className="rounded-2xl border-2 border-royal-500/30 bg-deep/70 p-6 shadow-[0_0_32px_rgba(96,165,250,0.15)] backdrop-blur-xl"
     >
       <AnimatePresence mode="wait" initial={false}>
         {phase === 'form' && (
           <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}>
             <h2 className="flex items-center gap-2 font-display text-lg font-bold text-primary">
-              <Heart className="h-5 w-5 text-amber-300" aria-hidden="true" />
+              <Heart className="h-5 w-5 text-royal-300" aria-hidden="true" />
               How’s your Nest feeling?
             </h2>
             <p className="mt-1 text-xs text-secondary">Week 3 check-in — your feedback helps us improve matches.</p>
@@ -143,9 +143,9 @@ export function VibeCheckCard({ nest, status, currentUserId, isAnchor, onSubmit,
         {phase === 'thanks' && (
           <motion.div key="thanks" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, scale: 0.96 }} transition={{ duration: 0.4 }} className="flex flex-col items-center gap-3 py-8 text-center">
             <motion.svg viewBox="0 0 52 52" className="h-16 w-16" aria-hidden="true">
-              <motion.circle cx="26" cy="26" r="24" fill="none" stroke="#34d399" strokeWidth="3" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.5, ease: 'easeOut' }} />
+              <motion.circle cx="26" cy="26" r="24" fill="none" stroke="#38bdf8" strokeWidth="3" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.5, ease: 'easeOut' }} />
               <motion.path
-                fill="none" stroke="#34d399" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"
+                fill="none" stroke="#38bdf8" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"
                 d="M14 27l8 8 16-16"
                 initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: 0.4, duration: 0.35, ease: 'easeOut' }}
               />
@@ -158,7 +158,7 @@ export function VibeCheckCard({ nest, status, currentUserId, isAnchor, onSubmit,
         {phase === 'preview' && (
           <motion.div key="preview" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.35 }}>
             <h2 className="flex items-center gap-2 font-display text-lg font-bold text-primary">
-              <CheckCircle2 className="h-5 w-5 text-emerald-400" aria-hidden="true" />
+              <CheckCircle2 className="h-5 w-5 text-sky-400" aria-hidden="true" />
               Thanks for checking in!
             </h2>
             <p className="mt-1 text-xs text-secondary">Your Nest’s pulse, at a glance.</p>

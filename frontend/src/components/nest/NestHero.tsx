@@ -8,7 +8,7 @@ import type { NestResponse, NestStatus } from '@/types/nest.types';
 const BADGE_STYLES: Record<NestStatus, { chip: string; dot: string; ping: boolean; slow: boolean }> = {
   ACTIVE: { chip: 'border-[var(--success)]/30 bg-[var(--success)]/20 text-[var(--success)]', dot: 'bg-[var(--success)]', ping: true, slow: false },
   VIBE_CHECK: { chip: 'border-[var(--warning)]/30 bg-[var(--warning)]/20 text-[var(--warning)]', dot: 'bg-[var(--warning)]', ping: false, slow: true },
-  GRADUATED: { chip: 'border-[var(--gold-500)]/40 bg-[var(--gold-500)]/20 text-[var(--gold-300)] shadow-glow', dot: 'bg-[var(--gold-400)]', ping: false, slow: false },
+  GRADUATED: { chip: 'border-[var(--royal-500)]/40 bg-[var(--royal-500)]/20 text-[var(--royal-300)] shadow-glow', dot: 'bg-[var(--royal-400)]', ping: false, slow: false },
   FORMING: { chip: 'border-[var(--color-border)] bg-[var(--color-raised)]/40 text-[var(--text-secondary)]', dot: 'bg-[var(--text-muted)]', ping: false, slow: false },
   RE_MATCHING: { chip: 'border-[var(--accent-400)]/30 bg-[var(--accent-400)]/20 text-[var(--accent-300)]', dot: 'bg-[var(--accent-400)]', ping: false, slow: true },
   DISBANDED: { chip: 'border-[var(--error)]/30 bg-[var(--error)]/20 text-[var(--error)]', dot: 'bg-[var(--error)]', ping: false, slow: false },
@@ -118,10 +118,10 @@ export function NestHero({ nest }: { nest: NestResponse }) {
         >
           {graduated ? (
             <>
-              <span className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-gold-gradient shadow-glow">
+              <span className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-accent-gradient shadow-glow">
                 <Trophy className="h-5 w-5 text-white" aria-hidden="true" />
               </span>
-              <p className="mt-2 font-display text-lg font-bold text-gold-300">Graduated!</p>
+              <p className="mt-2 font-display text-lg font-bold text-royal-300">Graduated!</p>
               <p className="text-xs text-muted">Your Nest journey is complete</p>
             </>
           ) : (

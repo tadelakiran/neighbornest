@@ -125,6 +125,18 @@ class OtpServiceTest {
         }
 
         @Test
+        @DisplayName("Should fail the request when the email could not be delivered")
+        void shouldThrowWhenEmailDeliveryFails() {
+            when(otpRepository.findTopByEmailAndPurposeAndVerifiedAtIsNullOrderByCreatedAtDesc(anyString(), any()))
+                    .thenReturn(Optional.empty());
+            when(emailService.sendTemplate(anyString(), anyString(), anyString(), anyMap())).thenReturn(false);
+
+            assertThatThrownBy(() -> otpService.sendOtp(EMAIL, OtpPurpose.EMAIL_VERIFICATION))
+                    .isInstanceOf(BadRequestException.class)
+                    .hasMessageContaining("couldn't send the verification code");
+        }
+
+        @Test
         @DisplayName("Should retire superseded pending codes before issuing a new one")
         void shouldRetireOldPendingCodes() {
             when(otpRepository.findTopByEmailAndPurposeAndVerifiedAtIsNullOrderByCreatedAtDesc(anyString(), any()))

@@ -120,9 +120,9 @@ export function ProfilePage() {
       {anchorApp ? (
         <AnchorStatusBanner application={anchorApp} />
       ) : profile.role === 'NEWCOMER' ? (
-        <Card className="flex flex-col gap-4 border-[var(--gold-500)]/25 bg-gradient-to-r from-[var(--gold-500)]/15 to-transparent p-5 sm:flex-row sm:items-center">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-[var(--gold-400)]/15">
-            <Home className="h-5 w-5 text-[var(--gold-300)]" aria-hidden="true" />
+        <Card className="flex flex-col gap-4 border-[var(--royal-500)]/25 bg-gradient-to-r from-[var(--royal-500)]/15 to-transparent p-5 sm:flex-row sm:items-center">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-[var(--royal-400)]/15">
+            <Home className="h-5 w-5 text-[var(--royal-300)]" aria-hidden="true" />
           </span>
           <div className="flex-1">
             <p className="text-sm font-semibold text-[var(--text-primary)]">

@@ -69,8 +69,8 @@ export function ProposalCard({ proposal, onAccept, onDecline, busy = false, clas
       <div className="relative mt-6 flex flex-wrap items-center justify-between gap-4">
         <MemberAvatarStack members={proposal.members} max={5} size="md" />
         {anchor && (
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/20 bg-amber-400/10 px-3 py-1.5 text-xs font-semibold text-amber-300">
-            <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" aria-hidden="true" />
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-sky-400/20 bg-sky-400/10 px-3 py-1.5 text-xs font-semibold text-sky-300">
+            <Star className="h-3.5 w-3.5 fill-sky-400 text-sky-400" aria-hidden="true" />
             {anchor.fullName || 'Anchor'}
           </span>
         )}
