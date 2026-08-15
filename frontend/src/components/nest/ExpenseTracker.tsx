@@ -59,8 +59,8 @@ export function ExpenseTracker({ expenses, members, currentUserId, onAdd, onSett
       <div
         className={cn(
           'mb-4 flex items-center gap-2.5 rounded-xl border px-4 py-3 text-sm font-semibold',
-          net > 0.005 && 'border-emerald-500/25 bg-emerald-500/10 text-emerald-300',
-          net < -0.005 && 'border-rose-500/25 bg-rose-500/10 text-rose-300',
+          net > 0.005 && 'border-sky-500/25 bg-sky-500/10 text-sky-300',
+          net < -0.005 && 'border-royal-500/25 bg-royal-500/10 text-royal-300',
           net >= -0.005 && net <= 0.005 && 'border-accent-400/25 bg-accent-400/10 text-accent-300'
         )}
       >

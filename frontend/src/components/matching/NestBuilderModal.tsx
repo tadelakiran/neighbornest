@@ -127,15 +127,15 @@ export function NestBuilderModal({
             <div className="flex items-center gap-2 text-sm">
               <Users className="h-4 w-4 text-muted" />
               <span className="text-secondary">
-                <span className={cn('font-bold', total >= MIN_TOTAL ? 'text-primary' : 'text-amber-400')}>
+                <span className={cn('font-bold', total >= MIN_TOTAL ? 'text-primary' : 'text-royal-400')}>
                   {total}
                 </span>
                 <span className="text-muted"> / {MAX_TOTAL}</span>
               </span>
             </div>
             <div className="flex items-center gap-2 text-sm">
-              <Crown className={cn('h-4 w-4', anchorCount >= MIN_ANCHORS ? 'text-amber-400' : 'text-muted')} />
-              <span className={cn('font-bold', anchorCount >= MIN_ANCHORS ? 'text-primary' : 'text-amber-400')}>
+              <Crown className={cn('h-4 w-4', anchorCount >= MIN_ANCHORS ? 'text-royal-400' : 'text-muted')} />
+              <span className={cn('font-bold', anchorCount >= MIN_ANCHORS ? 'text-primary' : 'text-royal-400')}>
                 {anchorCount}
               </span>
               <span className="text-muted"> Anchor{anchorCount === 1 ? '' : 's'}</span>
@@ -150,7 +150,7 @@ export function NestBuilderModal({
                 initial={{ opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 4 }}
-                className="flex items-center gap-1.5 text-xs text-amber-400"
+                className="flex items-center gap-1.5 text-xs text-royal-400"
               >
                 <AlertCircle className="h-3.5 w-3.5" />
                 Invite {missingToMin} more from Discover to reach {MIN_TOTAL}.
@@ -161,7 +161,7 @@ export function NestBuilderModal({
                 initial={{ opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 4 }}
-                className="flex items-center gap-1.5 text-xs text-amber-400"
+                className="flex items-center gap-1.5 text-xs text-royal-400"
               >
                 <AlertCircle className="h-3.5 w-3.5" />
                 {anchorHint}.
@@ -172,7 +172,7 @@ export function NestBuilderModal({
                 initial={{ opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 4 }}
-                className="flex items-center gap-1.5 text-xs text-emerald-400"
+                className="flex items-center gap-1.5 text-xs text-sky-400"
               >
                 <Check className="h-3.5 w-3.5" />
                 Ready — everyone will get an invitation.
@@ -214,7 +214,7 @@ function MemberRow({
       className={cn(
         'flex items-center gap-3 rounded-xl border px-3.5 py-2.5 transition-all duration-200',
         isAnchor
-          ? 'border-amber-400/30 bg-amber-400/[0.08] shadow-[0_0_12px_rgba(251,191,36,0.08)]'
+          ? 'border-royal-400/30 bg-royal-400/[0.08] shadow-[0_0_12px_rgba(96,165,250,0.1)]'
           : 'border-[var(--color-border)] bg-[var(--color-surface)]/40 hover:bg-[var(--color-surface)]/70'
       )}
     >
@@ -233,11 +233,11 @@ function MemberRow({
         className={cn(
           'flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-all duration-200',
           isAnchor
-            ? 'border-amber-400/40 bg-amber-400/15 text-amber-300 shadow-[0_0_8px_rgba(251,191,36,0.15)]'
+            ? 'border-royal-400/40 bg-royal-400/15 text-royal-300 shadow-[0_0_8px_rgba(96,165,250,0.15)]'
             : 'border-[var(--color-border)] text-[var(--text-muted)] hover:border-[var(--warning)]/25 hover:text-[var(--text-secondary)]'
         )}
       >
-        <Crown className={cn('h-3.5 w-3.5 transition-colors', isAnchor && 'fill-amber-400 text-amber-400')} />
+        <Crown className={cn('h-3.5 w-3.5 transition-colors', isAnchor && 'fill-royal-400 text-royal-400')} />
         {isAnchor ? 'Anchor' : 'Anchor?'}
       </motion.button>
     </div>

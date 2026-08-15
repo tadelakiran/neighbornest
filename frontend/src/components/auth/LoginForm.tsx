@@ -41,7 +41,7 @@ export function LoginForm() {
   });
 
   return (
-    <form onSubmit={onSubmit} className="relative space-y-5" noValidate>
+    <form onSubmit={onSubmit} className="relative space-y-4" noValidate>
       <motion.div
         initial={{ opacity: 0, x: -8 }}
         animate={{ opacity: 1, x: 0 }}

@@ -30,11 +30,11 @@ const POLL_MS = 30_000;
 
 const TYPE_META: Record<NotificationType, { icon: LucideIcon; accent: string }> = {
   NEST_CREATED:     { icon: Home, accent: 'text-[var(--success)] bg-[var(--success)]/10 border-[var(--success)]/20' },
-  NEST_GRADUATED:   { icon: GraduationCap, accent: 'text-gold-400 bg-gold-400/10 border-gold-400/20' },
+  NEST_GRADUATED:   { icon: GraduationCap, accent: 'text-sky-300 bg-sky-300/10 border-sky-300/20' },
   NEST_DISBANDED:   { icon: XCircle, accent: 'text-[var(--error)] bg-[var(--error)]/10 border-[var(--error)]/20' },
   MEETING_REMINDER: { icon: CalendarClock, accent: 'text-accent-400 bg-accent-400/10 border-accent-400/20' },
-  EXPENSE_SPLIT:    { icon: Wallet, accent: 'text-violet-400 bg-violet-400/10 border-violet-400/20' },
-  VIBE_CHECK_DUE:   { icon: HeartPulse, accent: 'text-pink-400 bg-pink-400/10 border-pink-400/20' },
+  EXPENSE_SPLIT:    { icon: Wallet, accent: 'text-royal-400 bg-royal-400/10 border-royal-400/20' },
+  VIBE_CHECK_DUE:   { icon: HeartPulse, accent: 'text-sky-400 bg-sky-400/10 border-sky-400/20' },
   CHAT_MESSAGE:     { icon: MessageSquare, accent: 'text-sky-400 bg-sky-400/10 border-sky-400/20' },
   ANCHOR_APPLICATION:{ icon: BadgeCheck, accent: 'text-[var(--warning)] bg-[var(--warning)]/10 border-[var(--warning)]/20' },
   SYSTEM:           { icon: BellRing, accent: 'text-[var(--text-muted)] bg-[var(--color-raised)]/40 border-[var(--color-border)]' },

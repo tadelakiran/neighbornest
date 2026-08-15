@@ -50,7 +50,7 @@ export function GraduationTracker({ nest, hasMeetings }: GraduationTrackerProps)
   return (
     <section className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-deep)]/60 p-6 backdrop-blur-xl">
       <h2 className="mb-5 flex items-center gap-2 font-display text-lg font-bold text-primary">
-        <Trophy className="h-5 w-5 text-[var(--gold-300)]" aria-hidden="true" />
+        <Trophy className="h-5 w-5 text-[var(--royal-300)]" aria-hidden="true" />
         Your Nest Journey
       </h2>
       <Timeline steps={buildSteps(nest, hasMeetings)} />

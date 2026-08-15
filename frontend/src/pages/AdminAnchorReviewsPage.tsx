@@ -263,7 +263,7 @@ export function AdminAnchorReviewsPage() {
                 </div>
                 <div className={cn(
                   'flex h-10 w-10 items-center justify-center rounded-xl',
-                  reviewDecision === 'APPROVE' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'
+                  reviewDecision === 'APPROVE' ? 'bg-sky-500/10 text-sky-400' : 'bg-royal-500/10 text-royal-400'
                 )}>
                   {reviewDecision === 'APPROVE' ? (
                     <BadgeCheck className="h-5 w-5" />
@@ -295,8 +295,8 @@ export function AdminAnchorReviewsPage() {
               <div className={cn(
                 'rounded-xl border p-4 text-xs leading-relaxed',
                 reviewDecision === 'APPROVE' 
-                  ? 'border-emerald-500/20 bg-emerald-500/5 text-emerald-300/80'
-                  : 'border-rose-500/20 bg-rose-500/5 text-rose-300/80'
+                  ? 'border-sky-500/20 bg-sky-500/5 text-sky-300/80'
+                  : 'border-royal-500/20 bg-royal-500/5 text-royal-300/80'
               )}>
                 {reviewDecision === 'APPROVE'
                   ? 'This action will immediately upgrade the applicant to the ANCHOR role and grant them access to Nest management features.'
@@ -319,8 +319,8 @@ export function AdminAnchorReviewsPage() {
                   className={cn(
                     'rounded-xl px-6',
                     reviewDecision === 'APPROVE' 
-                      ? 'bg-emerald-500/90 text-white hover:bg-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.2)]'
-                      : 'bg-rose-500/90 text-white hover:bg-rose-500 shadow-[0_0_20px_rgba(244,63,94,0.2)]'
+                      ? 'bg-sky-500/90 text-white hover:bg-sky-500 shadow-[0_0_20px_rgba(14,165,233,0.2)]'
+                      : 'bg-royal-600/90 text-white hover:bg-royal-600 shadow-[0_0_20px_rgba(37,99,235,0.2)]'
                   )}
                 >
                   {submitting ? 'Saving…' : reviewDecision === 'APPROVE' ? 'Approve & Promote' : 'Reject Application'}
@@ -422,7 +422,7 @@ function ApplicationCard({
             <Button 
               size="sm" 
               onClick={onApprove}
-              className="group/btn rounded-xl bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/20 hover:bg-emerald-500 hover:text-white hover:shadow-[0_0_16px_rgba(16,185,129,0.3)] transition-all duration-300"
+              className="group/btn rounded-xl bg-sky-500/10 text-sky-400 ring-1 ring-sky-500/20 hover:bg-sky-500 hover:text-white hover:shadow-[0_0_16px_rgba(14,165,233,0.3)] transition-all duration-300"
             >
               <BadgeCheck className="mr-1.5 h-4 w-4" />
               Approve
@@ -431,7 +431,7 @@ function ApplicationCard({
               size="sm" 
               variant="outline" 
               onClick={onReject}
-              className="rounded-xl border-rose-500/20 text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 transition-all duration-300"
+              className="rounded-xl border-royal-500/20 text-royal-400 hover:bg-royal-500/10 hover:text-royal-300 transition-all duration-300"
             >
               <XCircle className="mr-1.5 h-4 w-4" />
               Reject
@@ -446,15 +446,15 @@ function ApplicationCard({
 function StatusBadge({ status }: { status: AnchorApplication['status'] }) {
   const config = {
     PENDING: {
-      className: 'border-amber-500/20 bg-amber-500/10 text-amber-400',
-      icon: <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-400" />,
+      className: 'border-warning/30 bg-warning/10 text-warning',
+      icon: <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-warning" />,
     },
     APPROVED: {
-      className: 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400',
+      className: 'border-sky-500/20 bg-sky-500/10 text-sky-400',
       icon: <BadgeCheck className="h-3 w-3" />,
     },
     REJECTED: {
-      className: 'border-rose-500/20 bg-rose-500/10 text-rose-400',
+      className: 'border-royal-500/20 bg-royal-500/10 text-royal-400',
       icon: <XCircle className="h-3 w-3" />,
     },
   };

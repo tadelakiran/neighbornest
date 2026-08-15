@@ -145,7 +145,7 @@ export function ForgotPasswordForm() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -12 }}
             transition={{ duration: 0.25 }}
-            className="space-y-5"
+            className="space-y-4"
             noValidate
           >
             <div className="text-center">
@@ -165,7 +165,7 @@ export function ForgotPasswordForm() {
               autoComplete="email"
               icon={<Mail className="h-4 w-4 text-muted" aria-hidden="true" />}
               error={emailForm.formState.errors.email?.message}
-              className="h-12 rounded-xl border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--text-primary)] shadow-sm transition-all duration-200 focus-within:border-[var(--accent-400)]/50 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.12)]"
+              className="h-11 rounded-xl border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--text-primary)] shadow-sm transition-all duration-200 focus-within:border-[var(--accent-400)]/50 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.12)]"
               {...emailForm.register('email')}
             />
 
@@ -175,7 +175,7 @@ export function ForgotPasswordForm() {
               size="lg"
               fullWidth
               isLoading={emailForm.formState.isSubmitting}
-              className="h-12 rounded-xl shadow-glow"
+              className="h-11 rounded-xl shadow-glow"
               rightIcon={<ArrowRight className="h-4 w-4" aria-hidden="true" />}
             >
               Send reset code
@@ -199,7 +199,7 @@ export function ForgotPasswordForm() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 12 }}
             transition={{ duration: 0.25 }}
-            className="space-y-5"
+            className="space-y-4"
             noValidate
           >
             <div className="text-center">
@@ -236,7 +236,7 @@ export function ForgotPasswordForm() {
               autoComplete="new-password"
               icon={<Lock className="h-4 w-4 text-muted" aria-hidden="true" />}
               error={resetForm.formState.errors.newPassword?.message}
-              className="h-12 rounded-xl border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--text-primary)] shadow-sm transition-all duration-200 focus-within:border-[var(--accent-400)]/50 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.12)]"
+              className="h-11 rounded-xl border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--text-primary)] shadow-sm transition-all duration-200 focus-within:border-[var(--accent-400)]/50 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.12)]"
               trailing={
                 <motion.button
                   type="button"
@@ -261,7 +261,7 @@ export function ForgotPasswordForm() {
               autoComplete="new-password"
               icon={<Lock className="h-4 w-4 text-muted" aria-hidden="true" />}
               error={resetForm.formState.errors.confirmPassword?.message}
-              className="h-12 rounded-xl border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--text-primary)] shadow-sm transition-all duration-200 focus-within:border-[var(--accent-400)]/50 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.12)]"
+              className="h-11 rounded-xl border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--text-primary)] shadow-sm transition-all duration-200 focus-within:border-[var(--accent-400)]/50 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.12)]"
               {...resetForm.register('confirmPassword')}
             />
 
@@ -272,7 +272,7 @@ export function ForgotPasswordForm() {
               fullWidth
               isLoading={isSubmitting}
               disabled={otp.length !== 6}
-              className="h-12 rounded-xl shadow-glow"
+              className="h-11 rounded-xl shadow-glow"
               rightIcon={<ArrowRight className="h-4 w-4" aria-hidden="true" />}
             >
               Update password
@@ -292,9 +292,9 @@ export function ForgotPasswordForm() {
               initial={{ scale: 0.5, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ type: 'spring', stiffness: 260, damping: 18, delay: 0.1 }}
-              className="mb-5 flex h-16 w-16 items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-400/15 shadow-[0_0_24px_rgba(52,211,153,0.25)]"
+              className="mb-5 flex h-16 w-16 items-center justify-center rounded-full border border-sky-400/40 bg-sky-400/15 shadow-[0_0_24px_rgba(56,189,248,0.25)]"
             >
-              <CheckCircle2 className="h-8 w-8 text-emerald-400" aria-hidden="true" />
+              <CheckCircle2 className="h-8 w-8 text-sky-400" aria-hidden="true" />
             </motion.div>
             <h3 className="font-display text-xl font-bold text-primary">Password updated</h3>
             <p className="mx-auto mt-2 max-w-xs text-sm leading-relaxed text-muted">

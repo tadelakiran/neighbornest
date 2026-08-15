@@ -2,7 +2,7 @@ import { Compass } from 'lucide-react';
 
 /**
  * Full-page loading state shown while lazy route chunks download.
- * Branded Blue Dynasty loader: logo mark, animated indeterminate bar,
+ * Branded Azure Dynasty loader: logo mark, animated indeterminate bar,
  * and a subtle pulse — consistent with the index.html splash screen.
  */
 export function PageLoader() {

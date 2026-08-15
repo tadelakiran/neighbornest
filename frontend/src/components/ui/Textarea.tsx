@@ -8,7 +8,7 @@ interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
 }
 
 /**
- * Blue Dynasty multiline textarea with label, error/hint text, and an accent
+ * Azure Dynasty multiline textarea with label, error/hint text, and an accent
  * focus ring. Forwards its ref so react-hook-form `register` works out of the box.
  */
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function Textarea(

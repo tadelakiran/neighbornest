@@ -80,3 +80,28 @@ frontend (Register → "send code") or hit
 `POST /api/notifications/internal/email/welcome` (guarded by
 `X-Internal-Key`). Delivery logs appear in the notification-service at INFO.
 EmailJS rate limit is **1 request/second**.
+
+## Troubleshooting
+
+Watch the notification-service logs (`docker logs neighbornest-notification`)
+for the EmailJS response:
+
+- **`422 Unprocessable Entity: "The recipients address is empty"`** — the
+  template's **To Email** field is empty or not bound to the param the app
+  sends. Open the template in the EmailJS dashboard → **Settings** tab and set
+  **To Email** to `{{to_email}}` (the app always sends `to_email` in
+  `template_params`).
+- **`The template ID not found`** — the template id in `application.yml`
+  (`emailjs.templates.*`) does not match any template in the account. Create
+  the template in the dashboard and copy its real id into the config (or
+  update the `EMAILJS_TEMPLATE_*` env var in `backend/.env` / docker-compose).
+- **`API access from non-browser environments is currently disabled`** — the
+  account's "Allow API access from non-browser environments" toggle in
+  EmailJS **Account → Security** is off. The service sends browser-looking
+  `Origin`/`Referer` headers as a workaround, but turning the toggle on is the
+  proper fix.
+
+Since the notification-service now **fails the OTP request** when EmailJS
+rejects it (no more phantom "code sent" success), a broken template surfaces
+as `400 We couldn't send the verification code. Please try again in a moment.`
+in the registration UI — the log line above tells you which template to fix.

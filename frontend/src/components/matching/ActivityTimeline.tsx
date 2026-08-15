@@ -18,9 +18,9 @@ interface ActivityTimelineProps {
 }
 
 const CATEGORY_META: Record<TimelineCategory, { icon: LucideIcon; accent: string; glow: string }> = {
-  nest:     { icon: Home,        accent: 'text-[var(--success)] bg-[var(--success)]/10 border-[var(--success)]/25', glow: 'shadow-[0_0_12px_rgba(52,211,153,0.25)]' },
-  proposal: { icon: Handshake,   accent: 'text-[var(--warning)] bg-[var(--warning)]/10 border-[var(--warning)]/25',       glow: 'shadow-[0_0_12px_rgba(251,191,36,0.25)]' },
-  meeting:  { icon: CalendarDays, accent: 'text-violet-400 bg-violet-400/10 border-violet-400/25',  glow: 'shadow-[0_0_12px_rgba(167,139,250,0.25)]' },
+  nest:     { icon: Home,        accent: 'text-[var(--success)] bg-[var(--success)]/10 border-[var(--success)]/25', glow: 'shadow-[0_0_12px_rgba(56,189,248,0.25)]' },
+  proposal: { icon: Handshake,   accent: 'text-[var(--warning)] bg-[var(--warning)]/10 border-[var(--warning)]/25',       glow: 'shadow-[0_0_12px_rgba(96,165,250,0.25)]' },
+  meeting:  { icon: CalendarDays, accent: 'text-royal-400 bg-royal-400/10 border-royal-400/25',  glow: 'shadow-[0_0_12px_rgba(96,165,250,0.25)]' },
   system:   { icon: Sparkles,    accent: 'text-accent-400 bg-accent-400/10 border-accent-400/25',   glow: 'shadow-[0_0_12px_rgba(14,165,233,0.3)]' },
 };
 

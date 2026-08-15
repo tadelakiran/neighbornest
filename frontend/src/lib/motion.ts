@@ -2,7 +2,7 @@ import type { Variants } from 'framer-motion';
 
 /**
  * Shared Framer Motion variants used across the onboarding wizard and profile
- * module so every screen animates consistently (Blue Dynasty spec).
+ * module so every screen animates consistently (Azure Dynasty spec).
  */
 
 /** Ease-out-expo curve used for page transitions. */

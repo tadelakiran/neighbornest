@@ -93,10 +93,10 @@ app:
 emailjs:
   public-key: ${EMAILJS_PUBLIC_KEY:ZgCz14aXMuiPcMgHp}
   private-key: ${EMAILJS_PRIVATE_KEY:0F-beqBI2TQuefr07BHDQ}
-  service-id: ${EMAILJS_SERVICE_ID:service_tcw88r9}
+  service-id: ${EMAILJS_SERVICE_ID:service_4vc38of}
   templates:
-    otp-verification: ${EMAILJS_TEMPLATE_OTP_VERIFICATION:template_ab5ej2h}
-    password-reset: ${EMAILJS_TEMPLATE_PASSWORD_RESET:template_c4rrzz8}
+    otp-verification: ${EMAILJS_TEMPLATE_OTP_VERIFICATION:template_oz4a8gc}
+    password-reset: ${EMAILJS_TEMPLATE_PASSWORD_RESET:template_tfu0p8c}
     welcome: ${EMAILJS_TEMPLATE_WELCOME:}
     nest-welcome: ${EMAILJS_TEMPLATE_NEST_WELCOME:}
     nest-graduate: ${EMAILJS_TEMPLATE_NEST_GRADUATE:}

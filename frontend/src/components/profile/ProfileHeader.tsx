@@ -32,7 +32,7 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
         />
         <div
           className="absolute inset-0 opacity-30"
-          style={{ background: 'radial-gradient(circle at 20% 80%, rgba(251,191,36,0.3) 0%, transparent 50%)' }}
+          style={{ background: 'radial-gradient(circle at 20% 80%, rgba(59,130,246,0.3) 0%, transparent 50%)' }}
         />
         <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-deep to-transparent" />
       </div>
@@ -53,7 +53,7 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
   className="relative h-20 w-20 ring-[3px] ring-deep"
 />
           {profile.role === 'ANCHOR' && (
-            <span className="absolute -right-1 -top-1 flex h-7 w-7 items-center justify-center rounded-full border-2 border-deep bg-emerald-500 shadow-lg">
+            <span className="absolute -right-1 -top-1 flex h-7 w-7 items-center justify-center rounded-full border-2 border-deep bg-sky-500 shadow-lg">
               <Shield className="h-3.5 w-3.5 text-white" aria-hidden="true" />
             </span>
           )}
@@ -70,8 +70,8 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
             variant={meta.variant}
             className={cn(
               'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wider',
-              profile.role === 'ANCHOR' && 'border-[var(--success)]/25 bg-[var(--success)]/10 text-[var(--success)] shadow-[0_0_12px_rgba(52,211,153,0.15)]',
-              profile.role === 'ADMIN' && 'border-[var(--warning)]/25 bg-[var(--warning)]/10 text-[var(--warning)] shadow-[0_0_12px_rgba(251,191,36,0.15)]'
+              profile.role === 'ANCHOR' && 'border-[var(--success)]/25 bg-[var(--success)]/10 text-[var(--success)] shadow-[0_0_12px_rgba(56,189,248,0.15)]',
+              profile.role === 'ADMIN' && 'border-[var(--warning)]/25 bg-[var(--warning)]/10 text-[var(--warning)] shadow-[0_0_12px_rgba(96,165,250,0.15)]'
             )}
           >
             <meta.icon className={cn('h-3 w-3', meta.accent)} aria-hidden="true" />

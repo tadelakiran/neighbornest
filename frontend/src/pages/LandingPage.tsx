@@ -74,7 +74,7 @@ export function LandingPage() {
         aria-hidden="true"
       />
       <div
-        className="pointer-events-none absolute right-[8%] top-[30%] h-[420px] w-[420px] rounded-full bg-[var(--gold-400)]/[0.06] blur-3xl"
+        className="pointer-events-none absolute right-[8%] top-[30%] h-[420px] w-[420px] rounded-full bg-[var(--royal-400)]/[0.08] blur-3xl"
         aria-hidden="true"
       />
 
@@ -96,14 +96,14 @@ export function LandingPage() {
       </header>
 
       {/* ── Hero ── */}
-      <section className="relative z-10 mx-auto grid max-w-7xl items-center gap-12 px-6 pb-20 pt-8 lg:grid-cols-2 lg:px-8 lg:pt-14">
+      <section className="relative z-10 mx-auto grid max-w-7xl items-center gap-10 px-6 pb-16 pt-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)] lg:gap-14 lg:px-8 lg:pt-12">
         <motion.div variants={staggerContainer} initial="hidden" animate="show">
           <motion.span
             variants={cardRise}
-            className="inline-flex items-center gap-1.5 rounded-full border border-[var(--gold-500)]/30 bg-[var(--gold-500)]/10 px-3 py-1.5 text-xs font-semibold text-[var(--gold-300)]"
+            className="inline-flex items-center gap-1.5 rounded-full border border-[var(--royal-500)]/30 bg-[var(--royal-500)]/10 px-3 py-1.5 text-xs font-semibold text-[var(--royal-300)]"
           >
             <Star
-              className="h-3.5 w-3.5 fill-[var(--gold-400)] text-[var(--gold-400)]"
+              className="h-3.5 w-3.5 fill-[var(--royal-400)] text-[var(--royal-400)]"
               aria-hidden="true"
             />
             New to the city? You&apos;re in the right place.
@@ -114,7 +114,7 @@ export function LandingPage() {
             className="mt-5 font-['Space_Grotesk'] text-4xl font-bold leading-[1.08] tracking-tight text-[var(--text-primary)] sm:text-5xl lg:text-6xl"
           >
             Find your people in a <span className="text-gradient">new city</span>
-            <span className="text-[var(--gold-400)]">.</span>
+            <span className="text-[var(--royal-400)]">.</span>
           </motion.h1>
 
           <motion.p
@@ -145,7 +145,7 @@ export function LandingPage() {
                 <dt className="order-last text-xs uppercase tracking-widest text-[var(--text-muted)]">
                   {stat.label}
                 </dt>
-                <dd className="order-first font-['Space_Grotesk'] text-2xl font-bold text-gradient-gold">
+                <dd className="order-first font-['Space_Grotesk'] text-2xl font-bold text-gradient">
                   {stat.value}
                 </dd>
               </div>
@@ -153,13 +153,14 @@ export function LandingPage() {
           </motion.dl>
         </motion.div>
 
-        {/* Hero image collage */}
+        {/* Hero images — compact, clean, fully above the fold */}
         <motion.div
           initial={{ opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="relative mx-auto w-full max-w-lg"
+          className="relative mx-auto w-full max-w-sm xl:max-w-md"
         >
+          {/* Main photo */}
           <div className="relative overflow-hidden rounded-[var(--radius-xl)] border border-[var(--text-primary)]/[0.08] shadow-[var(--shadow-xl)]">
             <LazyImage
               src={IMAGES.community}
@@ -169,49 +170,38 @@ export function LandingPage() {
               className="h-full w-full object-cover"
               loading="eager"
             />
-            <div
-              className="absolute inset-0 bg-gradient-to-t from-[var(--color-bg)]/60 via-transparent to-transparent"
-              aria-hidden="true"
-            />
           </div>
 
-          {/* Floating accent cards */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.35, duration: 0.6 }}
-            className="absolute -left-6 top-8 hidden w-40 overflow-hidden rounded-2xl border border-[var(--text-primary)]/[0.08] shadow-[var(--shadow-lg)] sm:block"
-          >
-            <LazyImage
-              src={IMAGES.coffee}
-              alt="Coffee shop meetup"
-              aspectRatio="4/3"
-              placeholder="blur"
-              className="h-full w-full object-cover"
-            />
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.6 }}
-            className="absolute -right-4 bottom-10 hidden w-44 overflow-hidden rounded-2xl border border-[var(--text-primary)]/[0.08] shadow-[var(--shadow-lg)] sm:block"
-          >
-            <LazyImage
-              src={IMAGES.park}
-              alt="Group of friends outdoors"
-              aspectRatio="4/3"
-              placeholder="blur"
-              className="h-full w-full object-cover"
-            />
-          </motion.div>
+          {/* Two accent photos — side by side, below, fully separated */}
+          <div className="mt-3 grid grid-cols-2 gap-3">
+            <div className="overflow-hidden rounded-2xl border border-[var(--text-primary)]/[0.08] shadow-[var(--shadow-md)]">
+              <LazyImage
+                src={IMAGES.coffee}
+                alt="Coffee shop meetup"
+                aspectRatio="4/3"
+                placeholder="blur"
+                className="h-full w-full object-cover"
+              />
+            </div>
+            <div className="overflow-hidden rounded-2xl border border-[var(--text-primary)]/[0.08] shadow-[var(--shadow-md)]">
+              <LazyImage
+                src={IMAGES.park}
+                alt="Group of friends outdoors"
+                aspectRatio="4/3"
+                placeholder="blur"
+                className="h-full w-full object-cover"
+              />
+            </div>
+          </div>
 
+          {/* Info badge — separate compact strip below */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.6, type: 'spring', stiffness: 300, damping: 18 }}
-            className="absolute -bottom-4 left-8 flex items-center gap-2.5 rounded-2xl border border-[var(--text-primary)]/[0.08] bg-[var(--color-deep)]/85 px-4 py-3 shadow-[var(--shadow-lg)] backdrop-blur-xl"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.6 }}
+            className="mt-3 flex items-center gap-2.5 rounded-2xl border border-[var(--text-primary)]/[0.08] bg-[var(--color-deep)]/85 px-3.5 py-2.5 shadow-[var(--shadow-md)] backdrop-blur-xl"
           >
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gold-gradient shadow-glow-sm">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent-gradient shadow-glow-sm">
               <MapPin className="h-4 w-4 text-white" aria-hidden="true" />
             </span>
             <div>
@@ -233,7 +223,7 @@ export function LandingPage() {
         >
           <motion.p
             variants={cardRise}
-            className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--gold-400)]"
+            className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--royal-400)]"
           >
             How it works
           </motion.p>
@@ -256,28 +246,30 @@ export function LandingPage() {
             <motion.article
               key={title}
               variants={cardRise}
-              className="group relative overflow-hidden rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-deep)]/60 p-6 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-lg)]"
+              className="group relative overflow-hidden rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-surface)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-lg)]"
             >
-              <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+              {/* Photo as its own banner — separate from the text below */}
+              <div className="relative h-40 overflow-hidden">
                 <LazyImage
                   src={image}
                   alt=""
                   placeholder="shimmer"
-                  wrapperClassName="absolute inset-0"
-                  className="h-full w-full object-cover opacity-10 transition-transform duration-700 group-hover:scale-105"
+                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[var(--color-deep)]/90" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-surface)]/60 to-transparent" />
               </div>
-              <span className="relative flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--grad-primary)] shadow-glow-sm">
-                <Icon className="h-5 w-5 text-white" aria-hidden="true" />
-              </span>
-              <p className="relative mt-5 font-['Space_Grotesk'] text-xs font-bold uppercase tracking-widest text-[var(--gold-400)]">
-                Step {index + 1}
-              </p>
-              <h3 className="relative mt-1 font-['Space_Grotesk'] text-lg font-bold text-[var(--text-primary)]">
-                {title}
-              </h3>
-              <p className="relative mt-2 text-sm leading-relaxed text-[var(--text-secondary)]">{text}</p>
+              <div className="p-6">
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--grad-primary)] shadow-glow-sm">
+                  <Icon className="h-5 w-5 text-white" aria-hidden="true" />
+                </span>
+                <p className="mt-5 font-['Space_Grotesk'] text-xs font-bold uppercase tracking-widest text-[var(--royal-400)]">
+                  Step {index + 1}
+                </p>
+                <h3 className="mt-1 font-['Space_Grotesk'] text-lg font-bold text-[var(--text-primary)]">
+                  {title}
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-[var(--text-secondary)]">{text}</p>
+              </div>
             </motion.article>
           ))}
         </motion.div>
@@ -297,7 +289,7 @@ export function LandingPage() {
               <motion.div
                 key={title}
                 variants={cardRise}
-                className="group flex items-start gap-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-deep)]/50 p-4 backdrop-blur-xl transition-all duration-300 hover:border-[var(--gold-500)]/30 hover:bg-[var(--color-deep)]/80"
+                className="group flex items-start gap-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-deep)]/50 p-4 backdrop-blur-xl transition-all duration-300 hover:border-[var(--royal-500)]/30 hover:bg-[var(--color-deep)]/80"
               >
                 <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl">
                   <LazyImage
@@ -351,34 +343,37 @@ export function LandingPage() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-60px' }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="relative overflow-hidden rounded-[var(--radius-xl)] border border-[var(--gold-500)]/25 bg-gradient-to-br from-[var(--accent-500)]/10 via-[var(--color-deep)] to-[var(--color-deep)] p-10 text-center md:p-16"
+          className="relative overflow-hidden rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-lg)]"
         >
-          <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-            <LazyImage
-              src={IMAGES.city}
-              alt=""
-              placeholder="shimmer"
-              wrapperClassName="absolute inset-0"
-              className="h-full w-full object-cover opacity-15"
-            />
-            <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-deep)]/85 via-[var(--color-deep)]/70 to-[var(--color-deep)]/90" />
-          </div>
-          <div className="relative">
-            <h2 className="mx-auto max-w-2xl font-['Space_Grotesk'] text-3xl font-bold tracking-tight text-[var(--text-primary)] md:text-4xl">
-              Ready to find your <span className="text-gradient-gold">people</span>?
-            </h2>
-            <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-[var(--text-secondary)]">
-              Join {APP_NAME} today — answer a few questions and we&apos;ll introduce you to neighbors
-              who share your vibe.
-            </p>
-            <Button
-              size="lg"
-              className="mt-8 shadow-[0_0_24px_rgba(14,165,233,0.25)]"
-              rightIcon={<ArrowRight className="h-4 w-4" aria-hidden="true" />}
-              onClick={primaryAction}
-            >
-              {isAuthenticated ? 'Go to your dashboard' : 'Create your free account'}
-            </Button>
+          {/* City photo as its own side panel — separate from the text */}
+          <div className="grid items-stretch md:grid-cols-2">
+            <div className="relative min-h-48 overflow-hidden">
+              <LazyImage
+                src={IMAGES.city}
+                alt="A lively city neighborhood at golden hour"
+                placeholder="shimmer"
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-surface)]/40 via-transparent to-transparent md:bg-gradient-to-r" />
+            </div>
+
+            <div className="flex flex-col items-center justify-center p-10 text-center md:p-14">
+              <h2 className="max-w-2xl font-['Space_Grotesk'] text-3xl font-bold tracking-tight text-[var(--text-primary)] md:text-4xl">
+                Ready to find your <span className="text-gradient">people</span>?
+              </h2>
+              <p className="mt-3 max-w-md text-sm leading-relaxed text-[var(--text-secondary)]">
+                Join {APP_NAME} today — answer a few questions and we&apos;ll introduce you to neighbors
+                who share your vibe.
+              </p>
+              <Button
+                size="lg"
+                className="mt-8 shadow-[0_0_24px_rgba(14,165,233,0.25)]"
+                rightIcon={<ArrowRight className="h-4 w-4" aria-hidden="true" />}
+                onClick={primaryAction}
+              >
+                {isAuthenticated ? 'Go to your dashboard' : 'Create your free account'}
+              </Button>
+            </div>
           </div>
         </motion.div>
       </section>

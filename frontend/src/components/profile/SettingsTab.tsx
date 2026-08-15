@@ -110,14 +110,14 @@ export function SettingsTab() {
       </Card>
 
       {/* Danger zone */}
-      <Card className="rounded-2xl border border-rose-500/20 bg-rose-500/[0.04] p-5">
+      <Card className="rounded-2xl border border-royal-500/20 bg-royal-500/[0.04] p-5">
         <div className="mb-3 flex items-center gap-3">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-rose-400/10 ring-1 ring-rose-400/20">
-            <Trash2 className="h-4 w-4 text-rose-400" aria-hidden="true" />
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-royal-400/10 ring-1 ring-royal-400/20">
+            <Trash2 className="h-4 w-4 text-royal-400" aria-hidden="true" />
           </span>
           <div>
-            <h4 className="text-sm font-bold uppercase tracking-wide text-rose-300">Danger zone</h4>
-            <p className="mt-0.5 text-xs text-rose-300/70">Destructive actions</p>
+            <h4 className="text-sm font-bold uppercase tracking-wide text-royal-300">Danger zone</h4>
+            <p className="mt-0.5 text-xs text-royal-300/70">Destructive actions</p>
           </div>
         </div>
         <p className="text-sm leading-relaxed text-muted">
@@ -125,7 +125,7 @@ export function SettingsTab() {
         </p>
         <Button
           variant="danger"
-          className="mt-4 rounded-xl border-rose-500/30 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 hover:text-rose-300"
+          className="mt-4 rounded-xl border-royal-500/30 bg-royal-500/10 text-royal-400 hover:bg-royal-500/20 hover:text-royal-300"
           onClick={() => setDeleteOpen(true)}
         >
           Delete account
@@ -140,8 +140,8 @@ export function SettingsTab() {
         maxWidth="max-w-sm"
       >
         <div className="flex flex-col items-center gap-4 py-2 text-center">
-          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-400/10 ring-1 ring-rose-400/20">
-            <Trash2 className="h-7 w-7 text-rose-400" aria-hidden="true" />
+          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-royal-400/10 ring-1 ring-royal-400/20">
+            <Trash2 className="h-7 w-7 text-royal-400" aria-hidden="true" />
           </span>
           <div>
             <p className="text-sm font-semibold text-primary">Are you absolutely sure?</p>
@@ -156,7 +156,7 @@ export function SettingsTab() {
             <Button
               variant="danger"
               fullWidth
-              className="rounded-xl border-rose-500/30 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20"
+              className="rounded-xl border-royal-500/30 bg-royal-500/10 text-royal-400 hover:bg-royal-500/20"
               onClick={() => {
                 setDeleteOpen(false);
                 toast.info('Account deletion is not available yet — coming in a future module.');

@@ -23,7 +23,7 @@ interface ActionProps {
   icon: LucideIcon;
   label: string;
   onClick: () => void;
-  tone?: 'default' | 'gold' | 'danger';
+  tone?: 'default' | 'accent' | 'danger';
 }
 
 /** One full-width action row inside the card. */
@@ -35,7 +35,7 @@ function ActionRow({ icon: Icon, label, onClick, tone = 'default' }: ActionProps
       className={cn(
         'flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium transition-all duration-200',
         tone === 'default' && 'text-[var(--text-secondary)] hover:bg-[var(--color-raised)] hover:text-[var(--text-primary)]',
-        tone === 'gold' && 'text-[var(--gold-300)] hover:bg-[var(--gold-400)]/10',
+        tone === 'accent' && 'text-[var(--royal-300)] hover:bg-[var(--royal-400)]/10',
         tone === 'danger' && 'text-[var(--error)] hover:bg-[var(--error)]/10'
       )}
     >
@@ -43,7 +43,7 @@ function ActionRow({ icon: Icon, label, onClick, tone = 'default' }: ActionProps
         className={cn(
           'flex h-8 w-8 items-center justify-center rounded-lg border',
           tone === 'default' && 'border-[var(--color-border)] bg-[var(--color-raised)]/40',
-          tone === 'gold' && 'border-[var(--gold-400)]/30 bg-[var(--gold-400)]/10',
+          tone === 'accent' && 'border-[var(--royal-400)]/30 bg-[var(--royal-400)]/10',
           tone === 'danger' && 'border-[var(--error)]/25 bg-[var(--error)]/10'
         )}
       >
@@ -91,7 +91,7 @@ export function NestActions({ nest, isAnchor, onLeave, onGraduate, onDisband }: 
         <ActionRow icon={Flag} label="Report Issue" onClick={() => setReportOpen(true)} />
         <ActionRow icon={LogOut} label="Leave Nest" tone="danger" onClick={() => setConfirm('leave')} />
         {isAnchor && !ended && canGraduate && (
-          <ActionRow icon={Trophy} label="Initiate Graduation" tone="gold" onClick={() => setConfirm('graduate')} />
+          <ActionRow icon={Trophy} label="Initiate Graduation" tone="accent" onClick={() => setConfirm('graduate')} />
         )}
         {isAnchor && !ended && (
           <ActionRow icon={AlertTriangle} label="Disband Nest" tone="danger" onClick={() => setConfirm('disband')} />

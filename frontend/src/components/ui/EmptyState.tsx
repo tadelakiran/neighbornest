@@ -36,43 +36,47 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        'group relative flex flex-col items-center overflow-hidden rounded-[var(--radius-xl)]',
-        'border border-[var(--color-border)] bg-[var(--color-deep)]/60 px-8 py-16 text-center',
+        'group relative overflow-hidden rounded-[var(--radius-xl)]',
+        'border border-[var(--color-border)] bg-[var(--color-surface)] text-center',
         className
       )}
     >
       {image && (
         <>
-          <img
-            src={image}
-            alt={imageAlt}
-            loading="lazy"
-            className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-20 transition-transform duration-700 group-hover:scale-105"
-          />
-          <div
-            aria-hidden="true"
-            className="absolute inset-0 bg-gradient-to-b from-[var(--color-deep)]/90 via-[var(--color-deep)]/60 to-[var(--color-deep)]/95"
-          />
+          <div className="relative h-40 overflow-hidden">
+            <img
+              src={image}
+              alt={imageAlt}
+              loading="lazy"
+              className="pointer-events-none h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 bg-gradient-to-t from-[var(--color-surface)] to-transparent"
+            />
+          </div>
         </>
       )}
 
-      <span className="relative flex h-16 w-16 items-center justify-center rounded-2xl border border-[var(--accent-400)]/25 bg-[var(--accent-400)]/10">
-        {icon}
-      </span>
+      <div className="flex flex-col items-center px-8 pb-12 pt-4">
+        <span className="flex h-16 w-16 items-center justify-center rounded-2xl border border-[var(--accent-400)]/25 bg-[var(--accent-400)]/10">
+          {icon}
+        </span>
 
-      <h2 className="relative mt-6 font-['Space_Grotesk'] text-xl font-bold text-[var(--text-primary)]">
-        {title}
-      </h2>
-      <p className="relative mt-2 max-w-sm text-sm leading-relaxed text-[var(--text-secondary)]">
-        {description}
-      </p>
+        <h2 className="mt-6 font-['Space_Grotesk'] text-xl font-bold text-[var(--text-primary)]">
+          {title}
+        </h2>
+        <p className="mt-2 max-w-sm text-sm leading-relaxed text-[var(--text-secondary)]">
+          {description}
+        </p>
 
-      {(action || secondaryAction) && (
-        <div className="relative mt-6 flex flex-wrap items-center justify-center gap-3">
-          {action}
-          {secondaryAction}
-        </div>
-      )}
+        {(action || secondaryAction) && (
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            {action}
+            {secondaryAction}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

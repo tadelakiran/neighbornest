@@ -19,43 +19,20 @@ export function ComingSoonPage({ title, description }: ComingSoonPageProps) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
       >
-        <Card className="group relative w-full overflow-hidden rounded-3xl border-[var(--border)] bg-[var(--surface)] p-12 text-center shadow-2xl shadow-black/20">
-          {/* Animated backdrop */}
-          <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+        <Card className="group relative w-full overflow-hidden rounded-3xl border-[var(--border)] bg-[var(--surface)] text-center shadow-2xl shadow-black/20">
+          {/* Friends photo as its own banner — separate from the content below */}
+          <div className="relative h-48 overflow-hidden">
             <LazyImage
               src={IMAGES.friends}
               alt=""
               placeholder="shimmer"
-              wrapperClassName="absolute inset-0"
-              className="h-full w-full object-cover opacity-10 transition-transform duration-1000 group-hover:scale-110"
+              className="h-full w-full object-cover transition-transform duration-1000 group-hover:scale-110"
               loading="lazy"
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-[var(--surface)]/90 via-[var(--surface)]/80 to-[var(--surface)]/95" />
-            
-            {/* Animated gradient orb */}
-            <motion.div
-              animate={{ 
-                scale: [1, 1.2, 1],
-                opacity: [0.1, 0.2, 0.1],
-                x: [0, 20, 0],
-                y: [0, -20, 0]
-              }}
-              transition={{ repeat: Infinity, duration: 8, ease: 'easeInOut' }}
-              className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-accent-400/20 blur-3xl"
-            />
-            <motion.div
-              animate={{ 
-                scale: [1, 1.3, 1],
-                opacity: [0.1, 0.15, 0.1],
-                x: [0, -15, 0],
-                y: [0, 15, 0]
-              }}
-              transition={{ repeat: Infinity, duration: 10, ease: 'easeInOut', delay: 2 }}
-              className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-[var(--gold-400)]/10 blur-3xl"
-            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface)] to-transparent" />
           </div>
 
-          <div className="relative space-y-6">
+          <div className="relative space-y-6 px-8 pb-12 pt-2">
             <motion.span
               animate={{ rotate: [0, -10, 10, 0] }}
               transition={{ repeat: Infinity, duration: 4, ease: 'easeInOut' }}

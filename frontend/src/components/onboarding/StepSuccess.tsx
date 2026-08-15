@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/Button';
 import { ROUTES } from '@/lib/constants';
 import { fadeUpItem, staggerContainer } from '@/lib/motion';
 
-/** Confetti palette — blue/cyan/white on dark, with amber sparkle. */
-const CONFETTI_COLORS = ['#38bdf8', '#60a5fa', '#93c5fd', '#e0f2fe', '#fbbf24'];
+/** Confetti palette — blue/cyan/white on dark. */
+const CONFETTI_COLORS = ['#38bdf8', '#60a5fa', '#93c5fd', '#e0f2fe', '#7dd3fc'];
 
 /** One confetti particle's random config (generated once per mount). */
 interface Particle {

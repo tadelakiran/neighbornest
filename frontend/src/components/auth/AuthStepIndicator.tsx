@@ -14,7 +14,7 @@ interface AuthStepIndicatorProps {
  */
 export function AuthStepIndicator({ steps, current }: AuthStepIndicatorProps) {
   return (
-    <ol className="mb-8 flex items-center justify-center gap-2" aria-label="Progress">
+    <ol className="mb-6 flex items-center justify-center gap-2" aria-label="Progress">
       {steps.map((label, index) => {
         const done = index < current;
         const active = index === current;

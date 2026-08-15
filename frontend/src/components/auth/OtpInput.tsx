@@ -133,7 +133,7 @@ export function OtpInput({
               onFocus={(e) => e.target.select()}
               aria-invalid={error ? true : undefined}
               className={cn(
-                'h-12 w-full max-w-[46px] flex-1 rounded-xl border text-center text-xl font-bold tracking-widest sm:h-14 sm:max-w-[52px]',
+                'h-11 w-full max-w-[44px] flex-1 rounded-xl border text-center text-lg font-bold tracking-widest sm:h-12 sm:max-w-[48px]',
                 'bg-[var(--color-surface-2)] text-[var(--text-primary)]',
                 'border-[var(--color-border)] outline-none transition-all duration-200',
                 'placeholder:text-[var(--text-subtle)]',

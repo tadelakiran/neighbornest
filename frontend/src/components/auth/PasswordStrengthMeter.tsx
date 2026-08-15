@@ -12,9 +12,9 @@ const STRENGTH_CHECKS = [
 ];
 
 const STRENGTH_CONFIG = {
-  weak: { label: 'Weak', text: 'text-rose-400', bar: 'bg-rose-400', glow: 'shadow-[0_0_8px_rgba(251,113,133,0.4)]' },
-  good: { label: 'Good', text: 'text-amber-400', bar: 'bg-amber-400', glow: 'shadow-[0_0_8px_rgba(251,191,36,0.4)]' },
-  strong: { label: 'Strong', text: 'text-emerald-400', bar: 'bg-emerald-400', glow: 'shadow-[0_0_8px_rgba(52,211,153,0.4)]' },
+  weak: { label: 'Weak', text: 'text-royal-400', bar: 'bg-royal-400', glow: 'shadow-[0_0_8px_rgba(96,165,250,0.4)]' },
+  good: { label: 'Good', text: 'text-sky-400', bar: 'bg-sky-400', glow: 'shadow-[0_0_8px_rgba(56,189,248,0.4)]' },
+  strong: { label: 'Strong', text: 'text-sky-300', bar: 'bg-sky-300', glow: 'shadow-[0_0_8px_rgba(125,211,252,0.4)]' },
 };
 
 interface PasswordStrengthMeterProps {
@@ -35,8 +35,8 @@ export function PasswordStrengthMeter({ password }: PasswordStrengthMeterProps) 
     strength <= 2 ? STRENGTH_CONFIG.weak : strength <= 4 ? STRENGTH_CONFIG.good : STRENGTH_CONFIG.strong;
 
   return (
-    <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-raised)]/40 px-4 py-3.5">
-      <div className="mb-3 flex items-center justify-between">
+    <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-raised)]/40 px-3.5 py-3">
+      <div className="mb-2 flex items-center justify-between">
         <span className="text-[11px] font-semibold uppercase tracking-wider text-muted">Password strength</span>
         <AnimatePresence mode="wait">
           <motion.span
@@ -51,7 +51,7 @@ export function PasswordStrengthMeter({ password }: PasswordStrengthMeterProps) 
         </AnimatePresence>
       </div>
 
-      <div className="mb-3 flex gap-1.5" aria-hidden="true">
+      <div className="mb-2.5 flex gap-1.5" aria-hidden="true">
         {Array.from({ length: 5 }).map((_, i) => (
           <motion.span
             key={i}
@@ -66,7 +66,7 @@ export function PasswordStrengthMeter({ password }: PasswordStrengthMeterProps) 
         ))}
       </div>
 
-      <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
+      <div className="grid grid-cols-2 gap-x-4 gap-y-1">
         {STRENGTH_CHECKS.map(({ label, test }) => {
           const passed = test(password);
           return (
@@ -74,12 +74,12 @@ export function PasswordStrengthMeter({ password }: PasswordStrengthMeterProps) 
               <span
                 className={cn(
                   'flex h-3.5 w-3.5 items-center justify-center rounded-full border transition-all duration-200',
-                  passed ? 'border-emerald-400/40 bg-emerald-400/15' : 'border-[var(--color-border)] bg-transparent'
+                  passed ? 'border-sky-400/40 bg-sky-400/15' : 'border-[var(--color-border)] bg-transparent'
                 )}
               >
-                <Check className={cn('h-2.5 w-2.5 transition-all duration-200', passed ? 'text-emerald-400 opacity-100' : 'opacity-0')} />
+                <Check className={cn('h-2.5 w-2.5 transition-all duration-200', passed ? 'text-sky-400 opacity-100' : 'opacity-0')} />
               </span>
-              <span className={cn('text-[11px] transition-colors duration-200', passed ? 'text-emerald-400/80' : 'text-muted')}>
+              <span className={cn('text-[11px] transition-colors duration-200', passed ? 'text-sky-400/80' : 'text-muted')}>
                 {label}
               </span>
             </div>

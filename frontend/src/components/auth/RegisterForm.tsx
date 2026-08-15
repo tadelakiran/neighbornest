@@ -154,7 +154,7 @@ export function RegisterForm() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -12 }}
             transition={{ duration: 0.25 }}
-            className="space-y-5"
+            className="space-y-4"
             noValidate
           >
             <motion.div initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.05 }}>
@@ -166,7 +166,7 @@ export function RegisterForm() {
                 autoComplete="name"
                 icon={<UserIcon className="h-4 w-4 text-muted" aria-hidden="true" />}
                 error={errors.fullName?.message}
-                className="h-12 rounded-xl border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--text-primary)] shadow-sm transition-all duration-200 focus-within:border-[var(--accent-400)]/50 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.12)]"
+                className="h-11 rounded-xl border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--text-primary)] shadow-sm transition-all duration-200 focus-within:border-[var(--accent-400)]/50 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.12)]"
                 {...register('fullName')}
               />
             </motion.div>
@@ -180,7 +180,7 @@ export function RegisterForm() {
                 autoComplete="email"
                 icon={<Mail className="h-4 w-4 text-muted" aria-hidden="true" />}
                 error={errors.email?.message}
-                className="h-12 rounded-xl border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--text-primary)] shadow-sm transition-all duration-200 focus-within:border-[var(--accent-400)]/50 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.12)]"
+                className="h-11 rounded-xl border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--text-primary)] shadow-sm transition-all duration-200 focus-within:border-[var(--accent-400)]/50 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.12)]"
                 {...register('email')}
               />
             </motion.div>
@@ -194,7 +194,7 @@ export function RegisterForm() {
                 autoComplete="new-password"
                 icon={<Lock className="h-4 w-4 text-muted" aria-hidden="true" />}
                 error={errors.password?.message}
-                className="h-12 rounded-xl border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--text-primary)] shadow-sm transition-all duration-200 focus-within:border-[var(--accent-400)]/50 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.12)]"
+                className="h-11 rounded-xl border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--text-primary)] shadow-sm transition-all duration-200 focus-within:border-[var(--accent-400)]/50 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.12)]"
                 trailing={
                   <motion.button
                     type="button"
@@ -231,7 +231,7 @@ export function RegisterForm() {
                 autoComplete="new-password"
                 icon={<Lock className="h-4 w-4 text-muted" aria-hidden="true" />}
                 error={errors.confirmPassword?.message}
-                className="h-12 rounded-xl border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--text-primary)] shadow-sm transition-all duration-200 focus-within:border-[var(--accent-400)]/50 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.12)]"
+                className="h-11 rounded-xl border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--text-primary)] shadow-sm transition-all duration-200 focus-within:border-[var(--accent-400)]/50 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.12)]"
                 {...register('confirmPassword')}
               />
             </motion.div>
@@ -241,10 +241,9 @@ export function RegisterForm() {
                 type="submit"
                 variant="primary"
                 size="lg"
-                fullWidth
-                isLoading={isSubmitting}
-                className="h-12 rounded-xl shadow-glow"
-                rightIcon={<ArrowRight className="h-4 w-4" aria-hidden="true" />}
+                fullWidth              isLoading={isSubmitting}
+              className="h-11 rounded-xl shadow-glow"
+              rightIcon={<ArrowRight className="h-4 w-4" aria-hidden="true" />}
               >
                 {isSubmitting ? 'Sending code…' : 'Continue'}
               </Button>
@@ -270,7 +269,7 @@ export function RegisterForm() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 12 }}
             transition={{ duration: 0.25 }}
-            className="space-y-6"
+            className="space-y-5"
             noValidate
           >
             {/* Heading */}
@@ -321,7 +320,7 @@ export function RegisterForm() {
               fullWidth
               isLoading={isSubmittingOtp}
               disabled={otp.length !== 6}
-              className="h-12 rounded-xl shadow-glow"
+              className="h-11 rounded-xl shadow-glow"
               rightIcon={<ArrowRight className="h-4 w-4" aria-hidden="true" />}
             >
               {isSubmittingOtp ? 'Creating account…' : 'Verify & create account'}
