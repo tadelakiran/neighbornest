@@ -1,4 +1,3 @@
-# syntax=docker/dockerfile:1
 # ============================================================================
 # NeighborNest — single-container image
 # ============================================================================
@@ -35,9 +34,7 @@ COPY matching-service/pom.xml matching-service/pom.xml
 COPY nest-service/pom.xml nest-service/pom.xml
 COPY chat-service/pom.xml chat-service/pom.xml
 COPY notification-service/pom.xml notification-service/pom.xml
-# The cache mount shares one Maven local repo across builds; the retry loop
-# absorbs flaky Maven Central connections (same pattern as the per-service
-# Dockerfiles).
+# The retry loop absorbs flaky Maven Central connections.
 RUN sh -c 'for i in 1 2 3 4 5; do mvn -q dependency:go-offline -B -U && exit 0 || echo "go-offline attempt $i failed, retrying..."; done; echo "go-offline failed after 5 attempts"; exit 1'
 COPY eureka-service/src eureka-service/src
 COPY api-gateway/src api-gateway/src
