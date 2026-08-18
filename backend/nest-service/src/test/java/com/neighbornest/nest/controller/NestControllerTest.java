@@ -13,6 +13,7 @@ import com.neighbornest.nest.entity.MeetingStatus;
 import com.neighbornest.nest.entity.NestStatus;
 import com.neighbornest.nest.entity.SplitType;
 import com.neighbornest.nest.security.JwtService;
+import com.neighbornest.nest.security.RestAuthenticationEntryPoint;
 import com.neighbornest.nest.service.ExpenseService;
 import com.neighbornest.nest.service.MeetingService;
 import com.neighbornest.nest.service.NestService;
@@ -58,7 +59,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @version 1.0.0
  */
 @WebMvcTest(NestController.class)
-@Import(SecurityConfig.class)
+@Import({SecurityConfig.class, RestAuthenticationEntryPoint.class})
 @DisplayName("NestController Web Tests")
 class NestControllerTest {
 
@@ -144,17 +145,17 @@ class NestControllerTest {
 
             mockMvc.perform(post("/api/nests/1/leave").header("Authorization", authHeader()))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.id").value(1))
-                    .andExpect(jsonPath("$.status").value("ACTIVE"));
+                    .andExpect(jsonPath("$.data.id").value(1))
+                    .andExpect(jsonPath("$.data.status").value("ACTIVE"));
 
             verify(nestService).leave(1L, PROFILE_ID);
         }
 
         @Test
-        @DisplayName("Should return 403 without a bearer token")
-        void shouldReturn403WithoutToken() throws Exception {
+        @DisplayName("Should return 401 without a bearer token")
+        void shouldReturn401WithoutToken() throws Exception {
             mockMvc.perform(post("/api/nests/1/leave"))
-                    .andExpect(status().isForbidden());
+                    .andExpect(status().isUnauthorized());
         }
     }
 
@@ -169,7 +170,7 @@ class NestControllerTest {
 
             mockMvc.perform(delete("/api/nests/1/members/8").header("Authorization", authHeader()))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.id").value(1));
+                    .andExpect(jsonPath("$.data.id").value(1));
 
             verify(nestService).removeMember(1L, PROFILE_ID, 8L);
         }
@@ -186,8 +187,8 @@ class NestControllerTest {
 
             mockMvc.perform(patch("/api/nests/1/expenses/10/settle").header("Authorization", authHeader()))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.id").value(1))
-                    .andExpect(jsonPath("$.split_type").value("EQUAL"));
+                    .andExpect(jsonPath("$.data.id").value(1))
+                    .andExpect(jsonPath("$.data.split_type").value("EQUAL"));
 
             verify(expenseService).settleSplit(1L, 10L, PROFILE_ID);
         }
@@ -206,7 +207,7 @@ class NestControllerTest {
 
             mockMvc.perform(post("/api/nests/1/meetings/5/complete").header("Authorization", authHeader()))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.status").value("COMPLETED"));
+                    .andExpect(jsonPath("$.data.status").value("COMPLETED"));
         }
 
         @Test
@@ -218,7 +219,7 @@ class NestControllerTest {
 
             mockMvc.perform(post("/api/nests/1/meetings/5/cancel").header("Authorization", authHeader()))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.status").value("CANCELLED"));
+                    .andExpect(jsonPath("$.data.status").value("CANCELLED"));
         }
     }
 
@@ -242,7 +243,7 @@ class NestControllerTest {
                                             .activityType("Coffee & Chat")
                                             .build())))
                     .andExpect(status().isCreated())
-                    .andExpect(jsonPath("$.id").value(1));
+                    .andExpect(jsonPath("$.data.id").value(1));
         }
 
         @Test

@@ -93,6 +93,8 @@ api.interceptors.request.use((config) => {
   const { accessToken } = useAuthStore.getState();
   if (accessToken) {
     config.headers.Authorization = `Bearer ${accessToken}`;
+    // TEMP auth-debug logging — remove once the refresh-race investigation is done.
+    console.debug('[auth] request', config.method?.toUpperCase(), config.url, accessToken ? 'token attached' : 'NO TOKEN');
   }
   return config;
 });
@@ -159,11 +161,63 @@ function handleAuthFailure(): void {
   }
 }
 
+/**
+ * One-shot retry for cold-start / first-call failures.
+ *
+ * Right after the backend boots, the first request can fail because the
+ * services are still warming up (Hibernate bootstrap, DB pool, JIT) or the
+ * gateway hasn't picked up a freshly registered instance yet. When the
+ * request never got a response we retry it once — the client timeout (15s)
+ * is easily exceeded on a cold call, and one retry fixes the vast majority
+ * of these transient failures.
+ *
+ * Retry rules (kept conservative so a POST is never double-submitted):
+ * - GET/HEAD: retry on any no-response failure (timeout or network).
+ * - Other methods: retry ONLY on a connection-level refusal (ERR_NETWORK),
+ *   where the server definitively never received the request.
+ */
+export function isRetryableNoResponse(method: string | undefined, code: string | undefined): boolean {
+  const m = method?.toUpperCase() ?? 'GET';
+  return m === 'GET' || m === 'HEAD' || code === 'ERR_NETWORK';
+}
+
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // The data services (user/matching/nest/chat) wrap every successful body in
+    // a consistent { data, message, status } envelope. Unwrap it transparently
+    // so existing typed calls keep receiving the payload directly. Responses
+    // that are not envelopes (auth payloads, gateway fallbacks, raw Feign
+    // paths) pass through untouched.
+    const body = response.data;
+    if (
+      body &&
+      typeof body === 'object' &&
+      'data' in body &&
+      'message' in body &&
+      'status' in body
+    ) {
+      response.data = (body as { data: unknown }).data;
+    }
+    return response;
+  },
   async (error: AxiosError<ApiError>) => {
     const original = error.config as RetriableConfig | undefined;
     const status = error.response?.status;
+
+    // --- Retry once for requests that never reached a server response ---
+    if (
+      !error.response &&
+      original &&
+      !original._retry &&
+      isRetryableNoResponse(original.method, error.code)
+    ) {
+      original._retry = true;
+      // TEMP auth-debug logging — remove once the refresh-race investigation is done.
+      console.warn('[auth] no response for', original.method?.toUpperCase(), original.url, '- retrying once');
+      // Short delay lets a just-booted instance finish registering/warming up.
+      await new Promise((resolve) => setTimeout(resolve, 800));
+      return api(original);
+    }
 
     // --- 401: attempt a token refresh, then retry the original request ---
     if (status === 401 && original && !original._retry && !isAuthEndpoint(original.url)) {
@@ -180,6 +234,8 @@ api.interceptors.response.use(
       }
 
       original._retry = true;
+      // TEMP auth-debug logging — remove once the refresh-race investigation is done.
+      console.warn('[auth] 401 on', original.method?.toUpperCase(), original.url, '- starting token refresh');
       isRefreshing = true;
 
       const refreshToken = getStoredRefreshToken();
@@ -194,11 +250,15 @@ api.interceptors.response.use(
         const { data } = await api.post<AuthResponse>('/api/auth/refresh', {
           refreshToken,
         });
+        // TEMP auth-debug logging — remove once the refresh-race investigation is done.
+        console.info('[auth] token refreshed; retrying original request', original.url);
         useAuthStore.getState().setAuth(data);
         processQueue(null, data.access_token);
         original.headers.Authorization = `Bearer ${data.access_token}`;
         return api(original);
       } catch (refreshError) {
+        // TEMP auth-debug logging — remove once the refresh-race investigation is done.
+        console.error('[auth] token refresh FAILED for', original.url, '- signing out', refreshError);
         processQueue(refreshError, null);
         handleAuthFailure();
         return Promise.reject(refreshError);
@@ -209,6 +269,8 @@ api.interceptors.response.use(
 
     // --- 403 / 500 / network errors: surface a (deduped) toast ---
     if (status === 403) {
+      // TEMP auth-debug logging — remove once the refresh-race investigation is done.
+      console.warn('[auth] 403 on', original?.method?.toUpperCase(), original?.url, '-', error.response?.data?.message ?? 'no message in body');
       showErrorToast(error.response?.data?.message ?? 'You do not have permission to do that.');
     } else if (status === 500) {
       showErrorToast('Something went wrong on our end. Please try again.');
@@ -218,4 +280,4 @@ api.interceptors.response.use(
 
     return Promise.reject(error);
   }
-);
+);

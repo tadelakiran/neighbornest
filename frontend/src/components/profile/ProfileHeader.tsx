@@ -1,5 +1,6 @@
+import { useRef } from 'react';
 import { motion } from 'framer-motion';
-import { CalendarDays, MapPin, Shield, type LucideIcon } from 'lucide-react';
+import { Camera, CalendarDays, Loader2, MapPin, Shield, type LucideIcon } from 'lucide-react';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
@@ -16,10 +17,22 @@ const ROLE_META: Record<UserRole, { variant: 'success' | 'warning' | 'neutral'; 
 
 interface ProfileHeaderProps {
   profile: UserProfile;
+  /** Called when the user picks a new photo from the avatar's camera button. */
+  onUploadPhoto?: (file: File) => void;
+  /** Whether a photo upload is currently in flight (shows a spinner). */
+  uploading?: boolean;
 }
 
-export function ProfileHeader({ profile }: ProfileHeaderProps) {
+export function ProfileHeader({ profile, onUploadPhoto, uploading }: ProfileHeaderProps) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const meta = ROLE_META[profile.role];
+
+  /** Forwards the chosen file to the caller and resets the input. */
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && onUploadPhoto) onUploadPhoto(file);
+    event.target.value = '';
+  };
 
   return (
     <Card flat className="sticky top-24 overflow-visible pb-6">
@@ -46,17 +59,46 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
           className="relative rounded-full p-[3px] bg-deep shadow-2xl"
         >
           <div className="absolute -inset-1 rounded-full bg-accent-400/20 blur-lg" aria-hidden="true" />
-          <Avatar
-  name={profile.fullName}
-  src={profile.profilePhotoUrl}
-  size="xl"
-  className="relative h-20 w-20 ring-[3px] ring-deep"
-/>
-          {profile.role === 'ANCHOR' && (
-            <span className="absolute -right-1 -top-1 flex h-7 w-7 items-center justify-center rounded-full border-2 border-deep bg-sky-500 shadow-lg">
-              <Shield className="h-3.5 w-3.5 text-white" aria-hidden="true" />
-            </span>
-          )}
+          <div className="group relative">
+            <Avatar
+              name={profile.fullName}
+              src={profile.profilePhotoUrl}
+              size="xl"
+              className="relative h-20 w-20 ring-[3px] ring-deep"
+            />
+            {profile.role === 'ANCHOR' && (
+              <span className="absolute -right-1 -top-1 flex h-7 w-7 items-center justify-center rounded-full border-2 border-deep bg-sky-500 shadow-lg">
+                <Shield className="h-3.5 w-3.5 text-white" aria-hidden="true" />
+              </span>
+            )}
+
+            {/* Edit-photo button — always available so users can change their photo */}
+            {onUploadPhoto && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  aria-label="Change profile photo"
+                  title="Change profile photo"
+                  className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full border-2 border-deep bg-[var(--accent-400)] text-white shadow-lg transition-all hover:bg-[var(--accent-300)] hover:shadow-[0_0_12px_rgba(14,165,233,0.4)] disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  {uploading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                  ) : (
+                    <Camera className="h-4 w-4" aria-hidden="true" />
+                  )}
+                </button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
+              </>
+            )}
+          </div>
         </motion.div>
       </div>
 
@@ -70,19 +112,26 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
             variant={meta.variant}
             className={cn(
               'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wider',
-              profile.role === 'ANCHOR' && 'border-[var(--success)]/25 bg-[var(--success)]/10 text-[var(--success)] shadow-[0_0_12px_rgba(56,189,248,0.15)]',
+              profile.role === 'ANCHOR' && 'border-[var(--success)]/25 bg-[var(--success)]/10 text-[var(--accent-600)] shadow-[0_0_12px_rgba(56,189,248,0.15)]',
               profile.role === 'ADMIN' && 'border-[var(--warning)]/25 bg-[var(--warning)]/10 text-[var(--warning)] shadow-[0_0_12px_rgba(96,165,250,0.15)]'
             )}
           >
             <meta.icon className={cn('h-3 w-3', meta.accent)} aria-hidden="true" />
             {meta.label}
           </Badge>
-          {profile.isOnboarded && (
+          {profile.isOnboarded ? (
             <Badge
               variant="success"
               className="rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wider"
             >
               Onboarded
+            </Badge>
+          ) : (
+            <Badge
+              variant="warning"
+              className="rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wider"
+            >
+              Profile incomplete
             </Badge>
           )}
         </div>

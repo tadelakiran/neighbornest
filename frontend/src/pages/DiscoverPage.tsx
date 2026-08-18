@@ -5,17 +5,22 @@ import { CompatibilityCard } from '@/components/matching/CompatibilityCard';
 import { NestBuilderModal } from '@/components/matching/NestBuilderModal';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { NeighborNestLoader } from '@/components/ui/NeighborNestLoader';
 import { PageHeader } from '@/components/ui/PageHeader';
-import { Skeleton } from '@/components/ui/Skeleton';
 import { IMAGES } from '@/lib/images';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { calculateCompatibility, getCompatibles, invalidateProposals } from '@/services/matchingService';
 import type { CompatibleUserResponse } from '@/types/matching.types';
 
+// NOTE: variant labels must stay `hidden` / `show` — they are inherited by
+// CompatibilityCard's root, which uses the shared `cardRise` variants
+// (`hidden` / `show` / `exit`). Any other label (e.g. `visible`) leaves the
+// cards stuck at opacity 0: the header still counts them but the grid looks
+// empty.
 const gridVariants = {
   hidden: { opacity: 0 },
-  visible: {
+  show: {
     opacity: 1,
     transition: { staggerChildren: 0.08 }
   }
@@ -23,7 +28,7 @@ const gridVariants = {
 
 const cardVariants = {
   hidden: { opacity: 0, y: 30, scale: 0.95 },
-  visible: { 
+  show: { 
     opacity: 1, 
     y: 0, 
     scale: 1,
@@ -104,18 +109,8 @@ export function DiscoverPage() {
 
   if (compatibles === null) {
     return (
-      <div className="mx-auto max-w-6xl space-y-8">
-        <div className="space-y-3">
-          <Skeleton className="h-12 w-72 rounded-xl" />
-          <Skeleton className="h-5 w-96 max-w-full rounded-lg" />
-        </div>
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4">
-              <Skeleton className="h-[380px] rounded-xl" />
-            </div>
-          ))}
-        </div>
+      <div className="mx-auto max-w-6xl">
+        <NeighborNestLoader message="Finding your neighbors…" />
       </div>
     );
   }
@@ -180,7 +175,7 @@ export function DiscoverPage() {
       <motion.div
         variants={gridVariants}
         initial="hidden"
-        animate="visible"
+        animate="show"
         className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3"
       >
         {compatibles.map((compatible) => (

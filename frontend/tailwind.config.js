@@ -121,6 +121,7 @@ export default {
         scaleIn: { from: { opacity:'0', transform:'scale(0.94)' },      to: { opacity:'1', transform:'scale(1)' } },
         toastIn: { from: { opacity:'0', transform:'translateX(100%)' }, to: { opacity:'1', transform:'translateX(0)' } },
         float:   { '0%,100%': { transform:'translateY(0)' }, '50%': { transform:'translateY(-10px)' } },
+        'float-soft': { '0%,100%': { transform:'translateY(0)' }, '50%': { transform:'translateY(-6px)' } },
         shimmer: { from: { transform:'translateX(-100%)' },             to: { transform:'translateX(200%)' } },
         loadBar: { from: { transform:'translateX(-100%)' },             to: { transform:'translateX(200%)' } },
         pulseGlow: {
@@ -136,6 +137,7 @@ export default {
         scaleIn:    'scaleIn 0.25s cubic-bezier(0.22,1,0.36,1) forwards',
         toastIn:    'toastIn 0.3s ease forwards',
         float:      'float 5s ease-in-out infinite',
+        'float-soft': 'float-soft 6s ease-in-out infinite',
         shimmer:    'shimmer 1.8s linear infinite',
         loadBar:    'loadBar 1s ease-in-out infinite',
         pulseGlow:  'pulseGlow 2s ease-in-out infinite',

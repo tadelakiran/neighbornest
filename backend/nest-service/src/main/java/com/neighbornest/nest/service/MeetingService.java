@@ -9,6 +9,8 @@ import com.neighbornest.nest.exception.ResourceNotFoundException;
 import com.neighbornest.nest.repository.MeetingRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +39,7 @@ public class MeetingService {
      * @throws ResourceNotFoundException if the Nest does not exist
      */
     @Transactional
+    @CacheEvict(value = "meetings", key = "#nestId")
     public MeetingResponse scheduleMeeting(final Long nestId, final Long userId, final MeetingRequest request) {
         nestService.requireMember(nestId, userId);
 
@@ -69,6 +72,7 @@ public class MeetingService {
      * @return the list of meetings
      */
     @Transactional(readOnly = true)
+    @Cacheable(value = "meetings", key = "#nestId")
     public List<MeetingResponse> listMeetings(final Long nestId, final Long userId) {
         nestService.requireMember(nestId, userId);
 
@@ -87,6 +91,7 @@ public class MeetingService {
      * @throws InvalidOperationException if the meeting is not currently scheduled
      */
     @Transactional
+    @CacheEvict(value = "meetings", key = "#nestId")
     public MeetingResponse completeMeeting(final Long nestId, final Long meetingId, final Long userId) {
         nestService.requireMember(nestId, userId);
         final Meeting meeting = findMeeting(nestId, meetingId);
@@ -111,6 +116,7 @@ public class MeetingService {
      * @throws InvalidOperationException if the meeting is not currently scheduled
      */
     @Transactional
+    @CacheEvict(value = "meetings", key = "#nestId")
     public MeetingResponse cancelMeeting(final Long nestId, final Long meetingId, final Long userId) {
         nestService.requireMember(nestId, userId);
         final Meeting meeting = findMeeting(nestId, meetingId);

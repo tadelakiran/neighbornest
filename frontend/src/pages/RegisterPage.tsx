@@ -7,10 +7,7 @@ import { RegisterForm } from '@/components/auth/RegisterForm';
  */
 export function RegisterPage() {
   return (
-    <AuthSplitLayout
-      heading="Create your account"
-      subheading="Takes less than a minute. Answer a few questions and we'll find your people."
-    >
+    <AuthSplitLayout heading="Create your account">
       <RegisterForm />
     </AuthSplitLayout>
   );

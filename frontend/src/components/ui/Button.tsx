@@ -30,13 +30,13 @@ const VARIANTS: Record<ButtonVariant, string> = {
   secondary:
     'bg-surface-2 text-primary ' +
     'border border-[var(--color-border)] ' +
-    'hover:border-[var(--accent-400)]/30 hover:bg-[var(--color-surface)] hover:text-[var(--accent-300)]',
+    'hover:border-[var(--accent-400)]/40 hover:bg-[var(--color-surface)] hover:text-[var(--accent-600)]',
   outline:
-    'bg-transparent border border-[var(--accent-400)]/30 text-[var(--accent-400)] ' +
-    'hover:bg-[var(--accent-400)]/10 hover:border-[var(--accent-400)]/50',
+    'bg-transparent border border-[var(--accent-400)]/40 text-[var(--accent-600)] ' +
+    'hover:bg-[var(--accent-400)]/10 hover:border-[var(--accent-500)]/60 hover:text-[var(--accent-600)]',
   ghost:
-    'bg-transparent text-[var(--accent-400)] ' +
-    'hover:bg-[var(--accent-400)]/10 hover:text-[var(--accent-300)]',
+    'bg-transparent text-[var(--accent-600)] ' +
+    'hover:bg-[var(--accent-400)]/10 hover:text-[var(--accent-600)]',
   danger:
     'border border-[var(--error)]/25 bg-[var(--error)]/10 text-[var(--error)] ' +
     'hover:bg-[var(--error)]/15 hover:border-[var(--error)]/35 hover:text-[var(--error)]',

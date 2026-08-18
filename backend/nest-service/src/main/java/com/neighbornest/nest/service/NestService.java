@@ -21,6 +21,8 @@ import com.neighbornest.nest.repository.NestMemberRepository;
 import com.neighbornest.nest.repository.NestRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,6 +66,7 @@ public class NestService {
      * @throws BadRequestException if a member appears more than once
      */
     @Transactional
+    @CacheEvict(cacheNames = {"nests", "myNests"}, allEntries = true)
     public NestResponse createNest(final CreateNestRequest request) {
         log.info("Creating nest '{}' in {}", request.getName(), request.getCity());
 
@@ -110,6 +113,7 @@ public class NestService {
      * @throws ResourceNotFoundException if the Nest does not exist
      */
     @Transactional(readOnly = true)
+    @Cacheable(value = "nests", key = "#nestId")
     public NestResponse getNest(final Long nestId) {
         final Nest nest = findNest(nestId);
         return toResponse(nest, nestMemberRepository.findByNestId(nestId));
@@ -122,6 +126,7 @@ public class NestService {
      * @return the list of Nest responses
      */
     @Transactional(readOnly = true)
+    @Cacheable(value = "myNests", key = "#userId")
     public List<NestResponse> getMyNests(final Long userId) {
         log.debug("Fetching nests for user: {}", userId);
 
@@ -140,6 +145,7 @@ public class NestService {
      * @throws InvalidOperationException if the Nest is not active
      */
     @Transactional
+    @CacheEvict(cacheNames = {"nests", "myNests"}, allEntries = true)
     public NestResponse graduate(final Long nestId) {
         final Nest nest = findNest(nestId);
 
@@ -171,6 +177,7 @@ public class NestService {
      * @throws InvalidOperationException if the Nest has already graduated or disbanded
      */
     @Transactional
+    @CacheEvict(cacheNames = {"nests", "myNests"}, allEntries = true)
     public NestResponse disband(final Long nestId) {
         final Nest nest = findNest(nestId);
 
@@ -203,6 +210,7 @@ public class NestService {
      * @throws InvalidOperationException if the Nest has already ended
      */
     @Transactional
+    @CacheEvict(cacheNames = {"nests", "myNests"}, allEntries = true)
     public NestResponse leave(final Long nestId, final Long userId) {
         final Nest nest = findNest(nestId);
 
@@ -234,6 +242,7 @@ public class NestService {
      * @throws ForbiddenException        if the actor is not an anchor, or targets themselves
      */
     @Transactional
+    @CacheEvict(cacheNames = {"nests", "myNests"}, allEntries = true)
     public NestResponse removeMember(final Long nestId, final Long actorId, final Long targetId) {
         requireAnchor(nestId, actorId);
 

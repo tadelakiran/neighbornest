@@ -10,6 +10,7 @@ C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\notificati
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\notification-service\src\main\java\com\neighbornest\notificationservice\client\UserServiceFallbackFactory.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\notification-service\src\main\java\com\neighbornest\notificationservice\client\VibeCheckResponse.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\notification-service\src\main\java\com\neighbornest\notificationservice\client\VibeCheckStatusResponse.java
+C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\notification-service\src\main\java\com\neighbornest\notificationservice\config\EmailJsConfigCheck.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\notification-service\src\main\java\com\neighbornest\notificationservice\config\EmailJsProperties.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\notification-service\src\main\java\com\neighbornest\notificationservice\config\FeignClientConfig.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\notification-service\src\main\java\com\neighbornest\notificationservice\config\NotificationServiceProperties.java
@@ -67,6 +68,7 @@ C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\notificati
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\notification-service\src\main\java\com\neighbornest\notificationservice\security\InternalApiKeyFilter.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\notification-service\src\main\java\com\neighbornest\notificationservice\security\JwtAuthenticationFilter.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\notification-service\src\main\java\com\neighbornest\notificationservice\security\JwtService.java
+C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\notification-service\src\main\java\com\neighbornest\notificationservice\security\RestAuthenticationEntryPoint.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\notification-service\src\main\java\com\neighbornest\notificationservice\service\EmailService.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\notification-service\src\main\java\com\neighbornest\notificationservice\service\NotificationScheduler.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\notification-service\src\main\java\com\neighbornest\notificationservice\service\NotificationService.java

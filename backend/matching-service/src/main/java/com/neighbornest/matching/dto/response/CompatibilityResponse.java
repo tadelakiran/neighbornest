@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * Response DTO for a single compatibility score.
@@ -32,6 +33,13 @@ public class CompatibilityResponse {
 
     @Schema(description = "City of the other user", example = "San Francisco")
     private String city;
+
+    @Schema(description = "URL to the other user's profile photo", example = "https://storage.example.com/photos/user1.jpg")
+    @JsonProperty("profile_photo_url")
+    private String profilePhotoUrl;
+
+    @Schema(description = "The other user's interests (from onboarding answers)", example = "[\"Hiking\", \"Cooking\"]")
+    private List<String> interests;
 
     @Schema(description = "Overall compatibility score (0-100)", example = "87.50")
     @JsonProperty("overall_score")

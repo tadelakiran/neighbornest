@@ -1,9 +1,12 @@
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Outlet, useLocation } from 'react-router-dom';
 import { Navbar } from './Navbar';
 import { Sidebar } from './Sidebar';
+import { Footer } from './Footer';
 import { MobileTabBar } from './MobileTabBar';
+import { OnboardingBanner } from './OnboardingBanner';
+import { NeighborNestLoader } from '@/components/ui/NeighborNestLoader';
 import { pageEnter, pageExit } from '@/lib/motion';
 import { ROUTES } from '@/lib/constants';
 
@@ -29,8 +32,20 @@ export function AppLayout() {
   const { pathname } = useLocation();
   useRouteTitle(pathname);
 
+  // Warm the most-used lazy page chunks in the background right after the
+  // shell mounts, so the first click on a tab mounts instantly instead of
+  // flashing a loader while the chunk downloads.
+  useEffect(() => {
+    void import('@/pages/DashboardPage');
+    void import('@/pages/DiscoverPage');
+    void import('@/pages/ProposalsPage');
+    void import('@/pages/MessagesPage');
+    void import('@/pages/NestsPage');
+    void import('@/pages/ProfilePage');
+  }, []);
+
   return (
-    <div className="relative flex min-h-screen flex-col overflow-x-hidden bg-void text-primary">
+    <div className="relative flex min-h-screen flex-col overflow-x-hidden bg-void pt-16 text-primary">
       {/* Ambient orbs */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden" aria-hidden="true">
         <div className="absolute -top-40 left-[15%] h-[500px] w-[600px] rounded-full bg-accent-500/[0.06] blur-[100px]" />
@@ -47,9 +62,16 @@ export function AppLayout() {
         />
       </div>
 
-      <Navbar onMenuClick={() => setSidebarOpen(true)} />
+      {/* hideNavLinks: the sidebar owns navigation in the app shell */}
+      <Navbar onMenuClick={() => setSidebarOpen(true)} hideNavLinks />
 
-      <div className="relative flex flex-1">
+      {/* Unmissable prompt for new users who haven't finished onboarding yet */}
+      <OnboardingBanner />
+
+      {/* lg:pl-72 clears the desktop sidebar, which is fixed on the left so
+          only the main content column scrolls. On smaller screens the sidebar
+          is a slide-in drawer and needs no clearance. */}
+      <div className="relative flex flex-1 lg:pl-72">
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
         <AnimatePresence mode="wait">
@@ -61,9 +83,20 @@ export function AppLayout() {
             exit="exit"
             className="relative mx-auto w-full max-w-7xl flex-1 px-4 pb-24 pt-6 md:px-8 md:py-8 md:pb-10"
           >
-            <Outlet />
+            {/* Suspense lives INSIDE the shell so a lazy page chunk loading
+                (first visit to a tab) keeps the navbar + sidebar on screen and
+                only swaps the content area — never a full-app flash. */}
+            <Suspense fallback={<NeighborNestLoader message="Loading page…" />}>
+              <Outlet />
+            </Suspense>
           </motion.main>
         </AnimatePresence>
+      </div>
+
+      {/* Clearance for the fixed mobile tab bar; lg:pl-72 clears the fixed
+          desktop sidebar so the footer is never hidden behind it. */}
+      <div className="mb-16 md:mb-0 lg:pl-72">
+        <Footer />
       </div>
 
       <MobileTabBar />

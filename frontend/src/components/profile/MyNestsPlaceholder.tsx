@@ -26,7 +26,7 @@ export function MyNestsPlaceholder() {
           transition={{ repeat: Infinity, duration: 4, ease: 'easeInOut' }}
           className="flex h-20 w-20 items-center justify-center rounded-2xl border border-accent-400/20 bg-accent-400/10 shadow-glow-sm"
         >
-          <Users className="h-9 w-9 text-accent-300" aria-hidden="true" />
+          <Users className="h-9 w-9 text-accent-600" aria-hidden="true" />
         </motion.span>
         <span className="absolute -bottom-2 -right-2 flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--color-border)] bg-[var(--color-deep)] shadow-lg">
           <MapPin className="h-5 w-5 text-secondary" aria-hidden="true" />

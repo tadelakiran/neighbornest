@@ -19,6 +19,8 @@ import com.neighbornest.chatservice.repository.ConversationRepository;
 import com.neighbornest.chatservice.repository.MessageRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,6 +64,7 @@ public class ConversationService {
      * @throws ServiceUnavailableException if the nest-service is unreachable
      */
     @Transactional
+    @CacheEvict(value = "conversations", key = "#userId")
     public ConversationResponse startConversation(final Long userId, final StartConversationRequest request) {
         final Long participantId = request.getParticipantId();
         if (participantId.equals(userId)) {
@@ -92,6 +95,7 @@ public class ConversationService {
      * @return the list of conversation responses
      */
     @Transactional(readOnly = true)
+    @Cacheable(value = "conversations", key = "#userId")
     public List<ConversationResponse> getConversations(final Long userId) {
         return conversationRepository.findAllByParticipant(userId).stream()
                 .map(conversation -> toResponse(conversation, userId))

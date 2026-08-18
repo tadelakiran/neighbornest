@@ -8,6 +8,7 @@ com\neighbornest\user\dto\response\AnchorApplicationResponse$AnchorApplicationRe
 com\neighbornest\user\entity\AnchorApplication$AnchorApplicationBuilder.class
 com\neighbornest\user\exception\DuplicateProfileException.class
 com\neighbornest\user\dto\response\ProfileResponse$ProfileResponseBuilder.class
+com\neighbornest\user\config\ApiResponseAdvice.class
 com\neighbornest\user\config\RabbitMQConfig.class
 com\neighbornest\user\entity\BudgetLevel.class
 com\neighbornest\user\entity\UserRole.class
@@ -32,6 +33,7 @@ com\neighbornest\user\entity\UserProfile$UserProfileBuilder.class
 com\neighbornest\user\config\FeignClientConfig.class
 com\neighbornest\user\dto\request\OnboardingAnswerRequest$OnboardingAnswerRequestBuilder.class
 com\neighbornest\user\repository\UserProfileRepository.class
+com\neighbornest\user\config\CacheConfig.class
 com\neighbornest\user\dto\request\OnboardingAnswerRequest.class
 com\neighbornest\user\dto\response\UserMatchResponse$UserMatchResponseBuilder.class
 com\neighbornest\user\event\UserEventPublisher.class
@@ -47,6 +49,7 @@ com\neighbornest\user\dto\request\ProfileUpdateRequest.class
 com\neighbornest\user\dto\response\ErrorResponse$ErrorResponseBuilder.class
 com\neighbornest\user\entity\AnchorApplication.class
 com\neighbornest\user\dto\request\OnboardingSubmitRequest$OnboardingSubmitRequestBuilder.class
+com\neighbornest\user\dto\response\ApiResponse.class
 com\neighbornest\user\service\AnchorApplicationService$1.class
 com\neighbornest\user\dto\request\AnchorReviewRequest$AnchorReviewRequestBuilder.class
 com\neighbornest\user\entity\PersonalityType.class
@@ -62,5 +65,6 @@ com\neighbornest\user\handler\GlobalExceptionHandler.class
 com\neighbornest\user\entity\SchedulePreference.class
 com\neighbornest\user\dto\response\AuthValidationResponse$AuthValidationResponseBuilder.class
 com\neighbornest\user\security\JwtService.class
+com\neighbornest\user\security\RestAuthenticationEntryPoint.class
 com\neighbornest\user\event\AnchorApplicationReviewedEvent.class
 com\neighbornest\user\service\OnboardingService.class

@@ -32,7 +32,10 @@ com\neighbornest\chatservice\service\MarkReadResult.class
 com\neighbornest\chatservice\config\WebSocketConfig.class
 com\neighbornest\chatservice\config\RabbitMQConfig.class
 com\neighbornest\chatservice\dto\response\ReadReceiptUpdateResponse$ReadReceiptUpdateResponseBuilder.class
+com\neighbornest\chatservice\config\ApiResponseAdvice.class
+com\neighbornest\chatservice\config\CacheConfig.class
 com\neighbornest\chatservice\dto\response\MessageResponse.class
+com\neighbornest\chatservice\security\RestAuthenticationEntryPoint.class
 com\neighbornest\chatservice\exception\ResourceNotFoundException.class
 com\neighbornest\chatservice\client\NestMemberResponse$NestMemberResponseBuilder.class
 com\neighbornest\chatservice\dto\request\MarkReadRequest.class
@@ -45,6 +48,7 @@ com\neighbornest\chatservice\entity\Message$MessageBuilder.class
 com\neighbornest\chatservice\dto\request\ChatMessagePayload$ChatMessagePayloadBuilder.class
 com\neighbornest\chatservice\client\NestMemberResponse.class
 com\neighbornest\chatservice\client\UserProfileResponse$UserProfileResponseBuilder.class
+com\neighbornest\chatservice\dto\response\ApiResponse.class
 com\neighbornest\chatservice\dto\response\ErrorResponse.class
 com\neighbornest\chatservice\client\NestResponse$NestResponseBuilder.class
 com\neighbornest\chatservice\config\FeignClientConfig.class

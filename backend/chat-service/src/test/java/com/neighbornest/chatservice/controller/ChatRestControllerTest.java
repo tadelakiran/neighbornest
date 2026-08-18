@@ -9,6 +9,7 @@ import com.neighbornest.chatservice.dto.response.MessageResponse;
 import com.neighbornest.chatservice.enums.MessageType;
 import com.neighbornest.chatservice.security.JwtChannelInterceptor;
 import com.neighbornest.chatservice.security.JwtService;
+import com.neighbornest.chatservice.security.RestAuthenticationEntryPoint;
 import com.neighbornest.chatservice.service.ChatMessageService;
 import com.neighbornest.chatservice.service.ConversationService;
 import com.neighbornest.chatservice.service.MarkReadResult;
@@ -62,7 +63,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                 classes = {WebSocketConfig.class, JwtChannelInterceptor.class, ChatWebSocketController.class}
         )
 )
-@Import(SecurityConfig.class)
+@Import({SecurityConfig.class, RestAuthenticationEntryPoint.class})
 @DisplayName("ChatRestController Web Tests")
 class ChatRestControllerTest {
 
@@ -136,16 +137,16 @@ class ChatRestControllerTest {
 
             mockMvc.perform(get("/api/chat/nests/1/messages").header("Authorization", authHeader()))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.content[0].id").value(101))
-                    .andExpect(jsonPath("$.content[0].sender_name").value("Jane Doe"))
-                    .andExpect(jsonPath("$.content[0].is_read_by_me").value(true));
+                    .andExpect(jsonPath("$.data.content[0].id").value(101))
+                    .andExpect(jsonPath("$.data.content[0].sender_name").value("Jane Doe"))
+                    .andExpect(jsonPath("$.data.content[0].is_read_by_me").value(true));
         }
 
         @Test
-        @DisplayName("Should return 403 without a bearer token")
-        void shouldReturn403WithoutToken() throws Exception {
+        @DisplayName("Should return 401 without a bearer token")
+        void shouldReturn401WithoutToken() throws Exception {
             mockMvc.perform(get("/api/chat/nests/1/messages"))
-                    .andExpect(status().isForbidden());
+                    .andExpect(status().isUnauthorized());
         }
     }
 
@@ -160,8 +161,8 @@ class ChatRestControllerTest {
 
             mockMvc.perform(get("/api/chat/nests/1/members/online").header("Authorization", authHeader()))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$[0]").value(7))
-                    .andExpect(jsonPath("$[1]").value(12));
+                    .andExpect(jsonPath("$.data[0]").value(7))
+                    .andExpect(jsonPath("$.data[1]").value(12));
         }
     }
 
@@ -181,9 +182,9 @@ class ChatRestControllerTest {
                             .content(objectMapper.writeValueAsString(
                                     StartConversationRequest.builder().participantId(12L).build())))
                     .andExpect(status().isCreated())
-                    .andExpect(jsonPath("$.id").value(5))
-                    .andExpect(jsonPath("$.participant_id").value(12))
-                    .andExpect(jsonPath("$.unread_count").value(2));
+                    .andExpect(jsonPath("$.data.id").value(5))
+                    .andExpect(jsonPath("$.data.participant_id").value(12))
+                    .andExpect(jsonPath("$.data.unread_count").value(2));
         }
 
         @Test
@@ -208,8 +209,8 @@ class ChatRestControllerTest {
 
             mockMvc.perform(get("/api/chat/dm/conversations").header("Authorization", authHeader()))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$[0].id").value(5))
-                    .andExpect(jsonPath("$[0].participant_name").value("John Doe"));
+                    .andExpect(jsonPath("$.data[0].id").value(5))
+                    .andExpect(jsonPath("$.data[0].participant_name").value("John Doe"));
         }
     }
 
@@ -225,8 +226,8 @@ class ChatRestControllerTest {
 
             mockMvc.perform(get("/api/chat/dm/5/messages").header("Authorization", authHeader()))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.content[0].id").value(201))
-                    .andExpect(jsonPath("$.content[0].message_type").value("TEXT"));
+                    .andExpect(jsonPath("$.data.content[0].id").value(201))
+                    .andExpect(jsonPath("$.data.content[0].message_type").value("TEXT"));
         }
     }
 
@@ -245,7 +246,7 @@ class ChatRestControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("{\"messageIds\": [101, 102]}"))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.marked_count").value(2));
+                    .andExpect(jsonPath("$.data.marked_count").value(2));
         }
 
         @Test

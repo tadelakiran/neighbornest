@@ -57,18 +57,26 @@ public class PasswordService {
     public void forgotPassword(final String rawEmail) {
         final String email = rawEmail.trim().toLowerCase();
 
-        userRepository.findByEmail(email).ifPresent(user -> {
-            try {
-                notificationEmailClient.sendOtp(SendOtpRequest.builder()
-                        .email(email)
-                        .purpose(OtpPurpose.PASSWORD_RESET)
-                        .build());
-                log.info("Password reset code sent to {}", email);
-            } catch (final FeignException e) {
-                log.warn("Failed to send password reset code to {}: {}", email, e.getMessage());
-                throw new BadRequestException("We couldn't send the reset code right now. Please try again.");
-            }
-        });
+        final var account = userRepository.findByEmail(email);
+        if (account.isEmpty()) {
+            // No account, no email — deliberately silent to the caller so the
+            // endpoint cannot be used to enumerate registered addresses. Log it
+            // so a developer can tell "unknown email" apart from a delivery bug.
+            log.info("Password reset requested for {} — no account found, no code sent "
+                    + "(the API still returns success to avoid leaking which emails are registered)", email);
+            return;
+        }
+
+        try {
+            notificationEmailClient.sendOtp(SendOtpRequest.builder()
+                    .email(email)
+                    .purpose(OtpPurpose.PASSWORD_RESET)
+                    .build());
+            log.info("Password reset code sent to {}", email);
+        } catch (final FeignException e) {
+            log.warn("Failed to send password reset code to {}: {}", email, e.getMessage());
+            throw new BadRequestException("We couldn't send the reset code right now. Please try again.");
+        }
     }
 
     /**

@@ -15,6 +15,7 @@ import com.neighbornest.user.dto.response.UserMatchResponse;
 import com.neighbornest.user.entity.AnchorStatus;
 import com.neighbornest.user.entity.UserRole;
 import com.neighbornest.user.security.JwtService;
+import com.neighbornest.user.security.RestAuthenticationEntryPoint;
 import com.neighbornest.user.service.AnchorApplicationService;
 import com.neighbornest.user.service.OnboardingService;
 import com.neighbornest.user.service.PhotoStorageService;
@@ -61,7 +62,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @version 1.0.0
  */
 @WebMvcTest(UserProfileController.class)
-@Import(SecurityConfig.class)
+@Import({SecurityConfig.class, RestAuthenticationEntryPoint.class})
 @DisplayName("UserProfileController Web Tests")
 class UserProfileControllerTest {
 
@@ -131,9 +132,9 @@ class UserProfileControllerTest {
                                             .city("San Francisco")
                                             .build())))
                     .andExpect(status().isCreated())
-                    .andExpect(jsonPath("$.id").value(7))
-                    .andExpect(jsonPath("$.full_name").value("John Doe"))
-                    .andExpect(jsonPath("$.auth_user_id").value(AUTH_USER_ID));
+                    .andExpect(jsonPath("$.data.id").value(7))
+                    .andExpect(jsonPath("$.data.full_name").value("John Doe"))
+                    .andExpect(jsonPath("$.data.auth_user_id").value(AUTH_USER_ID));
         }
 
         @Test
@@ -147,14 +148,14 @@ class UserProfileControllerTest {
         }
 
         @Test
-        @DisplayName("Should return 403 when no bearer token is supplied")
-        void shouldReturn403WithoutToken() throws Exception {
-            // No authentication entry point is configured, so Spring Security's
-            // default is a 403 for unauthenticated requests (same as auth-service).
+        @DisplayName("Should return 401 when no bearer token is supplied")
+        void shouldReturn401WithoutToken() throws Exception {
+            // The RestAuthenticationEntryPoint answers 401 with a JSON body for
+            // unauthenticated requests (matching the frontend's refresh flow).
             mockMvc.perform(post("/api/users/profile")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("{\"fullName\": \"John Doe\", \"city\": \"San Francisco\"}"))
-                    .andExpect(status().isForbidden());
+                    .andExpect(status().isUnauthorized());
         }
     }
 
@@ -228,7 +229,7 @@ class UserProfileControllerTest {
                                                             .build()))
                                             .build())))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.is_onboarded").value(true));
+                    .andExpect(jsonPath("$.data.is_onboarded").value(true));
         }
 
         @Test
@@ -259,8 +260,8 @@ class UserProfileControllerTest {
                     .andExpect(status().isOk())
                     // Lombok's isOnboarded() getter serializes the boolean as
                     // "onboarded" (see frontend types/user.types.ts note).
-                    .andExpect(jsonPath("$.onboarded").value(true))
-                    .andExpect(jsonPath("$.answerCount").value(12));
+                    .andExpect(jsonPath("$.data.onboarded").value(true))
+                    .andExpect(jsonPath("$.data.answerCount").value(12));
         }
     }
 
@@ -289,8 +290,8 @@ class UserProfileControllerTest {
                                             .experience("Ran a local book club for 3 years")
                                             .build())))
                     .andExpect(status().isCreated())
-                    .andExpect(jsonPath("$.id").value(1))
-                    .andExpect(jsonPath("$.status").value("PENDING"));
+                    .andExpect(jsonPath("$.data.id").value(1))
+                    .andExpect(jsonPath("$.data.status").value("PENDING"));
         }
 
         @Test
@@ -335,7 +336,7 @@ class UserProfileControllerTest {
 
             mockMvc.perform(multipart("/api/users/me/photo").file(file).header("Authorization", authHeader()))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.profile_photo_url").value("/api/users/photo/abc123.jpg"));
+                    .andExpect(jsonPath("$.data.profile_photo_url").value("/api/users/photo/abc123.jpg"));
         }
     }
 
@@ -374,9 +375,9 @@ class UserProfileControllerTest {
 
             mockMvc.perform(get("/api/users/anchor-applications").header("Authorization", authHeader()))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$[0].id").value(1))
-                    .andExpect(jsonPath("$[0].status").value("PENDING"))
-                    .andExpect(jsonPath("$[0].full_name").value("John Doe"));
+                    .andExpect(jsonPath("$.data[0].id").value(1))
+                    .andExpect(jsonPath("$.data[0].status").value("PENDING"))
+                    .andExpect(jsonPath("$.data[0].full_name").value("John Doe"));
         }
 
         @Test
@@ -428,8 +429,8 @@ class UserProfileControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("{\"decision\": \"APPROVE\", \"note\": \"Great fit\"}"))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.status").value("APPROVED"))
-                    .andExpect(jsonPath("$.review_note").value("Great fit"));
+                    .andExpect(jsonPath("$.data.status").value("APPROVED"))
+                    .andExpect(jsonPath("$.data.review_note").value("Great fit"));
         }
 
         @Test

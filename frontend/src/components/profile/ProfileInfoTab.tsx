@@ -1,4 +1,4 @@
-import { Pencil, MapPin,  User, Heart } from 'lucide-react';
+import { Pencil, Sparkles, User, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import {
@@ -24,7 +24,7 @@ export function ProfileInfoTab({ profile, onEdit }: ProfileInfoTabProps) {
   const valueRatings = answers.filter((a) => a.questionKey.startsWith('values_'));
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h3 className="font-display text-lg font-bold text-primary">Profile info</h3>
@@ -54,13 +54,13 @@ export function ProfileInfoTab({ profile, onEdit }: ProfileInfoTabProps) {
         <Row label="Budget level" value={enumLabel(BUDGET_OPTIONS, profile.budgetLevel)} />
       </InfoGroup>
 
-      <InfoGroup title="Interests & values" icon={MapPin}>
+      <InfoGroup title="Interests & values" icon={Sparkles}>
         {interests.length > 0 ? (
           <div className="flex flex-wrap gap-2">
             {interests.map((interest) => (
               <span
                 key={interest}
-                className="rounded-full border border-accent-400/20 bg-accent-400/10 px-3 py-1 text-xs font-medium text-accent-300 transition-colors hover:border-accent-400/40"
+                className="rounded-full border border-accent-400/35 bg-accent-400/10 px-3 py-1 text-xs font-semibold text-accent-700 transition-colors hover:border-accent-500/60"
               >
                 {interest}
               </span>
@@ -80,8 +80,8 @@ export function ProfileInfoTab({ profile, onEdit }: ProfileInfoTabProps) {
                   key={answer.questionKey}
                   className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-2)] px-3 py-1.5 text-xs text-[var(--text-secondary)]"
                 >
-                  <span className="text-muted">{question.label}:</span>
-                  <span className="font-bold text-accent-400">{answer.answerValue}/5</span>
+                  <span className="font-medium text-[var(--text-muted)]">{question.label}:</span>
+                  <span className="font-bold text-accent-700">{answer.answerValue}/5</span>
                 </span>
               );
             })}
@@ -94,12 +94,12 @@ export function ProfileInfoTab({ profile, onEdit }: ProfileInfoTabProps) {
 
 function InfoGroup({ title, icon: Icon, children }: { title: string; icon: React.ElementType; children: React.ReactNode }) {
   return (
-    <Card className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)]/50 p-5 backdrop-blur-sm shadow-lg shadow-black/5">
+    <Card>
       <div className="mb-4 flex items-center gap-2">
-        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent-400/10 text-accent-400">
+        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent-400/10 text-accent-600">
           <Icon className="h-3.5 w-3.5" aria-hidden="true" />
         </span>
-        <h4 className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted">{title}</h4>
+        <h4 className="text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--text-muted)]">{title}</h4>
       </div>
       <dl className="space-y-3">{children}</dl>
     </Card>

@@ -1,6 +1,7 @@
 package com.neighbornest.chatservice.config;
 
 import com.neighbornest.chatservice.security.JwtAuthenticationFilter;
+import com.neighbornest.chatservice.security.RestAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,9 +21,15 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  * authentication is enforced by the {@code JwtChannelInterceptor} on the
  * CONNECT frame. Authentication is stateless.
  * </p>
+ * <p>
+ * Requests that reach a protected endpoint without a valid token are answered
+ * by {@link RestAuthenticationEntryPoint} with a specific 401 JSON body (the
+ * framework default would be a bare 403, which breaks the frontend's
+ * token-refresh flow).
+ * </p>
  *
  * @author NeighborNest Team
- * @version 1.0.0
+ * @version 1.1.0
  */
 @Configuration
 @EnableWebSecurity
@@ -31,6 +38,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final RestAuthenticationEntryPoint restAuthenticationEntryPoint;
 
     /** Endpoints accessible without authentication. */
     private static final String[] PUBLIC_ENDPOINTS = {
@@ -58,6 +66,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                         .anyRequest().authenticated())
+                .exceptionHandling(exception ->
+                        exception.authenticationEntryPoint(restAuthenticationEntryPoint))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

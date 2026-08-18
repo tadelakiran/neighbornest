@@ -77,7 +77,7 @@ export function StepSuccess() {
           transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}
         />
         {/* Geometric nest — strokes draw themselves */}
-        <svg viewBox="0 0 64 64" fill="none" className="relative h-20 w-20 text-accent-300 drop-shadow-[0_0_12px_rgba(14,165,233,0.5)]">
+        <svg viewBox="0 0 64 64" fill="none" className="relative h-20 w-20 text-accent-500 drop-shadow-[0_0_12px_rgba(14,165,233,0.5)]">
           <motion.path
             d="M32 12 L56 52 H8 Z"
             stroke="currentColor"

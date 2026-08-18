@@ -33,15 +33,19 @@ interface CompatibleWire {
   user_id: number;
   full_name?: string | null;
   city?: string | null;
+  profile_photo_url?: string | null;
+  interests?: string[] | null;
   overall_score: number;
   values_score?: number | null;
   lifestyle_score?: number | null;
   interest_score?: number | null;
 }
 
-/** Wire shape of a proposal member (the backend sends no names). */
+/** Wire shape of a proposal member (snake_case from the backend). */
 interface ProposalMemberWire {
   user_id: number;
+  full_name?: string | null;
+  profile_photo_url?: string | null;
   role_in_nest: 'MEMBER' | 'ANCHOR';
   response: 'PENDING' | 'ACCEPTED' | 'DECLINED';
   responded_at?: string | null;
@@ -68,18 +72,17 @@ function mapCompatible(raw: CompatibleWire): CompatibleUserResponse {
     valuesScore: Number(raw.values_score ?? 0),
     lifestyleScore: Number(raw.lifestyle_score ?? 0),
     interestScore: Number(raw.interest_score ?? 0),
-    // The matching-service does not enrich compatibles with interests.
-    interests: [],
+    profilePhotoUrl: raw.profile_photo_url ?? undefined,
+    interests: raw.interests ?? [],
   };
 }
 
-/** Maps a snake_case proposal member (the backend returns no names). */
+/** Maps a snake_case proposal member to the camelCase app model. */
 function mapProposalMember(raw: ProposalMemberWire): ProposalMemberResponse {
   return {
     userId: raw.user_id,
-    // The matching-service does not enrich proposal members with names, so
-    // the UI falls back to a generic label until that lands server-side.
-    fullName: '',
+    fullName: raw.full_name ?? '',
+    profilePhotoUrl: raw.profile_photo_url ?? undefined,
     roleInNest: raw.role_in_nest,
     response: raw.response,
   };

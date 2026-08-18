@@ -45,12 +45,12 @@ export function StepWelcome({ onNext }: StepWelcomeProps) {
         {HIGHLIGHTS.map(({ icon: Icon, text }) => (
           <li
             key={text}
-            className="flex items-center gap-3 rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3"
+            className="flex items-center gap-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3"
           >
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-accent-100 text-accent-600">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-accent-100 text-accent-700">
               <Icon className="h-4 w-4" aria-hidden="true" />
             </span>
-            <span className="text-sm text-[var(--text-secondary)]">{text}</span>
+            <span className="text-sm font-medium text-[var(--text-secondary)]">{text}</span>
           </li>
         ))}
       </motion.ul>

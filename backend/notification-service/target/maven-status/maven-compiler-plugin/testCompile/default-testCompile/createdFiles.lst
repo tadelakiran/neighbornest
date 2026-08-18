@@ -31,4 +31,5 @@ com\neighbornest\notificationservice\service\NotificationServiceTest$DispatchTes
 com\neighbornest\notificationservice\service\EmailServiceTest$SendRawTests.class
 com\neighbornest\notificationservice\service\EmailTemplatesTest.class
 com\neighbornest\notificationservice\service\NotificationServiceTest$ReadStateTests.class
+com\neighbornest\notificationservice\config\EmailJsConfigCheckTest.class
 com\neighbornest\notificationservice\repository\NotificationRepositoryTest$UnreadTests.class

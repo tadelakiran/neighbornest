@@ -30,7 +30,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
         id={id}
         rows={rows}
         className={cn(
-          'w-full rounded-[var(--radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 text-sm text-[var(--text-primary)]',
+          'w-full rounded-[var(--radius)] border border-[var(--color-border)] bg-[var(--color-surface-2)] px-4 py-3 text-sm text-[var(--text-primary)]',
           'placeholder:text-[var(--text-muted)] outline-none transition-all duration-200',
           'focus:border-[var(--accent-400)] focus:ring-2 focus:ring-[var(--accent-400)]/20',
           'disabled:cursor-not-allowed disabled:opacity-60 resize-y',

@@ -1,0 +1,18 @@
+# NeighborNest production Caddyfile — free HTTPS in front of the API Gateway.
+#
+# {$API_DOMAIN} is injected from the compose service environment (which reads
+# API_DOMAIN from .env.prod). Caddy automatically provisions and renews a
+# Let's Encrypt certificate for it (HTTP-01 challenge, so port 80 must be
+# reachable from the internet — open it in the Oracle VCN security list).
+#
+# Everything the frontend needs flows through this one domain:
+#   REST       https://{$API_DOMAIN}/api/**     -> api-gateway:8080
+#   WebSocket  https://{$API_DOMAIN}/ws/chat/** -> api-gateway:8080 (SockJS/STOMP)
+#   Health     https://{$API_DOMAIN}/actuator/health
+{$API_DOMAIN} {
+	# The gateway already sets CORS headers; don't let Caddy mangle them.
+	header Access-Control-Allow-Origin * remove
+	header -Server
+
+	reverse_proxy api-gateway:8080
+}

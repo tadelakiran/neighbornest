@@ -85,7 +85,7 @@ export function StepCard({
           'flex h-11 w-11 items-center justify-center rounded-md transition-colors duration-300',
 
           selected
-            ? 'bg-[var(--accent-400)]/15 text-[var(--accent-500)]'
+            ? 'bg-[var(--accent-400)]/15 text-[var(--accent-600)]'
             : 'bg-[var(--color-surface-2)] text-[var(--text-muted)]'
         )}
       >
@@ -101,7 +101,7 @@ export function StepCard({
           className={cn(
             'block text-sm font-semibold',
             selected
-              ? 'text-[var(--accent-500)]'
+              ? 'text-[var(--accent-600)]'
               : 'text-[var(--text-primary)]'
           )}
         >

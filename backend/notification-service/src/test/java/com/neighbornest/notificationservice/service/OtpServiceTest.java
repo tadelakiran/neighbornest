@@ -19,6 +19,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -98,8 +99,37 @@ class OtpServiceTest {
             assertThat(saved.getEmail()).isEqualTo(EMAIL);
             assertThat(saved.getOtpHash()).isNotBlank();
             assertThat(saved.getOtpHash()).doesNotContain("123456");
+
+            // The email must receive the code, expiry, and brand under every
+            // placeholder convention so it renders correctly no matter which
+            // EmailJS dashboard template is configured.
+            @SuppressWarnings("unchecked")
+            final ArgumentCaptor<Map<String, Object>> varsCaptor = ArgumentCaptor.forClass(Map.class);
             verify(emailService).sendTemplate(eq(EMAIL), anyString(),
-                    eq("otp-verification"), anyMap());
+                    eq("otp-verification"), varsCaptor.capture());
+            final Map<String, Object> vars = varsCaptor.getValue();
+            assertThat(vars.get("otpCode")).isEqualTo(vars.get("passcode"));
+            assertThat((String) vars.get("passcode")).isNotBlank();
+            assertThat(vars.get("expiryMinutes")).isEqualTo(10L);
+            assertThat(vars.get("time")).isEqualTo("10 minutes");
+            assertThat(vars.get("appName")).isEqualTo("NeighborNest");
+            assertThat(vars.get("companyName")).isEqualTo("NeighborNest");
+            assertThat(vars.get("company_name")).isEqualTo("NeighborNest");
+            assertThat(vars.get("supportEmail")).isEqualTo("support@neighbornest.com");
+            assertThat(vars.get("support_email")).isEqualTo("support@neighbornest.com");
+        }
+
+        @Test
+        @DisplayName("Should use the password-reset template and subject for a reset request")
+        void shouldUsePasswordResetTemplate() {
+            when(otpRepository.findTopByEmailAndPurposeAndVerifiedAtIsNullOrderByCreatedAtDesc(anyString(), any()))
+                    .thenReturn(Optional.empty());
+            when(emailService.sendTemplate(anyString(), anyString(), anyString(), anyMap())).thenReturn(true);
+
+            otpService.sendOtp(EMAIL, OtpPurpose.PASSWORD_RESET);
+
+            verify(emailService).sendTemplate(eq(EMAIL),
+                    eq("Reset your NeighborNest password"), eq("password-reset"), anyMap());
         }
 
         @Test

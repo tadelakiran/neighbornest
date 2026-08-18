@@ -162,21 +162,18 @@ export function EditProfilePanel({ profile, open, onClose, onSave }: EditProfile
                   id="ep-fullName"
                   label="Full name"
                   error={errors.fullName?.message}
-                  className="rounded-xl border-[var(--color-border)] bg-[var(--color-surface-2)] transition-all focus-within:border-[var(--accent-400)]/40 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.1)]"
                   {...register('fullName')}
                 />
                 <Input
                   id="ep-city"
                   label="City"
                   error={errors.city?.message}
-                  className="rounded-xl border-[var(--color-border)] bg-[var(--color-surface-2)] transition-all focus-within:border-[var(--accent-400)]/40 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.1)]"
                   {...register('city')}
                 />
                 <Input
                   id="ep-neighborhood"
                   label="Neighborhood"
                   error={errors.neighborhood?.message}
-                  className="rounded-xl border-[var(--color-border)] bg-[var(--color-surface-2)] transition-all focus-within:border-[var(--accent-400)]/40 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.1)]"
                   {...register('neighborhood')}
                 />
                 <Input
@@ -184,14 +181,12 @@ export function EditProfilePanel({ profile, open, onClose, onSave }: EditProfile
                   type="number"
                   label="Years in city"
                   error={errors.yearsInCity?.message}
-                  className="rounded-xl border-[var(--color-border)] bg-[var(--color-surface-2)] transition-all focus-within:border-[var(--accent-400)]/40 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.1)]"
                   {...register('yearsInCity')}
                 />
                 <Input
                   id="ep-occupation"
                   label="Occupation"
                   error={errors.occupation?.message}
-                  className="rounded-xl border-[var(--color-border)] bg-[var(--color-surface-2)] transition-all focus-within:border-[var(--accent-400)]/40 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.1)]"
                   {...register('occupation')}
                 />
 

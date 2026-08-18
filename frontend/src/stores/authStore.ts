@@ -50,6 +50,14 @@ interface AuthState {
   clearAuth: () => void;
   /** Fetches the current user profile from `GET /api/users/me`. */
   fetchUser: () => Promise<void>;
+  /**
+   * Restores the session after a page refresh. The access token is memory-only
+   * (never persisted), so on reload it is gone even though `user` and
+   * `isAuthenticated` were rehydrated from localStorage. This exchanges the
+   * stored refresh token for a fresh access token before any API call fires;
+   * on failure the session is cleared so the router redirects to login.
+   */
+  restoreSession: () => Promise<void>;
   /** Marks the persisted user as onboarded (called after onboarding completes). */
   markOnboarded: () => void;
 }
@@ -100,6 +108,31 @@ export const useAuthStore = create<AuthState>()(
             useToastStore.getState().addToast(getErrorMessage(error), 'error');
           }
           set({ isLoading: false });
+        }
+      },
+
+      restoreSession: async () => {
+        const refreshToken = getStoredRefreshToken();
+        if (!refreshToken) {
+          // No refresh token — the persisted session cannot be restored.
+          get().clearAuth();
+          return;
+        }
+        set({ isLoading: true });
+        try {
+          const response = await authService.refreshToken({ refreshToken });
+          set({ accessToken: response.access_token, isAuthenticated: true });
+          // Fetch the fresh profile (tolerates 404 for not-yet-created profiles).
+          await get().fetchUser();
+        } catch (error) {
+          // Refresh token invalid/expired or the network failed — clear the
+          // session so the router redirects to login instead of letting
+          // components fire token-less API calls.
+          if (import.meta.env.DEV) {
+            // eslint-disable-next-line no-console
+            console.warn('[auth] Session restore failed — signing out.', error);
+          }
+          get().clearAuth();
         }
       },
 

@@ -3,8 +3,8 @@ package com.neighbornest.gateway.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Instant;
@@ -19,9 +19,15 @@ import java.util.Map;
  * clean, consistent 503 JSON body so clients never see raw router exceptions
  * or 404s for the fallback path itself.
  * </p>
+ * <p>
+ * The fallback forward preserves the original request method, so this handler
+ * must accept <em>every</em> HTTP method — a GET-only mapping would turn a
+ * POST/PUT that hit a down service into a misleading "405 Method Not Allowed"
+ * instead of the intended 503.
+ * </p>
  *
  * @author NeighborNest Team
- * @version 1.1.0
+ * @version 1.2.0
  */
 @RestController
 public class FallbackController {
@@ -32,7 +38,7 @@ public class FallbackController {
      * @param service the failing service name (auth, user, matching, nest)
      * @return a 503 SERVICE UNAVAILABLE JSON body
      */
-    @GetMapping(value = "/fallback/{service}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/fallback/{service}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map<String, Object>> fallback(@PathVariable final String service) {
         final Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", Instant.now().toString());

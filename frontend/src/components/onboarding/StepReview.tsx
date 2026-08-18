@@ -55,7 +55,7 @@ export function StepReview({ data, onNext, onBack, onEdit, isSubmitting }: StepR
             data.interests.map((interest) => (
               <span
                 key={interest}
-                className="rounded-full border border-accent-400/30 bg-accent-400/10 px-3 py-1 text-xs font-medium text-accent-200"
+                className="rounded-full border border-accent-400/35 bg-accent-400/10 px-3 py-1 text-xs font-semibold text-accent-700"
               >
                 {interest}
               </span>
@@ -99,14 +99,14 @@ function Section({ title, onEdit, children }: SectionProps) {
   return (
     <motion.div
       variants={fadeUpItem}
-      className="rounded-md border border-[var(--color-border)] bg-[var(--color-surface)]/50 p-4"
+      className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]/60 p-5"
     >
       <div className="mb-3 flex items-center justify-between">
-        <h3 className="text-xs font-medium uppercase tracking-widest text-muted">{title}</h3>
+        <h3 className="text-xs font-semibold uppercase tracking-widest text-[var(--text-muted)]">{title}</h3>
         <button
           type="button"
           onClick={onEdit}
-          className="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium text-accent-300 transition-colors hover:bg-accent-400/10 hover:text-accent-200"
+          className="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-semibold text-accent-700 transition-colors hover:bg-accent-400/10 hover:text-accent-600"
         >
           <Pencil className="h-3 w-3" aria-hidden="true" />
           Edit
@@ -126,8 +126,8 @@ interface RowProps {
 function Row({ label, value }: RowProps) {
   return (
     <div className="flex items-center justify-between gap-4">
-      <dt className="text-xs text-muted">{label}</dt>
-      <dd className="truncate text-sm font-medium text-primary">{value}</dd>
+      <dt className="text-xs font-medium text-[var(--text-muted)]">{label}</dt>
+      <dd className="truncate text-sm font-semibold text-primary">{value}</dd>
     </div>
   );
 }

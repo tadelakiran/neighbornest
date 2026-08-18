@@ -94,5 +94,19 @@ export function useProfile() {
     [profile]
   );
 
-  return { profile, isLoading, error, reload: load, updateProfile };
+  /**
+   * Uploads a new profile photo and paints the server-confirmed profile.
+   *
+   * @param file - the image file chosen by the user
+   * @returns the updated profile
+   */
+  const uploadPhoto = useCallback(async (file: File): Promise<UserProfile> => {
+    const updated = await userService.uploadPhoto(file);
+    setProfile(updated);
+    // Keep the navbar avatar / auth store in sync with the new photo.
+    void useAuthStore.getState().fetchUser();
+    return updated;
+  }, []);
+
+  return { profile, isLoading, error, reload: load, updateProfile, uploadPhoto };
 }

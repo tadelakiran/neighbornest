@@ -89,7 +89,7 @@ export function AnchorApplicationForm() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <Card className="relative overflow-hidden rounded-2xl border-royal-500/20">
+        <Card className="relative overflow-hidden border-royal-500/30">
           {/* Home photo as its own side panel — separate from the text */}
           <div className="grid items-stretch md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
             <div className="flex flex-col gap-4 p-6 sm:flex-row sm:items-center md:p-8">
@@ -131,8 +131,8 @@ export function AnchorApplicationForm() {
         initial="hidden"
         animate="show"
       >
-        <Card className="rounded-2xl p-6 sm:p-8">
-          <form onSubmit={onSubmit} className="space-y-5" noValidate>
+        <Card>
+          <form onSubmit={onSubmit} className="space-y-6" noValidate>
             <motion.div variants={stagger.item}>
               <Input
                 id="aa-years"
@@ -142,7 +142,6 @@ export function AnchorApplicationForm() {
                 placeholder="5"
                 icon={<CalendarDays className="h-4 w-4 text-muted" aria-hidden="true" />}
                 error={errors.yearsInCity?.message}
-                className="h-12 rounded-xl border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--text-primary)] transition-all focus-within:border-[var(--accent-400)]/40 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.1)]"
                 {...register('yearsInCity')}
               />
             </motion.div>
@@ -176,7 +175,6 @@ export function AnchorApplicationForm() {
                 placeholder="Tell us about your time in the city — events you've hosted, groups you're part of, hidden gems you know…"
                 rows={4}
                 error={errors.experience?.message}
-                className="rounded-xl border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--text-primary)] transition-all focus-within:border-[var(--accent-400)]/40 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.1)]"
                 {...register('experience')}
               />
             </motion.div>
@@ -188,7 +186,6 @@ export function AnchorApplicationForm() {
                 placeholder="e.g. Evenings and weekends"
                 rows={3}
                 error={errors.availability?.message}
-                className="rounded-xl border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--text-primary)] transition-all focus-within:border-[var(--accent-400)]/40 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.1)]"
                 {...register('availability')}
               />
             </motion.div>
@@ -248,7 +245,7 @@ export function AnchorApplicationForm() {
                 { icon: Clock, text: 'Track the status on your profile at any time' },
               ].map((step, i) => (
                 <li key={i} className="flex items-start gap-3">
-                  <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent-400/10 text-[10px] font-bold text-accent-400">
+                  <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent-400/15 text-[10px] font-bold text-accent-700">
                     {i + 1}
                   </span>
                   <span className="text-xs leading-relaxed text-secondary">{step.text}</span>
@@ -268,7 +265,7 @@ export function AnchorApplicationForm() {
 
 function PendingBadge() {
   return (
-    <span className="inline-flex items-center gap-2 rounded-full border border-royal-400/25 bg-royal-400/10 px-4 py-1.5 text-xs font-bold text-royal-300 shadow-[0_0_12px_rgba(59,130,246,0.15)]">
+    <span className="inline-flex items-center gap-2 rounded-full border border-royal-500/35 bg-royal-400/10 px-4 py-1.5 text-xs font-bold text-royal-700 shadow-[0_0_12px_rgba(59,130,246,0.15)]">
       <span className="relative flex h-2 w-2">
         <span className="absolute inset-0 animate-ping rounded-full bg-royal-400 opacity-60" />
         <span className="relative h-2 w-2 rounded-full bg-royal-400" />

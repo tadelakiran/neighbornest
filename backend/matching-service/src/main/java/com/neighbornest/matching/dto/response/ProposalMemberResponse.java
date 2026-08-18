@@ -28,6 +28,14 @@ public class ProposalMemberResponse {
     @JsonProperty("user_id")
     private Long userId;
 
+    @Schema(description = "Full name of the member", example = "Jane Doe")
+    @JsonProperty("full_name")
+    private String fullName;
+
+    @Schema(description = "URL to the member's profile photo", example = "https://storage.example.com/photos/user1.jpg")
+    @JsonProperty("profile_photo_url")
+    private String profilePhotoUrl;
+
     @Schema(description = "Role the member would hold in the Nest", example = "MEMBER")
     @JsonProperty("role_in_nest")
     private RoleInNest roleInNest;

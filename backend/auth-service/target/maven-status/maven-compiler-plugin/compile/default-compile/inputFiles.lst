@@ -35,6 +35,7 @@ C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\auth-servi
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\auth-service\src\main\java\com\neighbornest\auth\repository\RefreshTokenRepository.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\auth-service\src\main\java\com\neighbornest\auth\repository\UserRepository.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\auth-service\src\main\java\com\neighbornest\auth\security\JwtAuthenticationFilter.java
+C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\auth-service\src\main\java\com\neighbornest\auth\security\RestAuthenticationEntryPoint.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\auth-service\src\main\java\com\neighbornest\auth\service\AuthService.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\auth-service\src\main\java\com\neighbornest\auth\service\JwtService.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\auth-service\src\main\java\com\neighbornest\auth\service\PasswordService.java

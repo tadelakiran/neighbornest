@@ -21,27 +21,28 @@
     --color-surface-2: #eef3fe;  /* inputs / secondary panels  */
     --color-raised:    #e2eafb;  /* hovers / tags / inputs     */
 
-    /* Borders */
-    --color-border:   rgba(30, 64, 175, 0.12);
-    --color-border-2: rgba(14, 165, 233, 0.38);
+    /* Borders — kept visible enough that every field/card boundary reads
+       clearly on the light surfaces (WCAG-friendly, no faint hairlines). */
+    --color-border:   rgba(30, 64, 175, 0.24);
+    --color-border-2: rgba(14, 165, 233, 0.6);
 
-    /* Text hierarchy — darker for stronger contrast on white */
+    /* Text hierarchy — darkened for WCAG AA on the light surfaces */
     --text-primary:   #0b1220;
     --text-secondary: #22304d;
-    --text-muted:     #47556e;
-    --text-subtle:    #5f6c85;
+    --text-muted:     #3d4c68;
+    --text-subtle:    #4d5b76;
 
     /* Legacy aliases (older components reference these) */
     --bg:          #f4f7ff;
     --surface:     #ffffff;
     --surface-2:   #eef3fe;
     --raised:      #e2eafb;
-    --border:      rgba(30, 64, 175, 0.12);
-    --border-2:    rgba(14, 165, 233, 0.38);
+    --border:      rgba(30, 64, 175, 0.24);
+    --border-2:    rgba(14, 165, 233, 0.6);
     --text-1:      #0b1220;
     --text-2:      #1c2945;
     --text-3:      #22304d;
-    --text-4:      #47556e;
+    --text-4:      #3d4c68;
 
     /* Shadows */
     --shadow-xs: 0 1px 2px rgba(37, 99, 235, 0.06);

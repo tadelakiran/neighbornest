@@ -42,16 +42,16 @@ export function SettingsTab() {
   };
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       {/* Notifications */}
-      <Card className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)]/50 p-5 backdrop-blur-sm shadow-lg shadow-black/5">
+      <Card>
         <div className="mb-4 flex items-center gap-3">
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent-400/10 ring-1 ring-accent-400/20">
-            <BellRing className="h-4 w-4 text-accent-400" aria-hidden="true" />
+            <BellRing className="h-4 w-4 text-accent-600" aria-hidden="true" />
           </span>
-          <h4 className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted">Notifications</h4>
+          <h4 className="text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--text-muted)]">Notifications</h4>
         </div>
-        <div className="divide-y divide-white/[0.06]">
+        <div className="divide-y divide-[var(--color-border)]">
           {PREF_LABELS.map(({ key, label, description }) => (
             <div key={key} className="py-3 first:pt-0 last:pb-0">
               <Toggle
@@ -66,12 +66,12 @@ export function SettingsTab() {
       </Card>
 
       {/* Password */}
-      <Card className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)]/50 p-5 backdrop-blur-sm shadow-lg shadow-black/5">
+      <Card>
         <div className="mb-5 flex items-center gap-3">
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent-400/10 ring-1 ring-accent-400/20">
-            <KeyRound className="h-4 w-4 text-accent-400" aria-hidden="true" />
+            <KeyRound className="h-4 w-4 text-accent-600" aria-hidden="true" />
           </span>
-          <h4 className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted">Change password</h4>
+          <h4 className="text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--text-muted)]">Change password</h4>
         </div>
         <div className="space-y-4">
           <Input
@@ -80,7 +80,6 @@ export function SettingsTab() {
             label="Current password"
             placeholder="••••••••"
             icon={<Lock className="h-4 w-4 text-muted" aria-hidden="true" />}
-            className="h-12 rounded-xl border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--text-primary)] transition-all focus-within:border-[var(--accent-400)]/40 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.1)]"
           />
           <div className="grid gap-4 sm:grid-cols-2">
             <Input
@@ -89,7 +88,6 @@ export function SettingsTab() {
               label="New password"
               placeholder="••••••••"
               icon={<Lock className="h-4 w-4 text-muted" aria-hidden="true" />}
-              className="h-12 rounded-xl border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--text-primary)] transition-all focus-within:border-[var(--accent-400)]/40 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.1)]"
             />
             <Input
               id="st-confirm"
@@ -97,7 +95,6 @@ export function SettingsTab() {
               label="Confirm new password"
               placeholder="••••••••"
               icon={<Eye className="h-4 w-4 text-muted" aria-hidden="true" />}
-              className="h-12 rounded-xl border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--text-primary)] transition-all focus-within:border-[var(--accent-400)]/40 focus-within:shadow-[0_0_0_3px_rgba(14,165,233,0.1)]"
             />
           </div>
           <Button
@@ -110,22 +107,22 @@ export function SettingsTab() {
       </Card>
 
       {/* Danger zone */}
-      <Card className="rounded-2xl border border-royal-500/20 bg-royal-500/[0.04] p-5">
+      <Card className="border-royal-500/30 bg-royal-500/[0.05]">
         <div className="mb-3 flex items-center gap-3">
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-royal-400/10 ring-1 ring-royal-400/20">
-            <Trash2 className="h-4 w-4 text-royal-400" aria-hidden="true" />
+            <Trash2 className="h-4 w-4 text-royal-700" aria-hidden="true" />
           </span>
           <div>
-            <h4 className="text-sm font-bold uppercase tracking-wide text-royal-300">Danger zone</h4>
-            <p className="mt-0.5 text-xs text-royal-300/70">Destructive actions</p>
+            <h4 className="text-sm font-bold uppercase tracking-wide text-royal-700">Danger zone</h4>
+            <p className="mt-0.5 text-xs font-medium text-royal-700/80">Destructive actions</p>
           </div>
         </div>
-        <p className="text-sm leading-relaxed text-muted">
+        <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
           Deleting your account removes your profile and data permanently. This action cannot be undone.
         </p>
         <Button
           variant="danger"
-          className="mt-4 rounded-xl border-royal-500/30 bg-royal-500/10 text-royal-400 hover:bg-royal-500/20 hover:text-royal-300"
+          className="mt-4 rounded-xl border-royal-500/30 bg-royal-500/10 text-royal-700 hover:bg-royal-500/20 hover:text-royal-800"
           onClick={() => setDeleteOpen(true)}
         >
           Delete account
@@ -141,11 +138,11 @@ export function SettingsTab() {
       >
         <div className="flex flex-col items-center gap-4 py-2 text-center">
           <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-royal-400/10 ring-1 ring-royal-400/20">
-            <Trash2 className="h-7 w-7 text-royal-400" aria-hidden="true" />
+            <Trash2 className="h-7 w-7 text-royal-700" aria-hidden="true" />
           </span>
           <div>
             <p className="text-sm font-semibold text-primary">Are you absolutely sure?</p>
-            <p className="mt-1 max-w-[16rem] text-xs leading-relaxed text-muted">
+            <p className="mt-1 max-w-[16rem] text-xs leading-relaxed text-[var(--text-muted)]">
               This will permanently delete your profile, onboarding answers, and any Nest memberships.
             </p>
           </div>
@@ -156,7 +153,7 @@ export function SettingsTab() {
             <Button
               variant="danger"
               fullWidth
-              className="rounded-xl border-royal-500/30 bg-royal-500/10 text-royal-400 hover:bg-royal-500/20"
+              className="rounded-xl border-royal-500/30 bg-royal-500/10 text-royal-700 hover:bg-royal-500/20 hover:text-royal-800"
               onClick={() => {
                 setDeleteOpen(false);
                 toast.info('Account deletion is not available yet — coming in a future module.');

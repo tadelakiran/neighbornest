@@ -6,8 +6,8 @@ import { ProposalCard } from '@/components/matching/ProposalCard';
 import { ConfettiBurst } from '@/components/matching/ConfettiBurst';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { NeighborNestLoader } from '@/components/ui/NeighborNestLoader';
 import { PageHeader } from '@/components/ui/PageHeader';
-import { Skeleton } from '@/components/ui/Skeleton';
 import { IMAGES } from '@/lib/images';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
@@ -96,14 +96,8 @@ export function ProposalsPage() {
         }
       />
 
-      {/* Loading skeletons */}
-      {proposals === null && (
-        <div className="space-y-4">
-          {Array.from({ length: 2 }).map((_, i) => (
-            <Skeleton key={i} className="h-56 rounded-2xl" />
-          ))}
-        </div>
-      )}
+      {/* Loading — clean branded loader until invitations arrive */}
+      {proposals === null && <NeighborNestLoader message="Checking for invitations…" />}
 
       {/* List */}
       {proposals !== null && count > 0 && (

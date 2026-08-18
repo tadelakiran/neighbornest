@@ -37,7 +37,12 @@ import java.time.LocalDateTime;
         indexes = {
                 @Index(name = "idx_compat_user1", columnList = "user_id_1"),
                 @Index(name = "idx_compat_user2", columnList = "user_id_2"),
-                @Index(name = "idx_compat_pair", columnList = "user_id_1, user_id_2")
+                @Index(name = "idx_compat_pair", columnList = "user_id_1, user_id_2"),
+                // Composite indexes so the top-compatibles queries
+                // (WHERE user_id_x = ? ORDER BY overall_score DESC LIMIT n)
+                // are pure index scans — no filesort — as the user base grows.
+                @Index(name = "idx_compat_user1_score", columnList = "user_id_1, overall_score"),
+                @Index(name = "idx_compat_user2_score", columnList = "user_id_2, overall_score")
         })
 @Getter
 @Setter
