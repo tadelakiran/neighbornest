@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from '@/App';
+import KeepAlive from '@/components/KeepAlive';
 import '@/index.css';
 
 // sockjs-client assumes a Node-style `global` — polyfill it for the browser
@@ -17,6 +18,12 @@ if (!rootElement) {
 
 createRoot(rootElement).render(
   <StrictMode>
+    {/*
+      Invisible, opt-in keep-alive (see VITE_ENABLE_KEEP_ALIVE). Mounted
+      outside the app tree so it can never interfere with the router,
+      rendering, auth, or chat WebSockets. Renders nothing.
+    */}
+    <KeepAlive />
     <App />
   </StrictMode>
 );

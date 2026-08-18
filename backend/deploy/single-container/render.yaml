@@ -1,0 +1,59 @@
+# ============================================================================
+# NeighborNest backend — Render Blueprint (single container)
+# ============================================================================
+# IMPORTANT: this REQUIRES a paid instance. Render's free tier cannot run this
+# stack (512 MB RAM vs ~4-5 GB needed) and free instances cannot attach the
+# persistent disk that MySQL/RabbitMQ data must live on.
+#
+# How to use:
+#   1. Push the repo to GitHub.
+#   2. In the Render dashboard: New -> Blueprint -> connect the repo.
+#   3. Render prompts for the `sync: false` variables below — set them once.
+#   4. Pick an instance type (Standard 4 GB minimum; 8 GB recommended).
+#
+# The backend becomes https://neighbornest-backend.onrender.com — set the
+# Vercel frontend's VITE_API_URL to that, and set CORS_ALLOWED_ORIGINS on
+# Render to the Vercel app URL.
+# ============================================================================
+services:
+  - type: web
+    name: neighbornest-backend
+    runtime: docker
+    repo: https://github.com/tadelakiran/neighbornest
+    dockerContext: ./backend
+    dockerfilePath: ./deploy/single-container/Dockerfile
+    plan: standard # 4 GB RAM, 2 vCPU (~$25/mo) — 8 GB recommended if budget allows
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      # --- secrets: prompted at blueprint creation (never committed) ---
+      - key: MYSQL_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: INTERNAL_API_KEY
+        sync: false
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false # e.g. https://<your-app>.vercel.app
+      - key: NOTIFICATION_BASE_URL
+        sync: false # the Vercel app URL (email deep links)
+      - key: RABBITMQ_PASSWORD
+        sync: false
+
+      # --- convenience defaults (override as needed) ---
+      - key: RABBITMQ_USER
+        value: neighbornest
+      # Tighter JVM budget so 8 JVMs + MySQL + RabbitMQ fit a 4 GB instance.
+      - key: JAVA_TOOL_OPTIONS
+        value: -Xmx384m -Xms192m -XX:MaxMetaspaceSize=192m
+      # Path (on the persistent disk) to a mysqldump to import on first boot.
+      # Upload the file via the Render Shell, then redeploy.
+      - key: IMPORT_DUMP_PATH
+        value: /var/lib/import/dump.sql
+
+    # MySQL data (/var/lib/mysql) + RabbitMQ data (/var/lib/rabbitmq) survive
+    # restarts and deploys on this disk. Not available on free instances.
+    disk:
+      name: neighbornest-data
+      mountPath: /var/lib
+      sizeGB: 10

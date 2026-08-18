@@ -382,6 +382,11 @@ Free ARM VM via `docker-compose.yml` + `docker-compose.prod.yml` (containerized
 MySQL + Caddy HTTPS), and the React frontend deploys to Vercel. Helper scripts
 live in `backend/deploy/` (`setup_vm.sh`, `deploy.sh`, `logs.sh`).
 
+**Alternative — single container:** [`docs/DEPLOYMENT_RENDER.md`](../docs/DEPLOYMENT_RENDER.md)
+describes running the entire backend (MySQL + RabbitMQ + all 8 services) as
+ONE image (`backend/deploy/single-container/`) on a free VM/VPS, or on
+Render with a paid Standard instance + persistent disk.
+
 ---
 
 ## 🛠️ Tech Stack
