@@ -38,7 +38,7 @@ COPY notification-service/pom.xml notification-service/pom.xml
 # The cache mount shares one Maven local repo across builds; the retry loop
 # absorbs flaky Maven Central connections (same pattern as the per-service
 # Dockerfiles).
-RUN --mount=type=cache,target=/root/.m2 sh -c 'for i in 1 2 3 4 5; do mvn -q dependency:go-offline -B -U && exit 0 || echo "go-offline attempt $i failed, retrying..."; done; echo "go-offline failed after 5 attempts"; exit 1'
+RUN sh -c 'for i in 1 2 3 4 5; do mvn -q dependency:go-offline -B -U && exit 0 || echo "go-offline attempt $i failed, retrying..."; done; echo "go-offline failed after 5 attempts"; exit 1'
 COPY eureka-service/src eureka-service/src
 COPY api-gateway/src api-gateway/src
 COPY auth-service/src auth-service/src
@@ -47,7 +47,7 @@ COPY matching-service/src matching-service/src
 COPY nest-service/src nest-service/src
 COPY chat-service/src chat-service/src
 COPY notification-service/src notification-service/src
-RUN --mount=type=cache,target=/root/.m2 sh -c 'for i in 1 2 3; do mvn -q clean package -DskipTests -B && exit 0 || echo "package attempt $i failed, retrying..."; done; echo "package failed after 3 attempts"; exit 1'
+RUN sh -c 'for i in 1 2 3; do mvn -q clean package -DskipTests -B && exit 0 || echo "package attempt $i failed, retrying..."; done; echo "package failed after 3 attempts"; exit 1'
 
 # ----------------------------------------------------------------------------
 # Stage 2 — runtime: JRE + MySQL 8 + RabbitMQ + all jars
