@@ -125,6 +125,51 @@ Debug with `bash deploy/logs.sh <service>`.
 3. Open the Messages page — the chat WebSocket connects over
    `wss://neighbornest-api.duckdns.org/ws/chat` (SockJS → STOMP → RabbitMQ).
 
+## ⚡ Health / keep-alive (`GET /health`)
+
+The API Gateway exposes a dedicated, isolated liveness endpoint:
+
+```
+GET https://<your-api-domain>/health
+→ 200 {"status":"UP"}
+```
+
+- It returns **HTTP 200** with a tiny `{"status":"UP"}` body.
+- It performs **no database (MySQL) queries**, **no RabbitMQ access**, **no
+  calls to other microservices**, and **no authentication logic**. It does not
+  read or modify any application state and logs nothing per request.
+- It is served directly by the API Gateway process itself, so it works behind
+  the gateway with no extra routing. The infrastructure `/actuator/health`
+  endpoint (used by Docker healthchecks and `deploy.sh`) is unchanged.
+
+> ⚠️ **A browser cannot keep the backend awake by itself.** The optional
+> frontend keep-alive below only runs while someone has the app open in a
+> tab. It must never be relied on as the primary mechanism for keeping a
+> sleeping backend alive (e.g. Render's free tier).
+
+**Recommended: external uptime/monitoring.** Point a free uptime/monitoring
+service (UptimeRobot, Cronitor, Better Uptime, a cron job, or a Render
+Cron Job) at `/health` and have it ping the endpoint every few minutes. That
+runs 24/7 regardless of whether anyone has the frontend open, and it doubles
+as an availability alert.
+
+### Optional browser keep-alive (disabled by default)
+
+A small, invisible keep-alive ships with the frontend for convenience. It is
+**disabled by default** and must be enabled explicitly via environment
+variables on Vercel (or your frontend host):
+
+| Variable | Value |
+|---|---|
+| `VITE_ENABLE_KEEP_ALIVE` | `true` to enable, `false` (default) to disable |
+| `VITE_KEEP_ALIVE_INTERVAL_MS` | Ping interval in ms (default `600000` = 10 min) |
+
+When enabled, the app silently pings `GET /health` on `VITE_API_URL` at the
+configured interval. It renders nothing, blocks nothing, and does not touch
+auth state, storage, routing, or the chat WebSockets. Setting
+`VITE_ENABLE_KEEP_ALIVE=false` (or removing it) fully disables it — no
+periodic requests are made.
+
 ## Maintenance
 
 | Task | Command (on the VM, in `backend/`) |
