@@ -5,10 +5,13 @@ spring:
   application:
     name: auth-service
   datasource:
-    # Host port 3310 matches docker-compose's mysql-auth mapping (3306 on the
-    # host is usually a local MySQL). When auth-service runs in Docker, the
-    # compose file overrides this with SPRING_DATASOURCE_URL=mysql-auth:3306.
-    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3310}/${DB_NAME:neighbornest_auth}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    # Single shared local MySQL (host port 3306) like every other service — see
+    # README.md and scripts/setup_local_mysql.sql. When auth-service runs in
+    # Docker, the compose file overrides this with SPRING_DATASOURCE_URL.
+    # createDatabaseIfNotExist lets the service create its own schema on first
+    # boot, so a forgotten manual DB setup can't silently take the service down
+    # (which surfaces to clients as a gateway "service unavailable" fallback).
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${DB_NAME:neighbornest_auth}?useSSL=false&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true&serverTimezone=UTC
     username: ${MYSQL_USER:root}
     # Local/dev default only — always override with MYSQL_PASSWORD (or backend/.env)
     # in real environments. Never hardcode real credentials in source control.
@@ -55,6 +58,17 @@ app:
   # Must match INTERNAL_API_KEY configured in the notification-service.
   internal:
     api-key: ${INTERNAL_API_KEY:}
+
+# Explicit Feign timeouts for calls to the notification-service (OTP send/
+# verify, welcome email). Bounded so a slow/hung email service can never make
+# the auth flow hang for a full minute (Feign's default read timeout is 60s),
+# while still generous enough for a cold JVM / first Hibernate bootstrap.
+feign:
+  client:
+    config:
+      default:
+        connect-timeout: 5000
+        read-timeout: 20000
 
 logging:
   level:

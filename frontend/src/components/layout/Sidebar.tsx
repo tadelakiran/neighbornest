@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
@@ -53,6 +54,21 @@ export function Sidebar({ isOpen, onClose, className = '' }: SidebarProps) {
   const { logout } = useAuth();
   const user = useAuthStore((state) => state.user);
 
+  // On lg+ the sidebar is a permanent, static column — it must NOT be slid
+  // off-screen by the mobile drawer animation. Framer Motion applies its
+  // transform as an inline style, which a `lg:transform-none` class cannot
+  // override, so we drive the animation from a media query instead: desktop
+  // always animates to the open (x: 0) state.
+  const [isDesktop, setIsDesktop] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches
+  );
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)');
+    const onChange = () => setIsDesktop(mq.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+
   return (
     <>
       {/* Mobile backdrop */}
@@ -72,11 +88,16 @@ export function Sidebar({ isOpen, onClose, className = '' }: SidebarProps) {
       <motion.aside
         variants={sidebarVariants}
         initial={false}
-        animate={isOpen ? 'open' : 'closed'}
+        animate={isDesktop || isOpen ? 'open' : 'closed'}
         className={cn(
           'fixed inset-y-0 left-0 z-50 flex w-72 flex-col',
           'border-r border-[var(--color-border)] bg-[var(--color-deep)]/95 backdrop-blur-2xl',
-          'lg:static lg:transform-none',
+          // Desktop: pin the sidebar below the sticky navbar so only the main
+          // content column scrolls — profile, logout and the nav stay put.
+          // (position: sticky can't be used here: the app shell's root has
+          // overflow-x-hidden, which makes sticky resolve to a non-scrolling
+          // container and the sidebar would scroll away with the page.)
+          'lg:top-16 lg:bottom-0',
           className
         )}
       >

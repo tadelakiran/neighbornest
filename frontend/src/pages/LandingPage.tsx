@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Compass, Heart, MapPin, Sparkles, Star, Users } from 'lucide-react';
-import { BrandLogo } from '@/components/ui/BrandLogo';
 import { Button } from '@/components/ui/Button';
 import { LazyImage } from '@/components/ui/LazyImage';
 import { useAuthStore } from '@/stores/authStore';
@@ -57,7 +56,8 @@ const FEATURES = [
 /**
  * Public marketing landing page — showcases the product with premium
  * photography and funnels visitors to the auth pages (or the dashboard when
- * already signed in).
+ * already signed in). The navbar and footer come from PublicLayout; the
+ * section ids below are the targets for the navbar's scroll-spy links.
  */
 export function LandingPage() {
   const navigate = useNavigate();
@@ -77,23 +77,6 @@ export function LandingPage() {
         className="pointer-events-none absolute right-[8%] top-[30%] h-[420px] w-[420px] rounded-full bg-[var(--royal-400)]/[0.08] blur-3xl"
         aria-hidden="true"
       />
-
-      {/* ── Top nav ── */}
-      <header className="relative z-10 mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-8">
-        <BrandLogo />
-        <div className="flex items-center gap-2.5">
-          <Button variant="ghost" size="sm" onClick={secondaryAction}>
-            {isAuthenticated ? 'My profile' : 'Sign in'}
-          </Button>
-          <Button
-            size="sm"
-            rightIcon={<ArrowRight className="h-4 w-4" aria-hidden="true" />}
-            onClick={primaryAction}
-          >
-            {isAuthenticated ? 'Dashboard' : 'Get started'}
-          </Button>
-        </div>
-      </header>
 
       {/* ── Hero ── */}
       <section className="relative z-10 mx-auto grid max-w-7xl items-center gap-10 px-6 pb-16 pt-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)] lg:gap-14 lg:px-8 lg:pt-12">
@@ -213,7 +196,10 @@ export function LandingPage() {
       </section>
 
       {/* ── How it works ── */}
-      <section className="relative z-10 mx-auto max-w-7xl px-6 py-16 lg:px-8">
+      <section
+        id="how-it-works"
+        className="relative z-10 mx-auto max-w-7xl scroll-mt-20 px-6 py-16 lg:px-8"
+      >
         <motion.div
           variants={staggerContainer}
           initial="hidden"
@@ -276,7 +262,7 @@ export function LandingPage() {
       </section>
 
       {/* ── Features ── */}
-      <section className="relative z-10 mx-auto max-w-7xl px-6 py-16 lg:px-8">
+      <section id="features" className="relative z-10 mx-auto max-w-7xl scroll-mt-20 px-6 py-16 lg:px-8">
         <motion.div
           variants={staggerContainer}
           initial="hidden"
@@ -337,7 +323,7 @@ export function LandingPage() {
       </section>
 
       {/* ── CTA band ── */}
-      <section className="relative z-10 mx-auto max-w-7xl px-6 py-16 lg:px-8">
+      <section id="get-started" className="relative z-10 mx-auto max-w-7xl scroll-mt-20 px-6 py-16 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -377,14 +363,6 @@ export function LandingPage() {
           </div>
         </motion.div>
       </section>
-
-      {/* ── Footer ── */}
-      <footer className="relative z-10 mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 border-t border-[var(--color-border)] px-6 py-8 sm:flex-row lg:px-8">
-        <BrandLogo />
-        <p className="text-xs text-[var(--text-muted)]">
-          © {new Date().getFullYear()} {APP_NAME} — small groups, big friendships.
-        </p>
-      </footer>
     </div>
   );
 }

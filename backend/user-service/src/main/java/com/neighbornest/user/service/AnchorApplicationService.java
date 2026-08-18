@@ -15,6 +15,9 @@ import com.neighbornest.user.repository.AnchorApplicationRepository;
 import com.neighbornest.user.repository.UserProfileRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -54,6 +57,7 @@ public class AnchorApplicationService {
      * @throws BadRequestException       if the user has not completed onboarding
      */
     @Transactional
+    @CacheEvict(value = "anchorApplications", key = "#authUserId")
     public AnchorApplicationResponse apply(final Long authUserId, final AnchorApplyRequest request) {
         final UserProfile profile = userProfileRepository.findByAuthUserId(authUserId)
                 .orElseThrow(() -> new ResourceNotFoundException("Profile not found for user id: " + authUserId));
@@ -86,6 +90,7 @@ public class AnchorApplicationService {
      * @throws ResourceNotFoundException if the profile or application does not exist
      */
     @Transactional(readOnly = true)
+    @Cacheable(value = "anchorApplications", key = "#authUserId")
     public AnchorApplicationResponse getMyApplication(final Long authUserId) {
         final UserProfile profile = userProfileRepository.findByAuthUserId(authUserId)
                 .orElseThrow(() -> new ResourceNotFoundException("Profile not found for user id: " + authUserId));
@@ -113,6 +118,11 @@ public class AnchorApplicationService {
      * @throws BadRequestException       if the application is not pending
      */
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "anchorApplications", allEntries = true),
+            @CacheEvict(value = "anchorApplicationLists", allEntries = true),
+            @CacheEvict(value = "userProfiles", allEntries = true)
+    })
     public AnchorApplicationResponse review(final Long applicationId, final ReviewDecision decision, final String note) {
         final AnchorApplication application = anchorApplicationRepository.findById(applicationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Anchor application not found with id: " + applicationId));
@@ -178,6 +188,7 @@ public class AnchorApplicationService {
      * @return the list of application responses, most recent first
      */
     @Transactional(readOnly = true)
+    @Cacheable(value = "anchorApplicationLists", key = "#status != null ? #status.name() : 'ALL'")
     public List<AnchorApplicationResponse> listApplications(final AnchorStatus status) {
         final List<AnchorApplication> applications = status == null
                 ? anchorApplicationRepository.findAllByOrderByAppliedAtDesc()

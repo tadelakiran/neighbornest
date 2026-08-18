@@ -12,9 +12,13 @@ interface BentoCardProps {
   className?: string;
 }
 
+/**
+ * Size maps only apply to tablet (2-col grid). On desktop callers pass their
+ * own `lg:col-span-*` via `className`, which tailwind-merge lets win.
+ */
 const SIZE_CLASSES: Record<BentoSize, string> = {
-  '1x1': 'md:col-span-1 md:row-span-1',
-  '2x1': 'md:col-span-2 md:row-span-1',
+  '1x1': 'md:col-span-1',
+  '2x1': 'md:col-span-2',
   '1x2': 'md:col-span-1 md:row-span-2',
   '2x2': 'md:col-span-2 md:row-span-2',
 };
@@ -27,9 +31,10 @@ export function BentoCard({ children, size = '1x1', className }: BentoCardProps)
       className={cn(SIZE_CLASSES[size], 'min-h-0', className)}
     >
       <SpotlightWrapper className="h-full">
+        {/* Every dashboard card shares one radius, one padding, one shadow depth. */}
         <div
           className={cn(
-            'relative flex h-full flex-col overflow-hidden rounded-[var(--radius-lg)] p-5',
+            'relative flex h-full flex-col overflow-hidden rounded-[var(--radius-lg)] p-6',
             'border border-[var(--color-border)] bg-card-gradient backdrop-blur-xl',
             'shadow-card transition-all duration-300',
             'hover:shadow-card-hover hover:border-[var(--accent-400)]/25',

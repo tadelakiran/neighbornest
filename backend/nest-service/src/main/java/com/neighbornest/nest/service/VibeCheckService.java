@@ -9,6 +9,8 @@ import com.neighbornest.nest.exception.ResourceNotFoundException;
 import com.neighbornest.nest.repository.VibeCheckRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,6 +45,7 @@ public class VibeCheckService {
      * @return the submitted vibe check
      */
     @Transactional
+    @CacheEvict(value = "vibeChecks", key = "#nestId")
     public VibeCheckResponse submit(final Long nestId, final Long userId, final VibeCheckRequest request) {
         nestService.requireMember(nestId, userId);
 
@@ -71,6 +74,7 @@ public class VibeCheckService {
      * @return the aggregated status
      */
     @Transactional(readOnly = true)
+    @Cacheable(value = "vibeChecks", key = "#nestId")
     public VibeCheckStatusResponse getStatus(final Long nestId, final Long userId) {
         nestService.requireMember(nestId, userId);
 

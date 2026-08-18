@@ -35,12 +35,4 @@ public interface CompatibilityScoreRepository extends JpaRepository<Compatibilit
      * @return the ordered list of scores
      */
     List<CompatibilityScore> findByUserId2OrderByOverallScoreDesc(Long userId, Pageable pageable);
-
-    /**
-     * Deletes all scores involving the given user in either orientation.
-     *
-     * @param userId1 the user ID (as primary user)
-     * @param userId2 the same user ID (as candidate user)
-     */
-    void deleteByUserId1OrUserId2(Long userId1, Long userId2);
 }

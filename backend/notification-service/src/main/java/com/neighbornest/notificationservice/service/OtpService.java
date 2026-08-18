@@ -101,11 +101,21 @@ public class OtpService {
         otpRepository.save(otp);
 
         final boolean passwordReset = purpose == OtpPurpose.PASSWORD_RESET;
+        // Every value is sent under several names so the email renders correctly
+        // no matter which placeholder convention the EmailJS dashboard template
+        // uses ({{otpCode}}, {{passcode}}, {{time}}, {{company_name}}, ...).
+        // EmailJS substitutes exactly {{param}} tokens; aliasing guarantees the
+        // code, expiry, and branding always reach the recipient.
         final Map<String, Object> variables = Map.of(
                 AppConstants.VAR_OTP_CODE, code,
+                AppConstants.VAR_OTP_PASSCODE, code,
                 AppConstants.VAR_OTP_EXPIRY_MINUTES, expiryMinutes,
+                AppConstants.VAR_OTP_EXPIRY_TIME, expiryMinutes + " minutes",
                 AppConstants.VAR_APP_NAME, AppConstants.APP_NAME,
-                AppConstants.VAR_SUPPORT_EMAIL, AppConstants.SUPPORT_EMAIL);
+                AppConstants.VAR_COMPANY_NAME, AppConstants.APP_NAME,
+                AppConstants.VAR_COMPANY_NAME_SNAKE, AppConstants.APP_NAME,
+                AppConstants.VAR_SUPPORT_EMAIL, AppConstants.SUPPORT_EMAIL,
+                AppConstants.VAR_SUPPORT_EMAIL_SNAKE, AppConstants.SUPPORT_EMAIL);
 
         final boolean delivered = emailService.sendTemplate(
                 email,

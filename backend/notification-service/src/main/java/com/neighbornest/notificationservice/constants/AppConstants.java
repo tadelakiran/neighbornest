@@ -114,9 +114,18 @@ public final class AppConstants {
     public static final String VAR_SENDER_NAME = "senderName";
     public static final String VAR_MESSAGE_PREVIEW = "messagePreview";
     public static final String VAR_OTP_CODE = "otpCode";
+    /** Alias for the OTP code — some EmailJS dashboard templates use {{passcode}}. */
+    public static final String VAR_OTP_PASSCODE = "passcode";
     public static final String VAR_OTP_EXPIRY_MINUTES = "expiryMinutes";
+    /** Alias for the expiry duration (e.g. "10 minutes") — dashboard templates use {{time}}. */
+    public static final String VAR_OTP_EXPIRY_TIME = "time";
     public static final String VAR_APP_NAME = "appName";
+    /** Alias for the brand name — generic dashboard templates use {{companyName}} / {{company_name}}. */
+    public static final String VAR_COMPANY_NAME = "companyName";
+    public static final String VAR_COMPANY_NAME_SNAKE = "company_name";
     public static final String VAR_SUPPORT_EMAIL = "supportEmail";
+    /** Alias for the support address — dashboard templates may use {{support_email}}. */
+    public static final String VAR_SUPPORT_EMAIL_SNAKE = "support_email";
     public static final String VAR_FULL_NAME = "fullName";
     public static final String VAR_DASHBOARD_LINK = "dashboardLink";
 

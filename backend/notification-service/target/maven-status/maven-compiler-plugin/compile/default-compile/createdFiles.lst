@@ -88,10 +88,12 @@ com\neighbornest\notificationservice\config\NotificationServiceProperties$Events
 com\neighbornest\notificationservice\entity\Notification.class
 com\neighbornest\notificationservice\entity\TrackedNest$1.class
 com\neighbornest\notificationservice\repository\NotificationPreferenceRepository.class
+com\neighbornest\notificationservice\security\RestAuthenticationEntryPoint.class
 com\neighbornest\notificationservice\dto\response\OtpVerifyResponse.class
 com\neighbornest\notificationservice\dto\request\WelcomeEmailRequest$WelcomeEmailRequestBuilder.class
 com\neighbornest\notificationservice\service\NotificationService$1.class
 com\neighbornest\notificationservice\listener\ChatEventListener.class
+com\neighbornest\notificationservice\config\EmailJsConfigCheck.class
 com\neighbornest\notificationservice\dto\request\CreateTemplateRequest.class
 com\neighbornest\notificationservice\client\UserServiceFallbackFactory$1.class
 com\neighbornest\notificationservice\entity\EmailOtp.class

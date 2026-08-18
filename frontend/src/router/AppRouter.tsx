@@ -80,13 +80,15 @@ export function AppRouter() {
   return (
     <Suspense fallback={<PageLoader />}>
       <Routes>
-        {/* Public */}
+        {/* Public — landing page gets the shared navbar/footer shell. The auth
+            pages render standalone because they use a full-viewport split-screen
+            layout (AuthSplitLayout) that owns its own branding. */}
         <Route element={<PublicLayout />}>
           <Route path={ROUTES.LANDING} element={<LandingPage />} />
-          <Route path={ROUTES.LOGIN} element={<LoginPage />} />
-          <Route path={ROUTES.REGISTER} element={<RegisterPage />} />
-          <Route path={ROUTES.FORGOT_PASSWORD} element={<ForgotPasswordPage />} />
         </Route>
+        <Route path={ROUTES.LOGIN} element={<LoginPage />} />
+        <Route path={ROUTES.REGISTER} element={<RegisterPage />} />
+        <Route path={ROUTES.FORGOT_PASSWORD} element={<ForgotPasswordPage />} />
 
         {/* Private */}
         <Route element={<ProtectedRoute />}>

@@ -15,6 +15,8 @@ import com.neighbornest.nest.repository.ExpenseSplitRepository;
 import com.neighbornest.nest.repository.NestMemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,6 +54,7 @@ public class ExpenseService {
      * @throws BadRequestException if custom splits are invalid
      */
     @Transactional
+    @CacheEvict(value = "expenses", key = "#nestId")
     public ExpenseResponse createExpense(final Long nestId, final Long payerId, final ExpenseRequest request) {
         nestService.requireMember(nestId, payerId);
 
@@ -83,6 +86,7 @@ public class ExpenseService {
      * @return the list of expenses
      */
     @Transactional(readOnly = true)
+    @Cacheable(value = "expenses", key = "#nestId")
     public List<ExpenseResponse> listExpenses(final Long nestId, final Long userId) {
         nestService.requireMember(nestId, userId);
 
@@ -105,6 +109,7 @@ public class ExpenseService {
      * @throws ResourceNotFoundException if the Nest or the expense or the user's split does not exist
      */
     @Transactional
+    @CacheEvict(value = "expenses", key = "#nestId")
     public ExpenseResponse settleSplit(final Long nestId, final Long expenseId, final Long userId) {
         final Expense expense = expenseRepository.findById(expenseId)
                 .filter(e -> e.getNestId().equals(nestId))

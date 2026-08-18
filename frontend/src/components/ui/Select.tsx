@@ -79,7 +79,7 @@ export function Select({
         onClick={() => setOpen((wasOpen) => !wasOpen)}
         className={cn(
           'flex h-11 w-full items-center justify-between gap-2 rounded-[var(--radius)] border px-4 text-sm outline-none transition-all duration-200',
-          'border-[var(--color-border)] bg-[var(--color-surface)]',
+          'border-[var(--color-border)] bg-[var(--color-surface-2)]',
           'disabled:cursor-not-allowed disabled:opacity-60',
           open
             ? 'border-[var(--accent-400)] ring-2 ring-[var(--accent-400)]/20'
@@ -129,7 +129,7 @@ export function Select({
                     className={cn(
                       'flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm transition-colors',
                       isSelected
-                        ? 'bg-[var(--accent-400)]/10 text-[var(--accent-300)]'
+                        ? 'bg-[var(--accent-400)]/10 text-[var(--accent-600)]'
                         : 'text-[var(--text-secondary)] hover:bg-[var(--color-raised)]/60'
                     )}
                   >

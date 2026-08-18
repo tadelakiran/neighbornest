@@ -1,16 +1,10 @@
 import { motion } from 'framer-motion';
 import type { ReactNode } from 'react';
-import { Heart, MapPin, Sparkles, Users } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import { BrandLogo } from '@/components/ui/BrandLogo';
 import { LazyImage } from '@/components/ui/LazyImage';
 import { APP_NAME } from '@/lib/constants';
 import { IMAGES } from '@/lib/images';
-
-const FEATURES = [
-  { icon: Users,  title: 'Curated Nests',    text: 'Small groups of 5–8 who genuinely share your vibe.' },
-  { icon: MapPin, title: 'Local Anchors',    text: 'Guided by 1–2 locals who know the city inside out.' },
-  { icon: Heart,  title: 'Real friendships', text: 'Six-week journeys from first hello to lifelong connections.' },
-];
 
 const STATS = [
   { value: '5–8', label: 'people per Nest' },
@@ -28,14 +22,15 @@ const stagger = {
 
 interface AuthSplitLayoutProps {
   heading: string;
-  subheading: string;
+  subheading?: string;
   children: ReactNode;
 }
 
 /**
  * Fixed-height split-screen auth shell — the page never scrolls; both panels
- * fit the viewport. Left: single aligned photo on a light sky-blue theme.
- * Right: compact centered form card.
+ * fit the viewport. Left panel reads top-to-bottom: logo, headline block,
+ * then the bright community photo with the stats band pinned at the bottom.
+ * The text sits in a soft gradient safe-zone so it never covers the faces.
  */
 export function AuthSplitLayout({ heading, subheading, children }: AuthSplitLayoutProps) {
   return (
@@ -46,7 +41,8 @@ export function AuthSplitLayout({ heading, subheading, children }: AuthSplitLayo
 
       {/* ── Left brand panel ── */}
       <div className="relative hidden w-[52%] flex-col overflow-hidden lg:flex">
-        {/* Single aligned background photo on the light theme */}
+        {/* Photo — bright & clean: light veil + gradient safe-zones for the
+            headline (top) and stats (bottom). The middle stays fully visible. */}
         <div className="absolute inset-0" aria-hidden="true">
           <LazyImage
             src={IMAGES.community}
@@ -56,73 +52,70 @@ export function AuthSplitLayout({ heading, subheading, children }: AuthSplitLayo
             className="h-full w-full object-cover"
             loading="eager"
           />
-          <div className="absolute inset-0 bg-gradient-to-br from-white/95 via-sky-100/85 to-accent-200/50" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-bg)] via-transparent to-white/40" />
+          <div className="absolute inset-0 bg-gradient-to-br from-white/55 via-white/20 to-sky-100/10" />
+          <div className="absolute inset-x-0 top-0 h-[46%] bg-gradient-to-b from-white/95 via-white/45 to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-white/90 via-white/35 to-transparent" />
         </div>
 
-        {/* Content */}
-        <div className="relative z-10 flex h-full flex-col p-10">
-          <div className="flex items-center">
+        {/* Content — top-to-bottom order */}
+        <div className="relative z-10 flex h-full flex-col">
+          {/* 1 · Logo */}
+          <motion.div
+            initial={{ opacity: 0, y: -12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            className="flex items-center px-10 pt-10"
+          >
             <BrandLogo />
-          </div>
+          </motion.div>
 
+          {/* 2 · Headline block — top-left, clear gap after the logo */}
           <motion.div
             variants={stagger.container}
             initial="hidden"
             animate="show"
-            className="flex flex-1 flex-col justify-center"
+            className="px-10 pt-9"
           >
             <motion.div variants={stagger.item} className="max-w-lg space-y-5">
-              <span className="inline-flex items-center gap-2 rounded-full border border-accent-500/20 bg-white/70 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.12em] text-accent-600 shadow-sm backdrop-blur-md">
+              <span className="inline-flex items-center gap-2 rounded-full border border-accent-500/20 bg-white/80 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.12em] text-accent-600 shadow-sm backdrop-blur-md">
                 <Sparkles className="h-3.5 w-3.5 fill-accent-400 text-accent-500" aria-hidden="true" />
                 New to the city? You&apos;re in the right place.
               </span>
-              <h1 className="font-display text-4xl font-bold leading-[1.08] tracking-tight text-[var(--text-primary)] xl:text-[3.25rem]">
+              <h1 className="font-display text-4xl font-bold leading-[1.08] tracking-tight text-primary xl:text-[3.25rem]">
                 Find your people in a{' '}
                 <span className="text-gradient">new city</span>
                 <span className="text-accent-500">.</span>
               </h1>
-              <p className="text-base leading-relaxed text-[var(--text-secondary)] lg:text-lg">
-                {APP_NAME} matches newcomers into small curated groups with local Anchors — real
-                friendships, zero awkward networking.
-              </p>
             </motion.div>
-
-            <motion.ul variants={stagger.container} className="mt-8 space-y-4">
-              {FEATURES.map(({ icon: Icon, title, text }) => (
-                <motion.li key={title} variants={stagger.item} className="flex max-w-lg items-start gap-4">
-                  <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-accent-500/15 bg-white/80 shadow-sm backdrop-blur-md">
-                    <Icon className="h-5 w-5 text-accent-500" aria-hidden="true" />
-                  </span>
-                  <div>
-                    <p className="font-semibold text-[var(--text-primary)]">{title}</p>
-                    <p className="mt-0.5 text-sm leading-relaxed text-[var(--text-secondary)]">{text}</p>
-                  </div>
-                </motion.li>
-              ))}
-            </motion.ul>
           </motion.div>
 
-          {/* Stats band */}
-          <motion.dl
+          {/* 3 · Photo breathes here — flex spacer keeps it fully visible */}
+          <div className="flex-1" aria-hidden="true" />
+
+          {/* 4 · Stats band — pinned bottom, always visible */}
+          <motion.div
             variants={stagger.container}
             initial="hidden"
             animate="show"
-            className="flex flex-wrap gap-x-10 gap-y-3 border-t border-[var(--color-border)] pt-5"
+            className="px-10 pb-8"
           >
-            {STATS.map((stat) => (
-              <motion.div key={stat.label} variants={stagger.item} className="flex flex-col gap-0.5">
-                <dd className="order-first font-display text-2xl font-bold text-accent-600">{stat.value}</dd>
-                <dt className="order-last text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--text-muted)]">
-                  {stat.label}
-                </dt>
-              </motion.div>
-            ))}
-          </motion.dl>
-
-          <p className="mt-4 text-[11px] text-[var(--text-subtle)]">
-            © {new Date().getFullYear()} {APP_NAME} — small groups, big friendships.
-          </p>
+            <motion.dl
+              variants={stagger.item}
+              className="flex items-center justify-between gap-6 rounded-2xl border border-white/60 bg-white/80 px-7 py-4 shadow-[var(--shadow-lg)] backdrop-blur-xl"
+            >
+              {STATS.map((stat) => (
+                <div key={stat.label} className="flex flex-col gap-0.5">
+                  <dd className="order-first font-display text-2xl font-bold text-accent-600">{stat.value}</dd>
+                  <dt className="order-last text-[10px] font-bold uppercase tracking-[0.18em] text-muted">
+                    {stat.label}
+                  </dt>
+                </div>
+              ))}
+            </motion.dl>
+            <p className="mt-3 text-center text-[11px] text-subtle">
+              © {new Date().getFullYear()} {APP_NAME} — small groups, big friendships.
+            </p>
+          </motion.div>
         </div>
       </div>
 
@@ -138,9 +131,9 @@ export function AuthSplitLayout({ heading, subheading, children }: AuthSplitLayo
             loading="eager"
             className="h-full w-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-sky-100/70 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-white/75 via-white/25 to-transparent" />
           <div className="absolute inset-0 flex items-center px-6">
-            <p className="font-display text-xl font-bold leading-tight text-[var(--text-primary)]">
+            <p className="max-w-[75%] font-display text-xl font-bold leading-tight text-primary">
               Find your people in a <span className="text-gradient">new city</span>.
             </p>
           </div>
@@ -156,8 +149,10 @@ export function AuthSplitLayout({ heading, subheading, children }: AuthSplitLayo
             initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="relative overflow-hidden rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)]/90 p-6 shadow-[var(--shadow-lg)] backdrop-blur-2xl sm:p-8"
+            className="relative"
           >
+            {/* Gentle continuous float (soft amplitude so inputs stay usable) */}
+            <div className="animate-float-soft relative overflow-hidden rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)]/90 p-6 shadow-[var(--shadow-lg)] backdrop-blur-2xl sm:p-8">
             {/* Hairline */}
             <div className="absolute inset-x-8 top-0 h-[2px] rounded-b-full bg-accent-gradient shadow-[0_0_12px_rgba(14,165,233,0.4)]" aria-hidden="true" />
 
@@ -168,10 +163,13 @@ export function AuthSplitLayout({ heading, subheading, children }: AuthSplitLayo
               <h2 className="font-display text-2xl font-bold tracking-tight text-primary">
                 {heading}
               </h2>
-              <p className="text-sm leading-relaxed text-muted">{subheading}</p>
+              {subheading && (
+                <p className="text-sm leading-relaxed text-muted">{subheading}</p>
+              )}
             </div>
 
             {children}
+            </div>
           </motion.div>
         </div>
       </div>

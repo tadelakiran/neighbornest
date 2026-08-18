@@ -13,6 +13,7 @@ import com.neighbornest.matching.entity.ProposalResponse;
 import com.neighbornest.matching.entity.ProposalStatus;
 import com.neighbornest.matching.entity.RoleInNest;
 import com.neighbornest.matching.security.JwtService;
+import com.neighbornest.matching.security.RestAuthenticationEntryPoint;
 import com.neighbornest.matching.service.MatchProposalService;
 import com.neighbornest.matching.service.MatchingAlgorithmService;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,7 +52,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @version 1.0.0
  */
 @WebMvcTest(MatchingController.class)
-@Import(SecurityConfig.class)
+@Import({SecurityConfig.class, RestAuthenticationEntryPoint.class})
 @DisplayName("MatchingController Web Tests")
 class MatchingControllerTest {
 
@@ -98,7 +99,7 @@ class MatchingControllerTest {
 
             mockMvc.perform(post("/api/matching/calculate/7").header("Authorization", authHeader()))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$").value(5));
+                    .andExpect(jsonPath("$.data").value(5));
         }
     }
 
@@ -119,10 +120,10 @@ class MatchingControllerTest {
 
             mockMvc.perform(get("/api/matching/compatibles/7").header("Authorization", authHeader()))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$[0].user_id").value(9))
-                    .andExpect(jsonPath("$[0].full_name").value("Jane Roe"))
-                    .andExpect(jsonPath("$[0].city").value("New York"))
-                    .andExpect(jsonPath("$[0].overall_score").value(90.0));
+                    .andExpect(jsonPath("$.data[0].user_id").value(9))
+                    .andExpect(jsonPath("$.data[0].full_name").value("Jane Roe"))
+                    .andExpect(jsonPath("$.data[0].city").value("New York"))
+                    .andExpect(jsonPath("$.data[0].overall_score").value(90.0));
         }
     }
 
@@ -150,8 +151,8 @@ class MatchingControllerTest {
                                             .anchorIds(List.of(1L))
                                             .build())))
                     .andExpect(status().isCreated())
-                    .andExpect(jsonPath("$.id").value(1))
-                    .andExpect(jsonPath("$.status").value("PENDING"));
+                    .andExpect(jsonPath("$.data.id").value(1))
+                    .andExpect(jsonPath("$.data.status").value("PENDING"));
         }
     }
 
@@ -179,7 +180,7 @@ class MatchingControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("{\"accept\": true}"))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.status").value("ACCEPTED"));
+                    .andExpect(jsonPath("$.data.status").value("ACCEPTED"));
         }
     }
 
@@ -199,8 +200,8 @@ class MatchingControllerTest {
 
             mockMvc.perform(get("/api/matching/proposals/pending/7").header("Authorization", authHeader()))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$[0].id").value(1))
-                    .andExpect(jsonPath("$[0].status").value("PENDING"));
+                    .andExpect(jsonPath("$.data[0].id").value(1))
+                    .andExpect(jsonPath("$.data[0].status").value("PENDING"));
         }
     }
 
@@ -220,9 +221,9 @@ class MatchingControllerTest {
 
             mockMvc.perform(post("/api/matching/execute/1").header("Authorization", authHeader()))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.proposal_id").value(1))
-                    .andExpect(jsonPath("$.nest_id").value(7))
-                    .andExpect(jsonPath("$.message").value("Nest created successfully"));
+                    .andExpect(jsonPath("$.data.proposal_id").value(1))
+                    .andExpect(jsonPath("$.data.nest_id").value(7))
+                    .andExpect(jsonPath("$.data.message").value("Nest created successfully"));
         }
     }
 }

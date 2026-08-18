@@ -17,13 +17,16 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Pageable;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -45,6 +48,9 @@ class MatchingAlgorithmServiceTest {
     @Mock
     private CompatibilityScoreRepository scoreRepository;
 
+    @Mock
+    private JdbcTemplate jdbcTemplate;
+
     private MatchingProperties matchingProperties;
     private MatchingAlgorithmService service;
 
@@ -52,7 +58,8 @@ class MatchingAlgorithmServiceTest {
     void setUp() {
         matchingProperties = new MatchingProperties();
         matchingProperties.setTopN(20);
-        service = new MatchingAlgorithmService(userServiceClient, scoreRepository, matchingProperties, new ScoringEngine());
+        service = new MatchingAlgorithmService(
+                userServiceClient, scoreRepository, matchingProperties, new ScoringEngine(), jdbcTemplate);
     }
 
     @Nested
@@ -71,11 +78,15 @@ class MatchingAlgorithmServiceTest {
 
             assertThat(count).isEqualTo(2);
 
-            final ArgumentCaptor<List<CompatibilityScore>> captor = ArgumentCaptor.forClass(List.class);
-            verify(scoreRepository).saveAll(captor.capture());
-            assertThat(captor.getValue()).hasSize(2);
-            assertThat(captor.getValue()).allMatch(score -> score.getUserId1().equals(1L));
-            verify(scoreRepository).deleteByUserId1OrUserId2(1L, 1L);
+            // All pairs are written in ONE batched JDBC call.
+            @SuppressWarnings("unchecked")
+            final ArgumentCaptor<List<Object[]>> captor = ArgumentCaptor.forClass(List.class);
+            verify(jdbcTemplate, times(1)).batchUpdate(anyString(), captor.capture());
+            final List<Object[]> batchArgs = captor.getValue();
+            assertThat(batchArgs).hasSize(2);
+            // Column order: user_id_1, user_id_2, overall, values, lifestyle, interest, calculated_at
+            assertThat(batchArgs).allMatch(args -> args[0].equals(1L));
+            assertThat(batchArgs).allMatch(args -> args[6] instanceof LocalDateTime);
         }
 
         @Test
@@ -101,14 +112,16 @@ class MatchingAlgorithmServiceTest {
 
             service.calculateForUser(3L);
 
-            final ArgumentCaptor<List<CompatibilityScore>> captor = ArgumentCaptor.forClass(List.class);
-            verify(scoreRepository).saveAll(captor.capture());
-            assertThat(captor.getValue()).hasSize(2);
-            assertThat(captor.getValue())
-                    .allMatch(score -> score.getUserId1() < score.getUserId2());
-            assertThat(captor.getValue().stream().map(CompatibilityScore::getUserId1))
+            @SuppressWarnings("unchecked")
+            final ArgumentCaptor<List<Object[]>> captor = ArgumentCaptor.forClass(List.class);
+            verify(jdbcTemplate, times(1)).batchUpdate(anyString(), captor.capture());
+            final List<Object[]> batchArgs = captor.getValue();
+            assertThat(batchArgs).hasSize(2);
+            // Column order: user_id_1, user_id_2, ... — every pair normalized.
+            assertThat(batchArgs).allMatch(args -> ((Long) args[0]) < ((Long) args[1]));
+            assertThat(batchArgs.stream().map(args -> (Long) args[0]))
                     .containsExactlyInAnyOrder(1L, 2L);
-            assertThat(captor.getValue().stream().map(CompatibilityScore::getUserId2))
+            assertThat(batchArgs.stream().map(args -> (Long) args[1]))
                     .containsExactlyInAnyOrder(3L, 3L);
         }
     }

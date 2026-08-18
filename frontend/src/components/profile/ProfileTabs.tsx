@@ -33,11 +33,11 @@ export function ProfileTabs({ tab, onChange }: ProfileTabsProps) {
             className={cn(
               'relative flex flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold transition-all duration-200',
               active
-                ? 'bg-[var(--color-surface-2)] text-[var(--accent-400)] shadow-sm'
+                ? 'bg-[var(--color-surface-2)] text-[var(--accent-600)] shadow-sm'
                 : 'text-[var(--text-muted)] hover:bg-[var(--color-raised)]/40 hover:text-[var(--text-primary)]'
             )}
           >
-            <Icon className={cn('h-4 w-4 transition-colors', active ? 'text-accent-400' : 'text-muted')} aria-hidden="true" />
+            <Icon className={cn('h-4 w-4 transition-colors', active ? 'text-accent-600' : 'text-muted')} aria-hidden="true" />
             <span>{label}</span>
             {active && (
               <motion.span

@@ -29,12 +29,37 @@ function initialTab(): ProfileTab {
  * content on the right (Profile Info / My Nests / Settings), an edit
  * slide-over, and a "Become an Anchor" CTA for newcomers.
  */
+const MAX_PHOTO_BYTES = 5 * 1024 * 1024; // backend limit: 5 MB
+const PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+
 export function ProfilePage() {
-  const { profile, isLoading, error, reload, updateProfile } = useProfile();
+  const { profile, isLoading, error, reload, updateProfile, uploadPhoto } = useProfile();
   const [tab, setTab] = useState<ProfileTab>(initialTab);
   const [editOpen, setEditOpen] = useState(false);
+  const [photoUploading, setPhotoUploading] = useState(false);
   const [, setSearchParams] = useSearchParams();
   const toast = useToast();
+
+  /** Uploads a chosen photo, with client-side validation matching the backend. */
+  const handleUploadPhoto = async (file: File) => {
+    if (!PHOTO_TYPES.includes(file.type)) {
+      toast.error('Please choose a JPG, PNG, WEBP, or GIF image.');
+      return;
+    }
+    if (file.size > MAX_PHOTO_BYTES) {
+      toast.error('Photo is too large — the maximum size is 5 MB.');
+      return;
+    }
+    setPhotoUploading(true);
+    try {
+      await uploadPhoto(file);
+      toast.success('Profile photo updated!');
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Could not upload your photo. Please try again.'));
+    } finally {
+      setPhotoUploading(false);
+    }
+  };
 
   const [anchorApp, setAnchorApp] = useState<AnchorApplication | null>(null);
   const [anchorChecked, setAnchorChecked] = useState(false);
@@ -147,7 +172,7 @@ export function ProfilePage() {
       {/* Bento grid */}
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-1">
-          <ProfileHeader profile={profile} />
+          <ProfileHeader profile={profile} onUploadPhoto={handleUploadPhoto} uploading={photoUploading} />
         </div>
 
         <div className="lg:col-span-2">

@@ -10,6 +10,8 @@ import com.neighbornest.user.repository.UserProfileRepository;
 import com.neighbornest.user.util.UserProfileMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,6 +46,12 @@ public class OnboardingService {
      * @throws ResourceNotFoundException if the profile does not exist
      */
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "userProfiles", key = "#authUserId"),
+            @CacheEvict(value = "onboardingStatus", key = "#authUserId"),
+            @CacheEvict(value = "publicProfiles", allEntries = true),
+            @CacheEvict(value = "readyForMatch", allEntries = true)
+    })
     public ProfileResponse submitOnboarding(final Long authUserId, final OnboardingSubmitRequest request) {
         final UserProfile profile = userProfileRepository.findByAuthUserId(authUserId)
                 .orElseThrow(() -> new ResourceNotFoundException("Profile not found for user id: " + authUserId));

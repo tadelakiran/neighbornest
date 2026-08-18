@@ -39,7 +39,7 @@ export function StepInterests({ data, onNext, onBack }: StepInterestsProps) {
         <p className="mt-1 text-sm text-[var(--text-secondary)]">
           Pick at least one — we use these to match you with neighbors who share your hobbies.
         </p>
-        <p className="mt-3 text-sm font-semibold text-accent-600">
+        <p className="mt-3 text-sm font-semibold text-accent-700">
           {selected.size} selected
         </p>
       </motion.div>

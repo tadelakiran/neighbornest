@@ -1,6 +1,8 @@
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\nest-service\src\main\java\com\neighbornest\nest\client\UserProfileSummary.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\nest-service\src\main\java\com\neighbornest\nest\client\UserServiceClient.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\nest-service\src\main\java\com\neighbornest\nest\client\UserServiceClientFallbackFactory.java
+C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\nest-service\src\main\java\com\neighbornest\nest\config\ApiResponseAdvice.java
+C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\nest-service\src\main\java\com\neighbornest\nest\config\CacheConfig.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\nest-service\src\main\java\com\neighbornest\nest\config\FeignClientConfig.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\nest-service\src\main\java\com\neighbornest\nest\config\OpenApiConfig.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\nest-service\src\main\java\com\neighbornest\nest\config\RabbitMQConfig.java
@@ -11,6 +13,7 @@ C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\nest-servi
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\nest-service\src\main\java\com\neighbornest\nest\dto\request\ExpenseSplitRequest.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\nest-service\src\main\java\com\neighbornest\nest\dto\request\MeetingRequest.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\nest-service\src\main\java\com\neighbornest\nest\dto\request\VibeCheckRequest.java
+C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\nest-service\src\main\java\com\neighbornest\nest\dto\response\ApiResponse.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\nest-service\src\main\java\com\neighbornest\nest\dto\response\ErrorResponse.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\nest-service\src\main\java\com\neighbornest\nest\dto\response\ExpenseResponse.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\nest-service\src\main\java\com\neighbornest\nest\dto\response\ExpenseSplitResponse.java
@@ -48,6 +51,7 @@ C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\nest-servi
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\nest-service\src\main\java\com\neighbornest\nest\security\AuthenticatedUser.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\nest-service\src\main\java\com\neighbornest\nest\security\JwtAuthenticationFilter.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\nest-service\src\main\java\com\neighbornest\nest\security\JwtService.java
+C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\nest-service\src\main\java\com\neighbornest\nest\security\RestAuthenticationEntryPoint.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\nest-service\src\main\java\com\neighbornest\nest\service\ExpenseService.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\nest-service\src\main\java\com\neighbornest\nest\service\MeetingService.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\nest-service\src\main\java\com\neighbornest\nest\service\NestService.java

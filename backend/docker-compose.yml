@@ -13,11 +13,15 @@ services:
   rabbitmq:
     image: rabbitmq:3-management
     container_name: neighbornest-rabbitmq
+    # All ports bind to loopback only — safer on shared networks, and every
+    # client (browser, IDE, the app containers themselves) reaches these via
+    # localhost / the docker network anyway. In production the API is exposed
+    # publicly only through Caddy on 80/443.
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "127.0.0.1:5672:5672"
+      - "127.0.0.1:15672:15672"
       # STOMP plugin port used by the chat-service STOMP broker relay.
-      - "61613:61613"
+      - "127.0.0.1:61613:61613"
     # Enable the STOMP plugin at startup (it is not enabled by default on the
     # management image). --offline avoids needing a running broker.
     command: ["sh", "-c", "rabbitmq-plugins enable --offline rabbitmq_stomp && rabbitmq-server"]
@@ -36,7 +40,7 @@ services:
       dockerfile: eureka-service/Dockerfile
     container_name: neighbornest-eureka
     ports:
-      - "8761:8761"
+      - "127.0.0.1:8761:8761"
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:8761/actuator/health"]
       interval: 15s
@@ -53,11 +57,23 @@ services:
       dockerfile: auth-service/Dockerfile
     container_name: neighbornest-auth
     ports:
-      - "8081:8081"
+      - "127.0.0.1:8081:8081"
+    # Healthcheck: actuator health only reports UP once the DB connection works.
+    # start_period covers the long cold boot (JVM + first Hikari pool + JPA
+    # schema update) so a slow start does not count as a failed health probe.
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8081/actuator/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 300s
     environment:
       # Single shared local MySQL (host port 3306). SPRING_DATASOURCE_URL
       # wins over the relaxed MYSQL_HOST/MYSQL_PORT/DB_NAME bindings.
-      SPRING_DATASOURCE_URL: jdbc:mysql://host.docker.internal:3306/neighbornest_auth?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      # createDatabaseIfNotExist so a missing manual DB setup can't silently
+      # take auth-service down (which surfaces as a gateway "service
+      # unavailable" fallback on every /api/auth/** request).
+      SPRING_DATASOURCE_URL: jdbc:mysql://host.docker.internal:3306/neighbornest_auth?useSSL=false&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true&serverTimezone=UTC
       SPRING_DATASOURCE_USERNAME: ${MYSQL_USER:-neighbornest}
       SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:-root}
       JWT_SECRET: ${JWT_SECRET:-VGhpcyBpcyBhIHNlY3JldCBrZXkgZm9yIE5laWdoYm9yTmVzdCBKV1QgdG9rZW4gc2lnbmluZyAtIGRldmVsb3BtZW50IG9ubHk=}
@@ -74,7 +90,13 @@ services:
       dockerfile: user-service/Dockerfile
     container_name: neighbornest-user
     ports:
-      - "8082:8082"
+      - "127.0.0.1:8082:8082"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8082/actuator/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 300s
     environment:
       MYSQL_HOST: host.docker.internal
       MYSQL_PORT: 3306
@@ -99,7 +121,13 @@ services:
       dockerfile: matching-service/Dockerfile
     container_name: neighbornest-matching
     ports:
-      - "8083:8083"
+      - "127.0.0.1:8083:8083"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8083/actuator/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 300s
     environment:
       MYSQL_HOST: host.docker.internal
       MYSQL_PORT: 3306
@@ -124,7 +152,13 @@ services:
       dockerfile: nest-service/Dockerfile
     container_name: neighbornest-nest
     ports:
-      - "8084:8084"
+      - "127.0.0.1:8084:8084"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8084/actuator/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 300s
     environment:
       MYSQL_HOST: host.docker.internal
       MYSQL_PORT: 3306
@@ -149,7 +183,13 @@ services:
       dockerfile: chat-service/Dockerfile
     container_name: neighbornest-chat
     ports:
-      - "8085:8085"
+      - "127.0.0.1:8085:8085"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8085/actuator/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 300s
     environment:
       MYSQL_HOST: host.docker.internal
       MYSQL_PORT: 3306
@@ -177,7 +217,13 @@ services:
       dockerfile: notification-service/Dockerfile
     container_name: neighbornest-notification
     ports:
-      - "8086:8086"
+      - "127.0.0.1:8086:8086"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8086/actuator/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 300s
     environment:
       MYSQL_HOST: host.docker.internal
       MYSQL_PORT: 3306
@@ -223,23 +269,33 @@ services:
       dockerfile: api-gateway/Dockerfile
     container_name: neighbornest-gateway
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
+    # The gateway is the front door: only start it once every routed service is
+    # healthy (actuator UP = DB connected). Otherwise the first minutes after
+    # `docker compose up` hit the circuit-breaker fallback and users see
+    # "X-service is temporarily unavailable" even though nothing is wrong.
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/actuator/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 120s
     environment:
       JWT_SECRET: ${JWT_SECRET:-VGhpcyBpcyBhIHNlY3JldCBrZXkgZm9yIE5laWdoYm9yTmVzdCBKV1QgdG9rZW4gc2lnbmluZyAtIGRldmVsb3BtZW50IG9ubHk=}
       EUREKA_SERVER_URL: http://eureka-service:8761/eureka/
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:5173,http://localhost:5174}
     depends_on:
       eureka-service:
-        condition: service_started
+        condition: service_healthy
       auth-service:
-        condition: service_started
+        condition: service_healthy
       user-service:
-        condition: service_started
+        condition: service_healthy
       matching-service:
-        condition: service_started
+        condition: service_healthy
       nest-service:
-        condition: service_started
+        condition: service_healthy
       chat-service:
-        condition: service_started
+        condition: service_healthy
       notification-service:
-        condition: service_started
+        condition: service_healthy

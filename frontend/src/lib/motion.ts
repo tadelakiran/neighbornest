@@ -38,6 +38,10 @@ export const wizardPageTransition: Variants = {
 /**
  * Page-level enter transition used by every route (slide + fade in from the
  * right). Wrap route content in a motion.div with these variants.
+ *
+ * Kept short (0.25s) so tab switches feel instant — AnimatePresence
+ * `mode="wait"` serializes exit + enter, and long durations made every
+ * navigation feel laggy.
  */
 export const pageEnter: Variants = {
   hidden: { opacity: 0, y: 14, x: 8 },
@@ -45,7 +49,7 @@ export const pageEnter: Variants = {
     opacity: 1,
     y: 0,
     x: 0,
-    transition: { duration: 0.38, ease: EASE_OUT_EXPO },
+    transition: { duration: 0.25, ease: EASE_OUT_EXPO },
   },
 };
 
@@ -55,7 +59,7 @@ export const pageExit: Variants = {
     opacity: 0,
     y: -8,
     x: -12,
-    transition: { duration: 0.22, ease: 'easeIn' },
+    transition: { duration: 0.15, ease: 'easeIn' },
   },
 };
 

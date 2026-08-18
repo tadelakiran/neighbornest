@@ -26,6 +26,7 @@ com\neighbornest\auth\exception\TokenExpiredException.class
 com\neighbornest\auth\dto\response\ErrorResponse$ErrorResponseBuilder.class
 com\neighbornest\auth\dto\response\OtpSendResponse.class
 com\neighbornest\auth\constants\AppConstants.class
+com\neighbornest\auth\security\RestAuthenticationEntryPoint.class
 com\neighbornest\auth\dto\request\RefreshTokenRequest$RefreshTokenRequestBuilder.class
 com\neighbornest\auth\dto\request\ForgotPasswordRequest.class
 com\neighbornest\auth\dto\response\UserResponse.class

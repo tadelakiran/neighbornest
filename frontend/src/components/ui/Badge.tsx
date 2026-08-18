@@ -13,7 +13,7 @@ const VARIANTS: Record<BadgeVariant, string> = {
   success:
     'border-[var(--success)]/30 bg-[var(--success)]/10 text-[var(--success)] shadow-[var(--success-glow)]',
   info:
-    'border-[var(--accent-400)]/30 bg-[var(--accent-400)]/10 text-[var(--accent-300)] shadow-[var(--shadow-glow-sm)]',
+    'border-[var(--accent-400)]/30 bg-[var(--accent-400)]/10 text-[var(--accent-600)] shadow-[var(--shadow-glow-sm)]',
   warning:
     'border-[var(--warning)]/30 bg-[var(--warning)]/10 text-[var(--warning)] shadow-[var(--warning-glow)]',
   danger:

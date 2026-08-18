@@ -29,6 +29,9 @@ public class UserMatchDto {
 
     private String city;
 
+    /** Profile photo URL used to enrich compatibles/proposal members. */
+    private String profilePhotoUrl;
+
     @JsonProperty("work_type")
     private String workType;
 

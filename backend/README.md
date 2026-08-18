@@ -374,6 +374,16 @@ Build notes:
 
 ---
 
+## 🚀 Deployment (free cloud)
+
+See [`docs/DEPLOYMENT_FREE_CLOUD.md`](../docs/DEPLOYMENT_FREE_CLOUD.md) for the
+step-by-step $0 deployment: the whole backend runs on an Oracle Cloud Always
+Free ARM VM via `docker-compose.yml` + `docker-compose.prod.yml` (containerized
+MySQL + Caddy HTTPS), and the React frontend deploys to Vercel. Helper scripts
+live in `backend/deploy/` (`setup_vm.sh`, `deploy.sh`, `logs.sh`).
+
+---
+
 ## 🛠️ Tech Stack
 
 - **Java 17+**

@@ -61,6 +61,7 @@ public class UserProfileMapper {
                 .userId(profile.getId())
                 .fullName(profile.getFullName())
                 .city(profile.getCity())
+                .profilePhotoUrl(profile.getProfilePhotoUrl())
                 .workType(profile.getWorkType())
                 .personalityType(profile.getPersonalityType())
                 .schedulePreference(profile.getSchedulePreference())

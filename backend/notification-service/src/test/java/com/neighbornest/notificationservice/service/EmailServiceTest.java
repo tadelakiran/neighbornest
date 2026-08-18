@@ -77,14 +77,26 @@ class EmailServiceTest {
                     .andExpect(jsonPath("$.template_params.subject")
                             .value("Your NeighborNest verification code"))
                     .andExpect(jsonPath("$.template_params.otpCode").value("123456"))
+                    .andExpect(jsonPath("$.template_params.passcode").value("123456"))
                     .andExpect(jsonPath("$.template_params.expiryMinutes").value("10"))
+                    .andExpect(jsonPath("$.template_params.time").value("10 minutes"))
+                    .andExpect(jsonPath("$.template_params.appName").value("NeighborNest"))
+                    .andExpect(jsonPath("$.template_params.companyName").value("NeighborNest"))
+                    .andExpect(jsonPath("$.template_params.company_name").value("NeighborNest"))
+                    .andExpect(jsonPath("$.template_params.supportEmail").value("support@neighbornest.com"))
+                    .andExpect(jsonPath("$.template_params.support_email").value("support@neighbornest.com"))
                     .andRespond(withSuccess("OK", MediaType.TEXT_PLAIN));
 
             final Map<String, Object> variables = Map.of(
                     "otpCode", "123456",
+                    "passcode", "123456",
                     "expiryMinutes", 10,
+                    "time", "10 minutes",
                     "appName", "NeighborNest",
-                    "supportEmail", "support@neighbornest.com");
+                    "companyName", "NeighborNest",
+                    "company_name", "NeighborNest",
+                    "supportEmail", "support@neighbornest.com",
+                    "support_email", "support@neighbornest.com");
 
             final boolean ok = emailService.sendTemplate(
                     "jane@example.com",

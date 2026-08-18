@@ -19,7 +19,6 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { OtpInput } from '@/components/auth/OtpInput';
 import { AuthStepIndicator } from '@/components/auth/AuthStepIndicator';
-import { PasswordStrengthMeter } from '@/components/auth/PasswordStrengthMeter';
 import { useAuth } from '@/hooks/useAuth';
 import { useCountdown } from '@/hooks/useCountdown';
 import { useToast } from '@/hooks/useToast';
@@ -73,14 +72,11 @@ export function RegisterForm() {
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors, isSubmitting },
   } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: { fullName: '', email: '', password: '', confirmPassword: '' },
   });
-
-  const password = watch('password');
 
   /** Step 1 → 2: validate the form, then ask the email service for a code. */
   const onRequestCode = handleSubmit(async (values) => {
@@ -218,8 +214,6 @@ export function RegisterForm() {
                 }
                 {...register('password')}
               />
-
-              <PasswordStrengthMeter password={password} />
             </motion.div>
 
             <motion.div initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>

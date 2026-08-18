@@ -49,7 +49,7 @@ export function TagInput({
   return (
     <div className="w-full">
       {label && (
-        <span className="mb-2 block text-[10px] font-bold uppercase tracking-[0.15em] text-muted">
+        <span className="mb-2 block text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
           {label}
         </span>
       )}
@@ -72,7 +72,7 @@ export function TagInput({
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.6, opacity: 0 }}
               transition={{ type: 'spring', stiffness: 500, damping: 26 }}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-accent-400/20 bg-accent-400/10 py-1 pl-3 pr-1.5 text-xs font-semibold text-accent-300"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-accent-400/35 bg-accent-400/10 py-1 pl-3 pr-1.5 text-xs font-semibold text-accent-700"
             >
               {tag}
               <button
@@ -82,7 +82,7 @@ export function TagInput({
                   removeTag(tag);
                 }}
                 aria-label={`Remove ${tag}`}
-                className="rounded-md p-0.5 text-accent-400 transition-colors hover:bg-accent-400/20 hover:text-accent-200"
+                className="rounded-md p-0.5 text-accent-600 transition-colors hover:bg-accent-400/20 hover:text-accent-700"
               >
                 <X className="h-3 w-3" />
               </button>
@@ -105,13 +105,13 @@ export function TagInput({
 
         <span className={cn(
           'shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold',
-          value.length >= maxTags ? 'bg-royal-400/10 text-royal-400' : 'bg-surface text-muted'
+          value.length >= maxTags ? 'bg-royal-400/10 text-royal-700' : 'bg-surface text-muted'
         )}>
           {value.length}/{maxTags}
         </span>
       </div>
 
-      {hint && !error && <p className="mt-1.5 text-xs text-muted">{hint}</p>}
+      {hint && !error && <p className="mt-1.5 text-xs text-[var(--text-muted)]">{hint}</p>}
       <FieldError message={error} />
     </div>
   );

@@ -40,6 +40,9 @@ public class UserMatchResponse {
     @Schema(description = "Current city of the user", example = "San Francisco")
     private String city;
 
+    @Schema(description = "URL to the user's profile photo", example = "https://storage.example.com/photos/user1.jpg")
+    private String profilePhotoUrl;
+
     @Schema(description = "Employment type", example = "FULL_TIME")
     @JsonProperty("work_type")
     private WorkType workType;

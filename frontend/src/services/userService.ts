@@ -89,6 +89,26 @@ export const userService = {
     return mapProfileToUserProfile(data);
   },
 
+  /**
+   * POST /api/users/me/photo — uploads a profile photo (multipart).
+   *
+   * The backend validates the image (JPG/PNG/WEBP/GIF, max 5 MB), stores it,
+   * and returns the updated profile with `profile_photo_url` pointing at the
+   * served file (e.g. `/api/users/photo/<name>`).
+   *
+   * @param file - the image file to upload
+   * @returns the updated profile
+   */
+  async uploadPhoto(file: File): Promise<UserProfile> {
+    const formData = new FormData();
+    formData.append('file', file);
+    const { data } = await api.post<ProfileResponse>('/api/users/me/photo', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    invalidateCache('/api/users/me');
+    return mapProfileToUserProfile(data);
+  },
+
   /** POST /api/users/onboarding — stores answers and marks the user onboarded. */
   async submitOnboarding(payload: OnboardingSubmitRequest): Promise<UserProfile> {
     const { data } = await api.post<ProfileResponse>('/api/users/onboarding', payload);

@@ -63,7 +63,7 @@ export function StepPersonality({ data, onNext, onBack }: StepPersonalityProps) 
         {VALUE_QUESTIONS.map((question) => (
           <div
             key={question.key}
-            className="rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] p-4"
+            className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5"
           >
             <div className="flex items-baseline justify-between gap-4">
               <p className="text-sm font-medium text-[var(--text-primary)]">{question.prompt}</p>

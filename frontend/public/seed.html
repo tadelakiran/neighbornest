@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+  <head><title>seed</title></head>
+  <body>
+    <script>
+      localStorage.setItem(
+        'neighbornest.auth',
+        JSON.stringify({
+          state: {
+            user: {
+              id: 1,
+              fullName: 'Jane Doe',
+              role: 'NEWCOMER',
+              isOnboarded: true,
+              email: 'jane@example.com',
+              city: 'Austin',
+            },
+            isAuthenticated: true,
+          },
+          version: 0,
+        })
+      );
+      location.href = '/dashboard';
+    </script>
+  </body>
+</html>

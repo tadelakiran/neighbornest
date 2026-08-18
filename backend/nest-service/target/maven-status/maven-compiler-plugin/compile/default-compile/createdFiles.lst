@@ -15,8 +15,10 @@ com\neighbornest\nest\repository\NestRepository.class
 com\neighbornest\nest\exception\BadRequestException.class
 com\neighbornest\nest\repository\ExpenseRepository.class
 com\neighbornest\nest\dto\response\VibeCheckStatusResponse$VibeCheckStatusResponseBuilder.class
+com\neighbornest\nest\config\ApiResponseAdvice.class
 com\neighbornest\nest\entity\VibeCheck.class
 com\neighbornest\nest\repository\MeetingRepository.class
+com\neighbornest\nest\security\RestAuthenticationEntryPoint.class
 com\neighbornest\nest\exception\ResourceNotFoundException.class
 com\neighbornest\nest\event\NestEventPublisher.class
 com\neighbornest\nest\entity\Nest$NestBuilder.class
@@ -27,6 +29,7 @@ com\neighbornest\nest\entity\VibeCheck$VibeCheckBuilder.class
 com\neighbornest\nest\event\NestGraduatedEvent.class
 com\neighbornest\nest\dto\request\VibeCheckRequest.class
 com\neighbornest\nest\handler\GlobalExceptionHandler.class
+com\neighbornest\nest\dto\response\ApiResponse.class
 com\neighbornest\nest\dto\request\MeetingRequest$MeetingRequestBuilder.class
 com\neighbornest\nest\entity\ExpenseSplit.class
 com\neighbornest\nest\dto\response\MeetingResponse.class
@@ -66,6 +69,7 @@ com\neighbornest\nest\dto\response\ExpenseResponse.class
 com\neighbornest\nest\entity\Meeting$MeetingBuilder.class
 com\neighbornest\nest\entity\Meeting.class
 com\neighbornest\nest\entity\NestMember$NestMemberBuilder.class
+com\neighbornest\nest\config\CacheConfig.class
 com\neighbornest\nest\dto\request\ExpenseRequest.class
 com\neighbornest\nest\entity\Expense.class
 com\neighbornest\nest\security\AuthenticatedUser.class

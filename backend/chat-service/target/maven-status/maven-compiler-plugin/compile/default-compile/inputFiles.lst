@@ -6,6 +6,8 @@ C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\chat-servi
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\chat-service\src\main\java\com\neighbornest\chatservice\client\UserProfileResponse.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\chat-service\src\main\java\com\neighbornest\chatservice\client\UserServiceClient.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\chat-service\src\main\java\com\neighbornest\chatservice\client\UserServiceFallbackFactory.java
+C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\chat-service\src\main\java\com\neighbornest\chatservice\config\ApiResponseAdvice.java
+C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\chat-service\src\main\java\com\neighbornest\chatservice\config\CacheConfig.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\chat-service\src\main\java\com\neighbornest\chatservice\config\ChatServiceProperties.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\chat-service\src\main\java\com\neighbornest\chatservice\config\FeignClientConfig.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\chat-service\src\main\java\com\neighbornest\chatservice\config\OpenApiConfig.java
@@ -19,6 +21,7 @@ C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\chat-servi
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\chat-service\src\main\java\com\neighbornest\chatservice\dto\request\MarkReadRequest.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\chat-service\src\main\java\com\neighbornest\chatservice\dto\request\StartConversationRequest.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\chat-service\src\main\java\com\neighbornest\chatservice\dto\request\TypingEventPayload.java
+C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\chat-service\src\main\java\com\neighbornest\chatservice\dto\response\ApiResponse.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\chat-service\src\main\java\com\neighbornest\chatservice\dto\response\ConversationResponse.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\chat-service\src\main\java\com\neighbornest\chatservice\dto\response\ErrorResponse.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\chat-service\src\main\java\com\neighbornest\chatservice\dto\response\MarkReadResponse.java
@@ -47,6 +50,7 @@ C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\chat-servi
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\chat-service\src\main\java\com\neighbornest\chatservice\security\JwtAuthenticationFilter.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\chat-service\src\main\java\com\neighbornest\chatservice\security\JwtChannelInterceptor.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\chat-service\src\main\java\com\neighbornest\chatservice\security\JwtService.java
+C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\chat-service\src\main\java\com\neighbornest\chatservice\security\RestAuthenticationEntryPoint.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\chat-service\src\main\java\com\neighbornest\chatservice\service\ChatMessageService.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\chat-service\src\main\java\com\neighbornest\chatservice\service\ConversationService.java
 C:\Users\sai kiran\Desktop\Student Tribe\project\neighbornest\backend\chat-service\src\main\java\com\neighbornest\chatservice\service\MarkReadResult.java

@@ -4,6 +4,7 @@ import com.neighbornest.matching.client.NestServiceClient;
 import com.neighbornest.matching.client.UserServiceClient;
 import com.neighbornest.matching.client.dto.CreateNestRequest;
 import com.neighbornest.matching.client.dto.NestResponseDto;
+import com.neighbornest.matching.client.dto.UserMatchDto;
 import com.neighbornest.matching.config.MatchingProperties;
 import com.neighbornest.matching.constants.AppConstants;
 import com.neighbornest.matching.dto.request.ProposalCreateRequest;
@@ -24,13 +25,17 @@ import com.neighbornest.matching.repository.MatchProposalMemberRepository;
 import com.neighbornest.matching.repository.MatchProposalRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -63,6 +68,7 @@ public class MatchProposalService {
      * @return the created proposal
      */
     @Transactional
+    @CacheEvict(value = "pendingProposals", allEntries = true)
     public MatchProposalResponse createProposal(final ProposalCreateRequest request) {
         log.info("Creating proposal for {} users", request.getUserIds().size());
 
@@ -106,6 +112,7 @@ public class MatchProposalService {
      * @return the updated proposal
      */
     @Transactional
+    @CacheEvict(value = "pendingProposals", allEntries = true)
     public MatchProposalResponse respond(final Long proposalId, final Long userId, final boolean accept) {
         log.info("User {} responding {} to proposal {}", userId, accept ? "accept" : "decline", proposalId);
 
@@ -144,6 +151,7 @@ public class MatchProposalService {
      * @return the list of pending proposals
      */
     @Transactional(readOnly = true)
+    @Cacheable(value = "pendingProposals", key = "#userId")
     public List<MatchProposalResponse> getPendingProposals(final Long userId) {
         log.debug("Fetching pending proposals for user: {}", userId);
 
@@ -170,6 +178,7 @@ public class MatchProposalService {
      * @return the execution result including the Nest ID
      */
     @Transactional
+    @CacheEvict(value = "pendingProposals", allEntries = true)
     public ProposalExecutionResponse execute(final Long proposalId) {
         return executeProposal(proposalId);
     }
@@ -312,6 +321,11 @@ public class MatchProposalService {
      * @return the response DTO
      */
     private MatchProposalResponse toResponse(final MatchProposal proposal, final List<MatchProposalMember> members) {
+        // Batch-fetch profile summaries in ONE call so member names/photos are
+        // enriched without an N+1 of profile lookups. Degrades to null names
+        // when the user-service is unreachable.
+        final Map<Long, UserMatchDto> profilesById = fetchProfilesById();
+
         return MatchProposalResponse.builder()
                 .id(proposal.getId())
                 .status(proposal.getStatus())
@@ -319,22 +333,51 @@ public class MatchProposalService {
                 .expiresAt(proposal.getExpiresAt())
                 .acceptedAt(proposal.getAcceptedAt())
                 .nestId(proposal.getNestId())
-                .members(members.stream().map(this::toMemberResponse).toList())
+                .members(members.stream().map(member -> toMemberResponse(member, profilesById)).toList())
                 .build();
     }
 
     /**
-     * Maps a proposal member entity to its response DTO.
+     * Maps a proposal member entity to its response DTO, enriching the
+     * display name and photo from the user-service profile feed.
      *
-     * @param member the member entity
+     * @param member       the member entity
+     * @param profilesById map of user ID to profile summary
      * @return the response DTO
      */
-    private ProposalMemberResponse toMemberResponse(final MatchProposalMember member) {
+    private ProposalMemberResponse toMemberResponse(final MatchProposalMember member,
+                                                    final Map<Long, UserMatchDto> profilesById) {
+        final UserMatchDto profile = profilesById.get(member.getUserId());
+
         return ProposalMemberResponse.builder()
                 .userId(member.getUserId())
+                .fullName(profile != null ? profile.getFullName() : null)
+                .profilePhotoUrl(profile != null ? profile.getProfilePhotoUrl() : null)
                 .roleInNest(member.getRoleInNest())
                 .response(member.getResponse())
                 .respondedAt(member.getRespondedAt())
                 .build();
+    }
+
+    /**
+     * Fetches all match-ready profiles and indexes them by user ID for name
+     * and photo enrichment. Returns an empty map when the user-service is
+     * unreachable so proposal responses degrade gracefully.
+     *
+     * @return map of user ID to profile summary
+     */
+    private Map<Long, UserMatchDto> fetchProfilesById() {
+        final List<UserMatchDto> eligible;
+        try {
+            eligible = userServiceClient.getReadyForMatch();
+        } catch (final RuntimeException e) {
+            log.warn("Could not fetch profiles for proposal enrichment: {}", e.getMessage());
+            return Map.of();
+        }
+        if (eligible == null) {
+            return Map.of();
+        }
+        return eligible.stream()
+                .collect(Collectors.toMap(UserMatchDto::getUserId, Function.identity(), (a, b) -> a));
     }
 }

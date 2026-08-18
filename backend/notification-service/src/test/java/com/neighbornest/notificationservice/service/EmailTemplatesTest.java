@@ -38,9 +38,14 @@ class EmailTemplatesTest {
 
     private static final Map<String, Object> OTP_VARIABLES = Map.of(
             "otpCode", "482913",
+            "passcode", "482913",
             "expiryMinutes", 10L,
+            "time", "10 minutes",
             "appName", "NeighborNest",
-            "supportEmail", "support@neighbornest.com");
+            "companyName", "NeighborNest",
+            "company_name", "NeighborNest",
+            "supportEmail", "support@neighbornest.com",
+            "support_email", "support@neighbornest.com");
 
     private static final Map<String, Object> WELCOME_VARIABLES = Map.of(
             "fullName", "Jane Doe",
@@ -81,9 +86,10 @@ class EmailTemplatesTest {
         assertThat(html)
                 .contains("Verify your email")
                 .contains("482913")
-                .contains("expires in")
-                .contains("10")
-                .contains("NeighborNest");
+                .contains("expire in")
+                .contains("10 minutes")
+                .contains("NeighborNest")
+                .contains("Never share your verification code with anyone");
         assertThat(html).doesNotContain("${");
         // Plain-text fallback must keep the code readable.
         assertThat(text)
@@ -100,8 +106,9 @@ class EmailTemplatesTest {
         assertThat(html)
                 .contains("Reset your password")
                 .contains("482913")
-                .contains("expires in")
-                .contains("NeighborNest");
+                .contains("expire in")
+                .contains("NeighborNest")
+                .contains("Never share your verification code with anyone");
         assertThat(html).doesNotContain("${");
         assertThat(text).contains("482913").doesNotContain("<");
     }
@@ -133,15 +140,20 @@ class EmailTemplatesTest {
         // deliberately odd values and asserting they appear.
         final Map<String, Object> odd = Map.of(
                 "otpCode", "111111",
+                "passcode", "111111",
                 "expiryMinutes", 42L,
+                "time", "42 minutes",
                 "appName", "TestBrand",
-                "supportEmail", "test@example.com");
+                "companyName", "TestBrand",
+                "company_name", "TestBrand",
+                "supportEmail", "test@example.com",
+                "support_email", "test@example.com");
 
         final String html = templateService.renderHtml("otp-verification", odd);
 
         assertThat(html)
                 .contains("111111")
-                .contains("42")
+                .contains("42 minutes")
                 .contains("TestBrand")
                 .contains("test@example.com");
     }

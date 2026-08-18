@@ -19,6 +19,9 @@ import com.neighbornest.user.repository.UserProfileRepository;
 import com.neighbornest.user.util.UserProfileMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -67,6 +70,10 @@ public class UserProfileService {
      * @throws DuplicateProfileException if a profile already exists for the user
      */
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "readyForMatch", allEntries = true),
+            @CacheEvict(value = "onboardingStatus", key = "#authUserId")
+    })
     public ProfileResponse createProfile(final Long authUserId, final String token, final ProfileCreateRequest request) {
         log.info("Creating profile for authUserId: {}", authUserId);
 
@@ -102,6 +109,7 @@ public class UserProfileService {
      * @throws ResourceNotFoundException if no profile exists for the user
      */
     @Transactional(readOnly = true)
+    @Cacheable(value = "userProfiles", key = "#authUserId")
     public ProfileResponse getCurrentProfile(final Long authUserId) {
         final UserProfile profile = findProfileByAuthUserId(authUserId);
         return toResponseWithAnswers(profile);
@@ -115,6 +123,12 @@ public class UserProfileService {
      * @return the updated profile as a {@link ProfileResponse}
      */
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "userProfiles", key = "#authUserId"),
+            @CacheEvict(value = "onboardingStatus", key = "#authUserId"),
+            @CacheEvict(value = "publicProfiles", allEntries = true),
+            @CacheEvict(value = "readyForMatch", allEntries = true)
+    })
     public ProfileResponse updateProfile(final Long authUserId, final ProfileUpdateRequest request) {
         final UserProfile profile = findProfileByAuthUserId(authUserId);
         applyUpdates(profile, request);
@@ -131,6 +145,12 @@ public class UserProfileService {
      * @throws ResourceNotFoundException if no profile exists for the user
      */
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "userProfiles", key = "#authUserId"),
+            @CacheEvict(value = "onboardingStatus", key = "#authUserId"),
+            @CacheEvict(value = "publicProfiles", allEntries = true),
+            @CacheEvict(value = "readyForMatch", allEntries = true)
+    })
     public void deleteProfile(final Long authUserId) {
         final UserProfile profile = findProfileByAuthUserId(authUserId);
 
@@ -153,6 +173,10 @@ public class UserProfileService {
      * @throws ResourceNotFoundException if no profile exists for the user
      */
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "userProfiles", key = "#authUserId"),
+            @CacheEvict(value = "publicProfiles", allEntries = true)
+    })
     public ProfileResponse uploadProfilePhoto(final Long authUserId, final MultipartFile file) {
         final UserProfile profile = findProfileByAuthUserId(authUserId);
 
@@ -189,6 +213,7 @@ public class UserProfileService {
      * @throws ResourceNotFoundException if the profile does not exist
      */
     @Transactional(readOnly = true)
+    @Cacheable(value = "publicProfiles", key = "#profileId")
     public ProfileResponse getPublicProfile(final Long profileId) {
         final UserProfile profile = userProfileRepository.findById(profileId)
                 .orElseThrow(() -> new ResourceNotFoundException("Profile not found with id: " + profileId));
@@ -202,6 +227,7 @@ public class UserProfileService {
      * @return the onboarding status DTO
      */
     @Transactional(readOnly = true)
+    @Cacheable(value = "onboardingStatus", key = "#authUserId")
     public OnboardingStatusResponse getOnboardingStatus(final Long authUserId) {
         final UserProfile profile = findProfileByAuthUserId(authUserId);
         final long answerCount = onboardingAnswerRepository.countByUserProfileId(profile.getId());
@@ -218,6 +244,7 @@ public class UserProfileService {
      * @return list of {@link UserMatchResponse} DTOs
      */
     @Transactional(readOnly = true)
+    @Cacheable(value = "readyForMatch")
     public List<UserMatchResponse> getReadyForMatch() {
         final List<UserProfile> profiles = userProfileRepository.findAllReadyForMatch();
         if (profiles.isEmpty()) {
