@@ -1,17 +1,78 @@
-# Build artifacts
+# ==============================================================================
+# NeighborNest — Docker build-context exclusions
+# ==============================================================================
+# This file is referenced by every service's Dockerfile (build context = backend/).
+# It must NOT exclude any POM file needed by the Maven multi-module reactor.
+# ==============================================================================
+
+# ── Build artifacts (should never be in the build context) ────────────────────
 **/target/
 
-# IDE files
+# ── IDE / editor files ───────────────────────────────────────────────────────
 .idea/
 *.iml
 .vscode/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
 
-# OS files
+# ── OS files ──────────────────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
+Desktop.ini
 
-# Logs & misc
-*.log
-
-# Local secrets
+# ── Local secrets ─────────────────────────────────────────────────────────────
 .env
+.env.*
+!.env.example
+
+# ── Logs ──────────────────────────────────────────────────────────────────────
+logs/
+*.log
+nohup.out
+
+# ── Documentation (not needed for compilation) ───────────────────────────────
+*.md
+docs/
+LICENSE
+
+# ── Docker & Compose files (not needed inside the build context) ─────────────
+Dockerfile*
+docker-compose*.yml
+
+# ── Deploy scripts & infrastructure config (not needed for Java build) ───────
+deploy/
+scripts/
+render.yaml
+
+# ── Frontend (must not leak into backend Docker builds) ───────────────────────
+# NOTE: frontend/ lives in the repo root, outside backend/, but Railway
+#       builds use the /backend context so this is a safety net.
+
+# ── Vite / Node caches ───────────────────────────────────────────────────────
+.vite/
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# ── Archives / compressed files ───────────────────────────────────────────────
+*.zip
+*.tar
+*.tar.gz
+*.gz
+*.rar
+*.7z
+
+# ── Git (not needed for Maven build) ────────────────────────────────────────
+.git/
+.github/
+.gitignore
+
+# ── Misc ──────────────────────────────────────────────────────────────────────
+.factorypath
+bin/
+out/

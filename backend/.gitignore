@@ -1,3 +1,47 @@
-# Local secrets - never commit real credentials
+# ── Build artifacts ───────────────────────────────────────────────────────────
+target/
+**/target/
+
+# ── Local secrets — never commit real credentials ─────────────────────────────
 .env
 .env.prod
+.env.local
+
+# ── IDE files ─────────────────────────────────────────────────────────────────
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+*~
+
+# ── OS files ──────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ── Logs ──────────────────────────────────────────────────────────────────────
+logs/
+*.log
+nohup.out
+
+# ── Maven wrapper (if not using) ──────────────────────────────────────────────
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# ── Package files ─────────────────────────────────────────────────────────────
+*.jar
+*.war
+*.ear
+*.zip
+*.tar
+*.gz
+
+# ── Generated files ───────────────────────────────────────────────────────────
+.factorypath
+.project
+.classpath
+.settings/
+bin/
+out/

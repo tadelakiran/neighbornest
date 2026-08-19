@@ -1,7 +1,8 @@
+# ── Build stage ───────────────────────────────────────────────────────────────
 FROM maven:3.9-eclipse-temurin-17 AS build
 WORKDIR /build
 
-# Maven multi-module reactor needs ALL module POMs + parent POM
+# 1) Copy ONLY POM files first — this layer is cached unless a POM changes.
 COPY pom.xml .
 COPY eureka-service/pom.xml eureka-service/pom.xml
 COPY api-gateway/pom.xml api-gateway/pom.xml
@@ -12,10 +13,14 @@ COPY nest-service/pom.xml nest-service/pom.xml
 COPY chat-service/pom.xml chat-service/pom.xml
 COPY notification-service/pom.xml notification-service/pom.xml
 
-# Copy source and build only this service
+# 2) Resolve all dependencies (cached layer).
+RUN mvn dependency:go-offline -B -pl nest-service -am
+
+# 3) Copy source code and build.
 COPY nest-service/src nest-service/src
 RUN mvn -pl nest-service clean package -DskipTests -B
 
+# ── Runtime stage ─────────────────────────────────────────────────────────────
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 COPY --from=build /build/nest-service/target/nest-service.jar app.jar

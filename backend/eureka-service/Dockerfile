@@ -1,7 +1,9 @@
+# ── Build stage ───────────────────────────────────────────────────────────────
 FROM maven:3.9-eclipse-temurin-17 AS build
 WORKDIR /build
 
-# Maven multi-module reactor needs ALL module POMs + parent POM
+# 1) Copy ONLY POM files first — this layer is cached unless a POM changes,
+#    so the expensive `mvn dependency:go-offline` step rarely reruns.
 COPY pom.xml .
 COPY eureka-service/pom.xml eureka-service/pom.xml
 COPY api-gateway/pom.xml api-gateway/pom.xml
@@ -12,10 +14,14 @@ COPY nest-service/pom.xml nest-service/pom.xml
 COPY chat-service/pom.xml chat-service/pom.xml
 COPY notification-service/pom.xml notification-service/pom.xml
 
-# Copy source and build only this service
+# 2) Resolve all dependencies (cached layer — only rebuilds when POMs change).
+RUN mvn dependency:go-offline -B -pl eureka-service -am
+
+# 3) Copy source code and build.
 COPY eureka-service/src eureka-service/src
 RUN mvn -pl eureka-service clean package -DskipTests -B
 
+# ── Runtime stage ─────────────────────────────────────────────────────────────
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 COPY --from=build /build/eureka-service/target/eureka-service.jar app.jar
